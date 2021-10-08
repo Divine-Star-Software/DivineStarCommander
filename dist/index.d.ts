@@ -8,7 +8,7 @@ declare type MessageTypes = "Blink" | "Error" | "Title" | "Info" | "Good" | "War
   @since 9-19-2021
   @version 0.0.1
   */
-export declare class DSLogger {
+declare class DSLogger {
     private rdl;
     strings: Record<string, string>;
     splash: Function;
@@ -78,4 +78,4 @@ declare class ServiceBar {
     _Cap(): void;
     _Bar(): void;
 }
-export {};
+
