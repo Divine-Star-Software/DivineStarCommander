@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DSLogger = void 0;
 /**
   # DSLogger
   ---
@@ -10,7 +7,7 @@ exports.DSLogger = void 0;
   @since 9-19-2021
   @version 0.0.1
   */
-class DSLogger {
+export class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
         //strings
@@ -206,7 +203,6 @@ class DSLogger {
         return this.strings[id];
     }
 }
-exports.DSLogger = DSLogger;
 class LoadingBar {
     constructor(rdl, row, size) {
         this.rdl = rdl;
