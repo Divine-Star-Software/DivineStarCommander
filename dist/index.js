@@ -1,15 +1,3 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DSLogger = void 0;
 /**
   # DSLogger
   ---
@@ -19,7 +7,7 @@ exports.DSLogger = void 0;
   @since 9-19-2021
   @version 0.0.1
   */
-class DSLogger {
+export class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
         //strings
@@ -89,11 +77,9 @@ class DSLogger {
         this.progressBars[name] = bar;
         return this;
     }
-    incrementProgressBar(name, amount) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.progressBars[name].addProgressPerfect(amount);
-            return this;
-        });
+    async incrementProgressBar(name, amount) {
+        await this.progressBars[name].addProgressPerfect(amount);
+        return this;
     }
     sleep(ms) {
         var waitTill = new Date(new Date().getTime() + ms);
@@ -217,7 +203,6 @@ class DSLogger {
         return this.strings[id];
     }
 }
-exports.DSLogger = DSLogger;
 class LoadingBar {
     constructor(rdl, row, size) {
         this.rdl = rdl;
