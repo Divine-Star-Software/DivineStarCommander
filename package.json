@@ -1,0 +1,21 @@
+{
+  "name": "dslog",
+  "version": "0.0.1",
+  "description": "Makes it easy to print things to the console. ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "log",
+    "logger",
+    "console"
+  ],
+  "author": "Divine Star LLC",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^16.6.1",
+    "tslib": "^2.2.0",
+    "typescript": "^4.3.5"
+  }
+}
