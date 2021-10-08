@@ -1,6 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DSLogger = void 0;
 /**
   # DSLogger
   ---
@@ -206,7 +204,6 @@ class DSLogger {
         return this.strings[id];
     }
 }
-exports.DSLogger = DSLogger;
 class LoadingBar {
     constructor(rdl, row, size) {
         this.rdl = rdl;
@@ -338,3 +335,6 @@ class ServiceBar {
         process.stdout.write("\x1b[37m\x1b[44m|\x1b[0m");
     }
 }
+const rdl = require("readline");
+const DS = new DSLogger(rdl);
+module.exports = DS;

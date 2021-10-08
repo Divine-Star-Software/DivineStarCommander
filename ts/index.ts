@@ -17,7 +17,7 @@ type MessageTypes =
   @since 9-19-2021
   @version 0.0.1
   */
-export class DSLogger {
+ class DSLogger {
   //strings
   strings: Record<string, string> = {
     title: "[ Divine Star Logger ]",
@@ -386,3 +386,7 @@ class ServiceBar {
     process.stdout.write("\x1b[37m\x1b[44m|\x1b[0m");
   }
 }
+
+const rdl = require("readline");
+const DS = new DSLogger(rdl);
+module.exports = DS;
