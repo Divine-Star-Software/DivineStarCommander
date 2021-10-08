@@ -13,8 +13,7 @@
 A simple way to log output for a command line program. 
 
 ```typescript
-const rdl = require("readline");
-const dsLog = new DSLogger(rdl);
+const dsLog : DSLogger = require("dslog");
 
 (async () => {
   const splash = () => {
