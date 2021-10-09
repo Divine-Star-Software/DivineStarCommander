@@ -34,9 +34,132 @@ class DSLogger {
         this.splash = () => { };
         this.ProgressBar = LoadingBar;
         this.ServiceBar = ServiceBar;
+        this.inputs = new Map();
+        this.askedQuestions = 0;
+        this.questions = {};
         this.currentRow = 0;
         this.progressBars = {};
         this.serviceBars = {};
+        this.validators = {
+            number: (input) => {
+                const reg = /^\d+$/;
+                return reg.test(input);
+            },
+            digit: (input) => {
+                const reg = /^[0-9]$/;
+                return reg.test(input);
+            },
+            string: (input) => {
+                const reg = /^[a-zA-Z]+$/;
+                return reg.test(input);
+            },
+            email: (input) => {
+                const reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return reg.test(input);
+            },
+            password: (input) => {
+                return true;
+            },
+            stringall: (input) => {
+                return true;
+            },
+        };
+    }
+    restartPrompt() {
+        this.questions = {};
+        this.inputs = new Map();
+        return this;
+    }
+    async startPrompt() {
+        this.rli = rdl.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        });
+        for (const q of Object.keys(this.questions)) {
+            await this._prompt(q, this.questions[q].varName, this.questions[q].varType);
+        }
+        this.rli.close();
+        return this;
+    }
+    _prompt(question, varName, varType) {
+        let passed = true;
+        let gotinput = false;
+        let asked = false;
+        const prom = new Promise((resolve) => {
+            if (varType == "password") {
+                const stdin = process.openStdin();
+                const listener = (char) => {
+                    char = char + "";
+                    switch (char) {
+                        case "\n":
+                        case "\r":
+                        case "\u0004":
+                            stdin.removeListener("data", listener);
+                        default:
+                            process.stdout.clearLine(1);
+                            this.rdl.cursorTo(process.stdout, 0);
+                            process.stdout.write(question + Array(this.rli.line.length + 1).join("*"));
+                            break;
+                    }
+                };
+                process.stdin.on("data", listener);
+            }
+            else {
+                process.stdin.on("data", (char) => { });
+            }
+            let inte;
+            const go = () => {
+                if (passed && gotinput) {
+                    resolve(true);
+                    clearInterval(inte);
+                }
+                else if (asked) {
+                }
+                else {
+                    asked = true;
+                    this.rli.question(question, (input) => {
+                        this.currentRow += this._countLines(question);
+                        this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+                        (async () => {
+                            asked = true;
+                            gotinput = true;
+                            if (!this.validators[varType](input)) {
+                                passed = false;
+                                gotinput = false;
+                                asked = false;
+                                question = "Please re-enter:";
+                            }
+                            else {
+                                passed = true;
+                            }
+                            if (passed) {
+                                this.inputs.set(varName, input);
+                                resolve(passed);
+                            }
+                        })();
+                    });
+                }
+            };
+            go();
+            inte = setInterval(() => {
+                go();
+            }, 100);
+        });
+        return prom;
+    }
+    ask(question, varName, varType) {
+        this.askedQuestions++;
+        this.inputs.set(varName, undefined);
+        question =
+            this._addColor("Info", question) + this._addColor("Good", ":") + " ";
+        this.questions[question] = {
+            varName: varName,
+            varType: varType,
+        };
+        return this;
+    }
+    getInput(varName) {
+        return this.inputs.get(varName);
     }
     clearRows(rowStart, rowEnd) {
         while (rowStart < rowEnd) {
@@ -189,7 +312,7 @@ class DSLogger {
         return this;
     }
     defineProgramTitle(title) {
-        this.strings['title'] = title;
+        this.strings["title"] = title;
         return this;
     }
     defineSplashScreen(func) {

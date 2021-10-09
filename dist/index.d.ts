@@ -7,6 +7,13 @@ declare type MessageTypes =
   | "Warning"
   | "Raw"
   | "Data";
+  type QuestionsTypes =
+  | "string"
+  | "number"
+  | "digit"
+  | "email"
+  | "password"
+  | "stringall";
 /**
   # DSLogger
   ---
@@ -26,6 +33,31 @@ declare class DSLogger {
   progressBars: Record<string, LoadingBar>;
   serviceBars: Record<string, ServiceBar>;
   constructor(rdl: any);
+
+  /**# Start Prompt
+   * ---
+   * Starts user input prompt.
+   */
+  startPrompt(): Promise<this>;
+  /**# Restart Prompt
+   * ---
+   * Restarat user input prompt.
+   */
+  restartPrompt(): Promise<this>;
+  /**# Ask
+   * ---
+   * Define a question to be asked by the pormpt
+   * @param question 
+   * @param varName 
+   * @param varType 
+   */
+  ask(question: string, varName: string, varType: QuestionsTypes);
+  /**# Get Input
+   * ---
+   * Get input from question
+   * @param varName 
+   */
+  getInput(varName: string): string | number | undefined
   /**# Clear Rows
    * ---
    * Clears console output for a given row range.
