@@ -152,9 +152,9 @@ type MessageTypes =
     return this;
   }
 
-  showSleep(message: any, type: MessageTypes, sleep: number = 800) {
+  showSleep(message: any, type: MessageTypes, ms: number = 800) {
     this.show(message, type);
-    this.sleep(sleep);
+    this.sleep(ms);
     return this;
   }
 

@@ -124,9 +124,9 @@ class DSLogger {
         console.log(output);
         return this;
     }
-    showSleep(message, type, sleep = 800) {
+    showSleep(message, type, ms = 800) {
         this.show(message, type);
-        this.sleep(sleep);
+        this.sleep(ms);
         return this;
     }
     _addColor(type, message) {
