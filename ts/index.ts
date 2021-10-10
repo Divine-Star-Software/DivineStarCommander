@@ -16,9 +16,7 @@ type ConsoleColors =
 | "Blue"
 | "Magenta"
 | "Cyan"
-| "White"
-;
-
+| "White";
 type DisplayScreens = "programInitError" | "helpScreen";
 type MessageTypes =
   | "Blink"
@@ -385,6 +383,11 @@ class DSLogger {
     return this;
   }
 
+
+
+
+
+
   restartPrompt() {
     this.questions = {};
     this.inputs = new Map();
@@ -521,6 +524,8 @@ class DSLogger {
     this.currentRow++;
     return this;
   }
+
+
   newServiceBar(name: string) {
     const bar = new this.ServiceBar(this.rdl, this.currentRow, 31, 0, 80);
     this.currentRow++;
@@ -529,6 +534,15 @@ class DSLogger {
   }
   reInitServiceBar(name: string) {
     this.serviceBars[name].reInit();
+    return this;
+  }
+  destroyServiceBar(name : string){
+    const bar = this.serviceBars[name];
+    const row = bar.rows;
+    bar.clear();
+    this.clearRows(row,row);
+    (this as any).serviceBars[name] = null;
+    delete this.serviceBars[name];
     return this;
   }
 

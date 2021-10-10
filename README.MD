@@ -22,19 +22,19 @@
 
 ## What Is It?
 
-A simple way to log output for a command line program. It is written in typescript.
-It can be used as a node module or you can just download the class itself and use it.
+A tool for making command lines tools with TypeScript or Javascript using Node.Js. It handles command line args, user input, help screen,
+colored messages, progress bars, and so on. 
 
 ## Why?
 
-To make an easy chainable way to display command line output using modern typescript.
+To make an easy chainable way to create a CLI fast. 
 
 ### Example
 
 ```typescript
-const dsLog: DSLogger = require("dslog");
-
+const dsLog : DSLogger = require("../../dist/index.js");
 (async () => {
+  //define program splash screen
   const splash = () => {
     dsLog
       .newScreen()
@@ -43,33 +43,82 @@ const dsLog: DSLogger = require("dslog");
       .sleep(500);
   };
   dsLog
-    .defineProgramTitle("[ DS LOGGER test ]")
+    //Define the program 
     .defineSplashScreen(splash)
+    .defineProgramTitle("[ DS TESTING ]")
+    .defineHelpText("This is an easy command line tool.")
+    //Add command line args
+    .addParam({
+      flag: "a",
+      name: "auto",
+      desc: "Auto parse",
+      type: "boolean",
+      required: false,
+      valueNeeded: true,
+    })
+    .addParam({
+      flag: "b",
+      name: "batch",
+      desc: "Auto batch",
+      type: "string",
+      required: false,
+      valueNeeded: true,
+    })
+    .addParam({
+      flag: "c",
+      name: "cache",
+      desc: "Auto cache",
+      type: "number",
+      required: false,
+      valueNeeded: false,
+    })
+    .newScreen()
+    //Get command line args
+    .initProgramInput()
+    //Check if they are set
+    .ifParamIsset("a", (value: any, args: any) => {
+      dsLog.showSleep(value, "Info");
+    })
+    .ifParamIsset("b", (value: any, args: any) => {
+      dsLog.showSleep(value, "Info");
+    })
+    .ifParamIsset("c", (value: any, args: any) => {
+      dsLog.showSleep(value, "Info");
+    })
+    .newScreen()
+    .show(dsLog.getParam("a"), "Raw")
+    .show(dsLog.getParam("b"), "Raw")
+    .show(dsLog.getParam("c"), "Raw")
+    .sleep(1000)
+    //Start a new screen
     .splashScreen()
     .showSleep("BLINK", "Blink")
     .showSleep("Some Info", "Info")
     .showSleep("Everything is fine", "Good")
     .showSleep("Everything is not fine.", "Error")
     .showSleep("Something may be wrong", "Warning")
+    .newScreen()
+    //Add a progress and service bar
     .newProgressBar("test");
   await dsLog.incrementProgressBar("test", 100);
-
   dsLog.newServiceBar("test");
-
-  (await dsLog.asyncSleep(3000)).newScreen().show("All good.", "Raw");
-
-  dsLog
+  (await dsLog.asyncSleep(3000))
+  .destroyServiceBar("test")
+  .newScreen()
+    .showSleep("All good.", "Raw")
     .newScreen()
+    //Get users input
+    .show("Starting user input", "Info")
     .ask("enter name ", "name", "string")
     .ask("enter num ", "num", "number");
-  await dsLog.startPrompt();
-
-  dsLog
+  (await dsLog.startPrompt())
+  .showSleep(dsLog.getInput("name"), "Info")
     .restartPrompt()
-    .ask("enter email ", "name1", "email")
+    .ask("enter email ", "email", "email")
     .ask("enter password ", "pass", "password")
     .ask("enter comment ", "comment", "string");
-  await dsLog.startPrompt();
+  (await dsLog.startPrompt())
+  .showSleep(dsLog.getInput("comment"), "Info")
 })();
 ```
 
@@ -79,7 +128,47 @@ If you use this as a node module it will auto require "readline" which is built 
 
 If you need to access readline later you can grab it from the dslog object.
 
-## Message Types
+## Functions And Types
+### Program Params
+> **Param Types**
+
+| Type          | Description                                         |
+| ------------- | --------------------------------------------------- |
+| **string**    | Just chars.                                         |
+| **stringall** | A string of chars and numbers.                      |
+| **string**    | Just numbers.                                         |
+| **boolean**   | Can be left blank for true or user can input "true"/"false"|
+
+> **Param Object**
+
+| Type          | Description                                         |
+| ------------- | --------------------------------------------------- |
+| **flag**      | Flag for cli to look for. Must be a single char. It look for your flag with "-" appended.|
+| **name**      | Name for cli to look for. Must be a single char. It look for your flag with "--" appended.|
+| **desc**      | Description used for help screen.|
+| **type**      | The type of param. Must be ParamType.|
+| **required**  | Default is false. If set to true the prgram will show an error if this param is not set. |
+| **valueNeeded** | Default is false. If set to true the user must enter a value for a flag if used. Otherwise the param is set to a blank string for numbers. For boolean it is auto set to true. And finally for numbers it will default to 0.|
+> **Functions**
+
+| Function          | Params                                                                   | Returns                       | Description                    |
+| ----------------- | ------------------------------------------------------------------------ | ----------------------------- | ------------------------------ |
+| **addParam**      | param : ParamObject                                                      | self                          | Adds a param to the program.   |
+| **getParam**      | getParam : string                                                        | self                          | Get a users input for a param. |
+| **ifParamIsset**  | **param** : string, **func** : (**value**:any,**args**:any)=>{} ,**args** : any | self  | If a param is set run a function that will be passed the value and any args you give as the arg object.  |
+| **initProgramInput**| none                                                                   | self | Parse the users input. Must be called in order for the param functions to work. |
+
+### Show and Log Functions
+> **Functions**
+
+| Function          | Params                                                                   | Returns                       | Description                    |
+| ----------------- | ------------------------------------------------------------------------ | ----------------------------- | ------------------------------ |
+| **startPrompt**   | none                                                                     | Promise of self               | Starts the user input prompt.  |
+| **restartPrompt** | none                                                                     | self                          | Re-sets the user input prompt. |
+| **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes | self                          |                                |
+| **getInput**      | none                                                                     | string or number or undefined | Get input from question        |
+### Show and Log Functions
+> **Message Types**
 
 | Type        | Description                                                                          |
 | ----------- | ------------------------------------------------------------------------------------ |
@@ -92,12 +181,10 @@ If you need to access readline later you can grab it from the dslog object.
 | **Data**    | Message sent as JSON object. Will be convereted to string and shown without styling. |
 | **Blink**   | Message with blink style.                                                            |
 
-## Functions
+> **Functions**
 
-### Show and Log Functions
-
-| Function            | Params                                                         | Returns | Description                                                                      |
-| ------------------- | -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| Function            | Params                                                         | Returns | Description |
+| ------------------- | -------------------------------------------------------------- | ------- | ------------|
 | **show**            | **message** : string, **type** : MessageType                   | self    | Logs message at current row.                                                     |
 | **showSleep**       | **message** : string, **type** : MessageType, **ms** : number  | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
 | **showAt**          | **message** : string, **type** : MessageType, **row** : number | self    | Logs message at given row.                                                       |
@@ -105,8 +192,8 @@ If you need to access readline later you can grab it from the dslog object.
 | **logSeperator**    | none                                                           | self    | Logs the program defined seperator at the current row with the given info style. |
 | **splashScreen**    | none                                                           | self    | Logs the program defined splashscreen at the current row.                        |
 | **newScreen**       | none                                                           | self    | Clears the screen and resets the console log row.                                |
-
-### Question Types
+### User Input Function
+>  **Question Types**
 
 | Type          | Description                                         |
 | ------------- | --------------------------------------------------- |
@@ -117,7 +204,7 @@ If you need to access readline later you can grab it from the dslog object.
 | **email**     | An email.                                           |
 | **password**  | String of chars and numbers. Output will be hidden. |
 
-### User Input Function
+> **Functions**
 
 | Function          | Params                                                                   | Returns                       | Description                    |
 | ----------------- | ------------------------------------------------------------------------ | ----------------------------- | ------------------------------ |

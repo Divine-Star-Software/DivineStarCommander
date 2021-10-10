@@ -425,6 +425,15 @@ class DSLogger {
         this.serviceBars[name].reInit();
         return this;
     }
+    destroyServiceBar(name) {
+        const bar = this.serviceBars[name];
+        const row = bar.rows;
+        bar.clear();
+        this.clearRows(row, row);
+        this.serviceBars[name] = null;
+        delete this.serviceBars[name];
+        return this;
+    }
     newProgressBar(name) {
         const bar = new this.ProgressBar(this.rdl, this.currentRow, 30);
         this.currentRow++;
