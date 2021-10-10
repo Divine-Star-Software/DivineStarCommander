@@ -6,7 +6,7 @@
 <img src="https://divinestarapparel.com/wp-content/uploads/2021/02/logo-small.png"/>
 </p>
 
----`
+---
 
 ![GitHub top language](https://img.shields.io/github/languages/top/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
 ![GitHub repo size](https://img.shields.io/github/repo-size/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
