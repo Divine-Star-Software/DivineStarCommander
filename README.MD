@@ -33,7 +33,7 @@ To make an easy chainable way to create a CLI fast. This provides a complete pac
 const dsLog : DSLogger = require("dslog");
 (async () => {
   dsLog
-    //Defien the program 
+    //Define the program 
     .defineSplashScreen(()=>{
       dsLog
       .newScreen()
