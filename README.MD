@@ -272,22 +272,22 @@ All properties are optional.
 | **brightMagenta**| **text** : string                                     | string    | Returns a string stylized to be bright magenta.       |
 | **brightCyan**   | **text** : string                                     | string    | Returns a string stylized to be bright cyan.          |
 | **brightWhite**  | **text** : string                                     | string    | Returns a string stylized to be bright white.         |
-| **blackBG**      | **text** : string,**fg** ?: ConsoleColor               | string    | Returns a string stylized to be black.         |
-| **redBG**      | **text** : string,**fg** ?: ConsoleColor        | string    | Returns a string stylized to be red.           |
-| **greenBG**      | **text** : string,**fg** ?: ConsoleColor               | string    | Returns a string stylized to be green.         |
-| **yellowBG**      | **text** : string,**fg** ?: ConsoleColor                            | string    | Returns a string stylized to be yellow.        |
-| **blueBG**      | **text** : string,**fg** ?: ConsoleColor                                      | string    | Returns a string stylized to be blue.          |
-| **magentaBG**      | **text** : string,**fg** ?: ConsoleColor                   | string    | Returns a string stylized to be magenta.       |
-| **cyanBG**      | **text** : string,**fg** ?: ConsoleColor                         | string    | Returns a string stylized to be cyan.          |
-| **whiteBG**      | **text** : string,**fg** ?: ConsoleColor                      | string    | Returns a string stylized to be white.         |
-| **brightBlackBG**  | **text** : string,**fg** ?: ConsoleColor          | string    | Returns a string stylized to be bright black.         |
-| **brightRedBG**    | **text** : string,**fg** ?: ConsoleColor                      | string    | Returns a string stylized to be bright red.           |
-| **brightGreenBG**  | **text** : string,**fg** ?: ConsoleColor                        | string    | Returns a string stylized to be bright green.         |
-| **brightYellowBG** | **text** : string,**fg** ?: ConsoleColor                        | string    | Returns a string stylized to be bright yellow.        |
-| **brightBlueBG**   | **text** : string,**fg** ?: ConsoleColor                            | string    | Returns a string stylized to be bright blue.          |
-| **brightMagentaBG**| **text** : string,**fg** ?: ConsoleColor                             | string    | Returns a string stylized to be bright magenta.       |
-| **brightCyanBG**   | **text** : string,**fg** ?: ConsoleColor                               | string    | Returns a string stylized to be bright cyan.          |
-| **brightWhiteBG**  | **text** : string,**fg** ?: ConsoleColor                           | string    | Returns a string stylized to be bright white.         |
+| **blackBG**      | **text** : string,**fg** ?: ConsoleColor               | string    | Returns a string stylized to be black blackground.         |
+| **redBG**      | **text** : string,**fg** ?: ConsoleColor        | string    | Returns a string stylized to be red blackground.           |
+| **greenBG**      | **text** : string,**fg** ?: ConsoleColor               | string    | Returns a string stylized to be green blackground.         |
+| **yellowBG**      | **text** : string,**fg** ?: ConsoleColor                            | string    | Returns a string stylized to be yellow blackground.        |
+| **blueBG**      | **text** : string,**fg** ?: ConsoleColor                                      | string    | Returns a string stylized to be blue blackground.          |
+| **magentaBG**      | **text** : string,**fg** ?: ConsoleColor                   | string    | Returns a string stylized to be magenta blackground.       |
+| **cyanBG**      | **text** : string,**fg** ?: ConsoleColor                         | string    | Returns a string stylized to be cyan blackground.          |
+| **whiteBG**      | **text** : string,**fg** ?: ConsoleColor                      | string    | Returns a string stylized to be white blackground.         |
+| **brightBlackBG**  | **text** : string,**fg** ?: ConsoleColor          | string    | Returns a string stylized to be bright black blackground.         |
+| **brightRedBG**    | **text** : string,**fg** ?: ConsoleColor                      | string    | Returns a string stylized to be bright red blackground.           |
+| **brightGreenBG**  | **text** : string,**fg** ?: ConsoleColor                        | string    | Returns a string stylized to be bright green blackground.         |
+| **brightYellowBG** | **text** : string,**fg** ?: ConsoleColor                        | string    | Returns a string stylized to be bright yellow blackground.        |
+| **brightBlueBG**   | **text** : string,**fg** ?: ConsoleColor                            | string    | Returns a string stylized to be bright blue blackground.          |
+| **brightMagentaBG**| **text** : string,**fg** ?: ConsoleColor                             | string    | Returns a string stylized to be bright magenta blackground.       |
+| **brightCyanBG**   | **text** : string,**fg** ?: ConsoleColor                               | string    | Returns a string stylized to be bright cyan blackground.          |
+| **brightWhiteBG**  | **text** : string,**fg** ?: ConsoleColor                           | string    | Returns a string stylized to be bright white blackground.         |
 ### Define and Get Functions
 
 | Function               | Params                                          | Returns | Description                                             |
