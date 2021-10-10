@@ -1,47 +1,67 @@
-type ConsoleCodes =
-  | "Reset"
-  | "Bright"
-  | "Dim"
-  | "Underscore"
-  | "Blink"
-  | "Reverse"
-  | "Hidden"
-type ConsoleColors = 
-| "Black"
-| "Red"
-| "Green"
-| "Yellow"
-| "Blue"
-| "Magenta"
-| "Cyan"
-| "White"
+type ConsoleCodes = |
+  "Reset" |
+  "Bright" |
+  "Dim" |
+  "Underscore" |
+  "Blink" |
+  "Reverse" |
+  "Hidden"
+type ConsoleColors = |
+  "Black" |
+  "Red" |
+  "Green" |
+  "Yellow" |
+  "Blue" |
+  "Magenta" |
+  "Cyan" |
+  "White"
+type StyleObject = {
+  fg ? : ConsoleColors | "none",
+  bg ? : ConsoleColors | "none",
+  reverse ? : boolean,
+  bright ? : boolean
+  dim ? : boolean,
+  underscore ? : boolean,
+  blink ? : boolean,
+  hidden ? : boolean
+}
 type DisplayScreens = "programInitError" | "helpScreen";
-type MessageTypes =
-  | "Blink"
-  | "Error"
-  | "Title"
-  | "Info"
-  | "Good"
-  | "Warning"
-  | "Raw"
-  | "Data";
-type QuestionsTypes =
-  | "string"
-  | "number"
-  | "digit"
-  | "email"
-  | "password"
-  | "stringall"
+type MessageTypes = |
+  "Blink" |
+  "Error" |
+  "Title" |
+  "Info" |
+  "Good" |
+  "Warning" |
+  "Raw" |
+  "Data";
+type QuestionDisplayTypes = |
+  "question" |
+  "re-ask" |
+  "delimiter"
+type QuestionsTypes = |
+  "string" |
+  "number" |
+  "digit" |
+  "email" |
+  "password" |
+  "stringall"
 type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
 type ProgramParams = {
   flag: string;
   name: string;
   desc: string;
   type: ParamTypes;
-  required?: boolean;
-  valueNeeded?: boolean;
+  required ? : boolean;
+  valueNeeded ? : boolean;
 }
 type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined
+type Strings = |
+  "title" |
+  "helpText" |
+  "star" |
+  "seperator" |
+  "questionDelimiter"
 /** 
   # DSLogger
   ---
@@ -53,7 +73,7 @@ type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | 
   */
 class DSLogger {
   //strings
-  strings: Record<string, string> = {
+  strings: Record < Strings, string > = {
     title: "[ Divine Star Logger ]",
     helpText: "",
     star: `            [1m[35m.[0m
@@ -66,16 +86,11 @@ class DSLogger {
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
     seperator: "-----------------------------",
+    questionDelimiter: ":"
 
-    blinkStyle: "\x1b[5m",
-    titleStyle: "\x1b[37m\x1b[1m\x1b[45m",
-    errorStyle: "\x1b[1m\x1b[41m\x1b[37m",
-    warningStyle: "\x1b[1m\x1b[37m\x1b[43m",
-    infoStyle: "\x1b[1m\x1b[37m\x1b[46m",
-    goodStyle: "\x1b[1m\x1b[37m\x1b[42m",
   };
 
-  consoleCodes: Record<ConsoleCodes, string> = {
+  consoleCodes: Record < ConsoleCodes, string > = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
     Dim: "\x1b[2m",
@@ -83,8 +98,8 @@ class DSLogger {
     Blink: "\x1b[5m",
     Reverse: "\x1b[7m",
     Hidden: "\x1b[8m",
-  }; 
-  consoleFGColors: Record<ConsoleColors, string> = {
+  };
+  consoleFGColors: Record < ConsoleColors, string > = {
     Black: "\x1b[30m",
     Red: "\x1b[31m",
     Green: "\x1b[32m",
@@ -94,7 +109,7 @@ class DSLogger {
     Cyan: "\x1b[36m",
     White: "\x1b[37m",
   }
-  consoleBGColors: Record<ConsoleColors, string> = {
+  consoleBGColors: Record < ConsoleColors, string > = {
     Black: "\x1b[40m",
     Red: "\x1b[41m",
     Green: "\x1b[42m",
@@ -105,27 +120,76 @@ class DSLogger {
     White: "\x1b[47m",
   }
 
+
+  questionStyles: Record < QuestionDisplayTypes, StyleObject > = {
+    "delimiter": {
+      fg: "Cyan",
+      bright: true
+    },
+    "question": {
+
+    },
+    "re-ask": {
+
+    }
+  };
+  messageStyles: Record < MessageTypes, StyleObject > = {
+    "Blink": {
+      blink: true
+    },
+    "Data": {},
+    "Error": {
+      fg: "White",
+      bg: "Red",
+      bright: true
+    },
+    "Good": {
+      fg: "White",
+      bg: "Green",
+      bright: true
+    },
+    "Info": {
+      fg: "White",
+      bg: "Cyan",
+      bright: true
+    },
+    "Raw": {},
+    "Title": {
+      fg: "White",
+      bg: "Magenta",
+      bright: true
+    },
+    "Warning": {
+      fg: "White",
+      bg: "Yellow",
+      bright: true
+    }
+
+  }
+
   splash: Function = () => {};
   ProgressBar = LoadingBar;
   ServiceBar = ServiceBar;
 
-  params: Map<string, ProgramParams> = new Map();
-  paramValues: Map<
+  params: Map < string, ProgramParams > = new Map();
+  paramValues: Map <
     string,
-    ProgramParamsDataTypes
-  > = new Map();
-  requiredParams: Map<string, boolean> = new Map();
-  inputs: Map<string, string | number | undefined> = new Map();
+    ProgramParamsDataTypes >
+    = new Map();
+  requiredParams: Map < string, boolean > = new Map();
+  inputs: Map < string, string | number | undefined > = new Map();
 
   askedQuestions = 0;
-  questions: Record<string, { varName: string; varType: QuestionsTypes }> = {};
+  questions: Record < string, {
+    varName: string;varType: QuestionsTypes
+  } > = {};
   currentRow = 0;
   rli: any;
 
-  progressBars: Record<string, LoadingBar> = {};
-  serviceBars: Record<string, ServiceBar> = {};
+  progressBars: Record < string, LoadingBar > = {};
+  serviceBars: Record < string, ServiceBar > = {};
 
-  validators: Record<QuestionsTypes, (input: string) => boolean> = {
+  validators: Record < QuestionsTypes, (input: string) => boolean > = {
     number: (input: string) => {
       const reg = /^\d+$/;
       return reg.test(input);
@@ -151,7 +215,7 @@ class DSLogger {
     },
   };
 
-  screens: Record<DisplayScreens, Function> = {
+  screens: Record < DisplayScreens, Function > = {
     helpScreen: () => {
       console.log(this._addColor("Title", this.getString("title")) + "\n");
       console.log(this.getString("helpText") + "\n");
@@ -180,36 +244,33 @@ class DSLogger {
   constructor(private rdl: any) {}
 
   styleize(
-    text : string,
-    foreground: ConsoleColors | "none" = "none",
-    background: ConsoleColors | "none" = "none",
-    reverse : boolean = false,
-    bright: boolean = false,
-    dim: boolean = false,
-    underscode: boolean = false,
-    blink: boolean = false
-  ) : string {
+    text: string,
+    styleObj: StyleObject
+  ): string {
     let front = "";
-    if(foreground != "none"){
-        front += this.consoleFGColors[foreground];
+    if (styleObj.fg && styleObj.fg != "none") {
+      front += this.consoleFGColors[styleObj.fg];
     }
-    if(background != "none"){
-      front += this.consoleBGColors[background];
+    if (styleObj.bg && styleObj.bg != "none") {
+      front += this.consoleBGColors[styleObj.bg];
     }
-    if(reverse){
+    if (styleObj.reverse) {
       front += this.consoleCodes["Reverse"];
     }
-    if(bright){
+    if (styleObj.bright) {
       front += this.consoleCodes["Bright"];
     }
-    if(dim){
+    if (styleObj.dim) {
       front += this.consoleCodes["Dim"];
     }
-    if(underscode){
+    if (styleObj.hidden) {
+      front += this.consoleCodes["Hidden"];
+    }
+    if (styleObj.underscore) {
       front += this.consoleCodes["Underscore"];
     }
-  
-    if(blink){
+
+    if (styleObj.blink) {
       front += this.consoleCodes["Blink"];
     }
 
@@ -217,7 +278,7 @@ class DSLogger {
 
   }
 
-  getParam(name: string) : ProgramParamsDataTypes {
+  getParam(name: string): ProgramParamsDataTypes {
     let p;
     if ((p = this.params.get(name))) {
       if (typeof this.paramValues.get(p.flag) !== "undefined") {
@@ -380,12 +441,6 @@ class DSLogger {
     }
     return this;
   }
-
-
-
-
-
-
   restartPrompt() {
     this.questions = {};
     this.inputs = new Map();
@@ -442,8 +497,7 @@ class DSLogger {
         if (passed && gotinput) {
           resolve(true);
           clearInterval(inte);
-        } else if (asked) {
-        } else {
+        } else if (asked) {} else {
           asked = true;
           this.rli.question(question, (input: QuestionsTypes) => {
             this.currentRow += this._countLines(question);
@@ -480,11 +534,11 @@ class DSLogger {
 
   ask(question: string, varName: string, varType: QuestionsTypes) {
     this.askedQuestions++;
-
     this.inputs.set(varName, undefined);
     question =
-      this._addColor("Info", question) + this._addColor("Good", ":") + " ";
-
+      this.styleize(question, this.questionStyles["question"]) + " " +
+      this.styleize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
+      " ";
     this.questions[question] = {
       varName: varName,
       varType: varType,
@@ -534,11 +588,11 @@ class DSLogger {
     this.serviceBars[name].reInit();
     return this;
   }
-  destroyServiceBar(name : string){
+  destroyServiceBar(name: string) {
     const bar = this.serviceBars[name];
     const row = bar.rows;
     bar.clear();
-    this.clearRows(row,row);
+    this.clearRows(row, row);
     (this as any).serviceBars[name] = null;
     delete this.serviceBars[name];
     return this;
@@ -562,7 +616,7 @@ class DSLogger {
     while (waitTill > new Date()) {}
     return this;
   }
-  asyncSleep(ms: number): Promise<this> {
+  asyncSleep(ms: number): Promise < this > {
     let self = this;
     return new Promise((resolve) =>
       setTimeout(() => {
@@ -615,29 +669,7 @@ class DSLogger {
   }
 
   _addColor(type: MessageTypes, message: any) {
-    let returnString = "";
-    switch (type) {
-      case "Blink":
-        returnString += this.getString("blinkStyle");
-        break;
-      case "Error":
-        returnString += this.getString("errorStyle");
-        break;
-      case "Title":
-        returnString += this.getString("titleStyle");
-        break;
-      case "Info":
-        returnString += this.getString("infoStyle");
-        break;
-      case "Good":
-        returnString += this.getString("goodStyle");
-        break;
-      case "Warning":
-        returnString += this.getString("warningStyle");
-        break;
-    }
-    returnString += message + "\x1b[0m";
-    return returnString;
+    return this.styleize(message, this.messageStyles[type]);
   }
 
   _countLines(message: string) {
@@ -645,7 +677,7 @@ class DSLogger {
   }
 
   logSeperator() {
-    this.show("{-----------------------------}", "Info");
+    this.show(this.getString("seperator"), "Info");
     return this;
   }
 
@@ -654,32 +686,16 @@ class DSLogger {
     return this;
   }
 
-  defineMessageStyle(type: MessageTypes, styleString: string) {
-    switch (type) {
-      case "Blink":
-        this.strings["blinkStyle"] = styleString;
-        break;
-      case "Error":
-        this.strings["errorStyle"] = styleString;
-        break;
-      case "Title":
-        this.strings["titleStyle"] = styleString;
-        break;
-      case "Info":
-        this.strings["infoStyle"] = styleString;
-        break;
-      case "Good":
-        this.strings["goodStyle"] = styleString;
-        break;
-      case "Warning":
-        this.strings["warningStyle"] = styleString;
-        break;
-    }
+  defineMessageStyle(type: MessageTypes, styleObj: StyleObject) {
+    this.messageStyles[type] = styleObj;
     return this;
   }
 
-  defineProgramTitle(title: string) {
+  defineProgramTitle(title: string, styleObj ? : StyleObject) {
     this.strings["title"] = title;
+    if (styleObj) {
+      this.messageStyles["Title"] = styleObj;
+    }
     return this;
   }
 
@@ -693,9 +709,203 @@ class DSLogger {
     return this;
   }
 
-  getString(id: string) {
+  getString(id: Strings) {
     return this.strings[id];
   }
+  //Quick Styles
+  //FG 
+  red(text: string) {
+    return this.styleize(text, {
+      fg: "Red"
+    });
+  }
+  green(text: string) {
+    return this.styleize(text, {
+      fg: "Green"
+    });
+  }
+  blue(text: string) {
+    return this.styleize(text, {
+      fg: "Green"
+    });
+  }
+  white(text: string) {
+    return this.styleize(text, {
+      fg: "White"
+    });
+  }
+  black(text: string) {
+    return this.styleize(text, {
+      fg: "Black"
+    });
+  }
+  cyan(text: string) {
+    return this.styleize(text, {
+      fg: "Cyan"
+    });
+  }
+  magenta(text: string) {
+    return this.styleize(text, {
+      fg: "Magenta"
+    });
+  }
+  yellow(text: string) {
+    return this.styleize(text, {
+      fg: "Yellow"
+    });
+  }
+  //Bright
+  brightRed(text: string) {
+    return this.styleize(text, {
+      fg: "Red",
+      bright: true
+    });
+  }
+  brightGreen(text: string) {
+    return this.styleize(text, {
+      fg: "Green",
+      bright: true
+    });
+  }
+  brightBlue(text: string) {
+    return this.styleize(text, {
+      fg: "Green",
+      bright: true
+    });
+  }
+  brightWhite(text: string) {
+    return this.styleize(text, {
+      fg: "White",
+      bright: true
+    });
+  }
+  brightBlack(text: string) {
+    return this.styleize(text, {
+      fg: "Black",
+      bright: true
+    });
+  }
+  brightCyan(text: string) {
+    return this.styleize(text, {
+      fg: "Cyan",
+      bright: true
+    });
+  }
+  brightMagenta(text: string) {
+    return this.styleize(text, {
+      fg: "Magenta",
+      bright: true
+    });
+  }
+  brightYellow(text: string) {
+    return this.styleize(text, {
+      fg: "Yellow",
+      bright: true
+    });
+  }
+  //BG
+  redBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Red",
+      fg : fg
+    });
+  }
+  greenBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Green",
+      fg : fg
+    });
+  }
+  blueBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Green",
+      fg : fg
+    });
+  }
+  whiteBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "White",
+      fg : fg
+    });
+  }
+  blackBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Black",
+      fg : fg
+    });
+  }
+  cyanBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Cyan",
+      fg : fg
+    });
+  }
+  magentaBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Magenta",
+      fg : fg
+    });
+  }
+  yellowBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Yellow",
+      fg : fg
+    });
+  }
+
+  //Bright
+  brightRedBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Red",
+      fg : fg
+    });
+  }
+  brightGreenBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Green",
+      fg : fg
+    });
+  }
+  brightBlueBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Green",
+      fg : fg
+    });
+  }
+  brightWhiteBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "White",
+      fg : fg
+    });
+  }
+  brightBlackBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Black",
+      fg : fg
+    });
+  }
+  brightCyanBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Cyan",
+      fg : fg
+    });
+  }
+  brightMagentaBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Magenta",
+      fg : fg
+    });
+  }
+  brightYellowBG(text: string,fg : ConsoleColors | "none"= "none") {
+    return this.styleize(text, {
+      bg: "Yellow",
+      fg : fg
+    });
+  }
+
+
+
+
 }
 
 class LoadingBar {
@@ -736,12 +946,12 @@ class LoadingBar {
    * Adds progress to the bar relative to the size.
    * @param percent Supply an int between 1 - 100
    */
-  addProgressPerfect(percent: number): Promise<true> | Promise<unknown> {
+  addProgressPerfect(percent: number): Promise < true > | Promise < unknown > {
     const num = this.size * (percent / 100);
     return this.addProgress(num);
   }
 
-  addProgress(amount: number): Promise<true> | Promise<unknown> {
+  addProgress(amount: number): Promise < true > | Promise < unknown > {
     this.rdl.cursorTo(process.stdout, this.cursor, this.row);
     let doneLocal = false;
     const prom = new Promise((resolve) => {

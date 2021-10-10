@@ -1,17 +1,7 @@
 "use strict";
-/**
-  # DSLogger
-  ---
-  All in one CLI solution for Node.Js made by Divine Star
-  @organization Divine Star LLC
-  @author Luke Johnson
-  @since 9-19-2021
-  @version 1.0.1
-  */
 class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
-        //strings
         this.strings = {
             title: "[ Divine Star Logger ]",
             helpText: "",
@@ -25,12 +15,7 @@ class DSLogger {
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
             seperator: "-----------------------------",
-            blinkStyle: "\x1b[5m",
-            titleStyle: "\x1b[37m\x1b[1m\x1b[45m",
-            errorStyle: "\x1b[1m\x1b[41m\x1b[37m",
-            warningStyle: "\x1b[1m\x1b[37m\x1b[43m",
-            infoStyle: "\x1b[1m\x1b[37m\x1b[46m",
-            goodStyle: "\x1b[1m\x1b[37m\x1b[42m",
+            questionDelimiter: ":"
         };
         this.consoleCodes = {
             Reset: "\x1b[0m",
@@ -60,6 +45,46 @@ class DSLogger {
             Magenta: "\x1b[45m",
             Cyan: "\x1b[46m",
             White: "\x1b[47m",
+        };
+        this.questionStyles = {
+            "delimiter": {
+                fg: "Cyan",
+                bright: true
+            },
+            "question": {},
+            "re-ask": {}
+        };
+        this.messageStyles = {
+            "Blink": {
+                blink: true
+            },
+            "Data": {},
+            "Error": {
+                fg: "White",
+                bg: "Red",
+                bright: true
+            },
+            "Good": {
+                fg: "White",
+                bg: "Green",
+                bright: true
+            },
+            "Info": {
+                fg: "White",
+                bg: "Cyan",
+                bright: true
+            },
+            "Raw": {},
+            "Title": {
+                fg: "White",
+                bg: "Magenta",
+                bright: true
+            },
+            "Warning": {
+                fg: "White",
+                bg: "Yellow",
+                bright: true
+            }
         };
         this.splash = () => { };
         this.ProgressBar = LoadingBar;
@@ -124,27 +149,30 @@ class DSLogger {
             },
         };
     }
-    styleize(text, foreground = "none", background = "none", reverse = false, bright = false, dim = false, underscode = false, blink = false) {
+    styleize(text, styleObj) {
         let front = "";
-        if (foreground != "none") {
-            front += this.consoleFGColors[foreground];
+        if (styleObj.fg && styleObj.fg != "none") {
+            front += this.consoleFGColors[styleObj.fg];
         }
-        if (background != "none") {
-            front += this.consoleBGColors[background];
+        if (styleObj.bg && styleObj.bg != "none") {
+            front += this.consoleBGColors[styleObj.bg];
         }
-        if (reverse) {
+        if (styleObj.reverse) {
             front += this.consoleCodes["Reverse"];
         }
-        if (bright) {
+        if (styleObj.bright) {
             front += this.consoleCodes["Bright"];
         }
-        if (dim) {
+        if (styleObj.dim) {
             front += this.consoleCodes["Dim"];
         }
-        if (underscode) {
+        if (styleObj.hidden) {
+            front += this.consoleCodes["Hidden"];
+        }
+        if (styleObj.underscore) {
             front += this.consoleCodes["Underscore"];
         }
-        if (blink) {
+        if (styleObj.blink) {
             front += this.consoleCodes["Blink"];
         }
         return front + text + this.consoleCodes["Reset"];
@@ -344,8 +372,7 @@ class DSLogger {
                     resolve(true);
                     clearInterval(inte);
                 }
-                else if (asked) {
-                }
+                else if (asked) { }
                 else {
                     asked = true;
                     this.rli.question(question, (input) => {
@@ -382,7 +409,9 @@ class DSLogger {
         this.askedQuestions++;
         this.inputs.set(varName, undefined);
         question =
-            this._addColor("Info", question) + this._addColor("Good", ":") + " ";
+            this.styleize(question, this.questionStyles["question"]) + " " +
+                this.styleize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
+                " ";
         this.questions[question] = {
             varName: varName,
             varType: varType,
@@ -495,66 +524,28 @@ class DSLogger {
         return this;
     }
     _addColor(type, message) {
-        let returnString = "";
-        switch (type) {
-            case "Blink":
-                returnString += this.getString("blinkStyle");
-                break;
-            case "Error":
-                returnString += this.getString("errorStyle");
-                break;
-            case "Title":
-                returnString += this.getString("titleStyle");
-                break;
-            case "Info":
-                returnString += this.getString("infoStyle");
-                break;
-            case "Good":
-                returnString += this.getString("goodStyle");
-                break;
-            case "Warning":
-                returnString += this.getString("warningStyle");
-                break;
-        }
-        returnString += message + "\x1b[0m";
-        return returnString;
+        return this.styleize(message, this.messageStyles[type]);
     }
     _countLines(message) {
         return message.split(/\r\n|\r|\n/).length;
     }
     logSeperator() {
-        this.show("{-----------------------------}", "Info");
+        this.show(this.getString("seperator"), "Info");
         return this;
     }
     logProgramTitle() {
         this.show(this.getString("title"), "Title");
         return this;
     }
-    defineMessageStyle(type, styleString) {
-        switch (type) {
-            case "Blink":
-                this.strings["blinkStyle"] = styleString;
-                break;
-            case "Error":
-                this.strings["errorStyle"] = styleString;
-                break;
-            case "Title":
-                this.strings["titleStyle"] = styleString;
-                break;
-            case "Info":
-                this.strings["infoStyle"] = styleString;
-                break;
-            case "Good":
-                this.strings["goodStyle"] = styleString;
-                break;
-            case "Warning":
-                this.strings["warningStyle"] = styleString;
-                break;
-        }
+    defineMessageStyle(type, styleObj) {
+        this.messageStyles[type] = styleObj;
         return this;
     }
-    defineProgramTitle(title) {
+    defineProgramTitle(title, styleObj) {
         this.strings["title"] = title;
+        if (styleObj) {
+            this.messageStyles["Title"] = styleObj;
+        }
         return this;
     }
     defineSplashScreen(func) {
@@ -568,6 +559,190 @@ class DSLogger {
     getString(id) {
         return this.strings[id];
     }
+    red(text) {
+        return this.styleize(text, {
+            fg: "Red"
+        });
+    }
+    green(text) {
+        return this.styleize(text, {
+            fg: "Green"
+        });
+    }
+    blue(text) {
+        return this.styleize(text, {
+            fg: "Green"
+        });
+    }
+    white(text) {
+        return this.styleize(text, {
+            fg: "White"
+        });
+    }
+    black(text) {
+        return this.styleize(text, {
+            fg: "Black"
+        });
+    }
+    cyan(text) {
+        return this.styleize(text, {
+            fg: "Cyan"
+        });
+    }
+    magenta(text) {
+        return this.styleize(text, {
+            fg: "Magenta"
+        });
+    }
+    yellow(text) {
+        return this.styleize(text, {
+            fg: "Yellow"
+        });
+    }
+    brightRed(text) {
+        return this.styleize(text, {
+            fg: "Red",
+            bright: true
+        });
+    }
+    brightGreen(text) {
+        return this.styleize(text, {
+            fg: "Green",
+            bright: true
+        });
+    }
+    brightBlue(text) {
+        return this.styleize(text, {
+            fg: "Green",
+            bright: true
+        });
+    }
+    brightWhite(text) {
+        return this.styleize(text, {
+            fg: "White",
+            bright: true
+        });
+    }
+    brightBlack(text) {
+        return this.styleize(text, {
+            fg: "Black",
+            bright: true
+        });
+    }
+    brightCyan(text) {
+        return this.styleize(text, {
+            fg: "Cyan",
+            bright: true
+        });
+    }
+    brightMagenta(text) {
+        return this.styleize(text, {
+            fg: "Magenta",
+            bright: true
+        });
+    }
+    brightYellow(text) {
+        return this.styleize(text, {
+            fg: "Yellow",
+            bright: true
+        });
+    }
+    redBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Red",
+            fg: fg
+        });
+    }
+    greenBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Green",
+            fg: fg
+        });
+    }
+    blueBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Green",
+            fg: fg
+        });
+    }
+    whiteBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "White",
+            fg: fg
+        });
+    }
+    blackBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Black",
+            fg: fg
+        });
+    }
+    cyanBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Cyan",
+            fg: fg
+        });
+    }
+    magentaBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Magenta",
+            fg: fg
+        });
+    }
+    yellowBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Yellow",
+            fg: fg
+        });
+    }
+    brightRedBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Red",
+            fg: fg
+        });
+    }
+    brightGreenBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Green",
+            fg: fg
+        });
+    }
+    brightBlueBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Green",
+            fg: fg
+        });
+    }
+    brightWhiteBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "White",
+            fg: fg
+        });
+    }
+    brightBlackBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Black",
+            fg: fg
+        });
+    }
+    brightCyanBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Cyan",
+            fg: fg
+        });
+    }
+    brightMagentaBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Magenta",
+            fg: fg
+        });
+    }
+    brightYellowBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Yellow",
+            fg: fg
+        });
+    }
 }
 class LoadingBar {
     constructor(rdl, row, size) {
@@ -579,10 +754,8 @@ class LoadingBar {
         this.timer = null;
     }
     start() {
-        //    process.stdout.write("\x1B[?25l")
         for (let i = 0; i < this.size; i++) {
             process.stdout.write("-");
-            //process.stdout.write("=");
         }
         this.rdl.cursorTo(process.stdout, 0, this.row);
     }
@@ -596,17 +769,11 @@ class LoadingBar {
                 if (this.cursor >= this.size) {
                     clearInterval(this.timer);
                     resolve(true);
-                    //  rdl.cursorTo(process.stdout, this.cursor, done);
                 }
             }, 1200);
         });
         return prom;
     }
-    /**Add Progress Percent
-     * ---
-     * Adds progress to the bar relative to the size.
-     * @param percent Supply an int between 1 - 100
-     */
     addProgressPerfect(percent) {
         const num = this.size * (percent / 100);
         return this.addProgress(num);

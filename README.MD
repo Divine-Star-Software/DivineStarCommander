@@ -225,6 +225,79 @@ If you need to access readline later you can grab it from the dslog object.
 | **newServiceBar**    | **name** : string | self    | Makes a continuous loading bar at the given row. |
 | **reInitServiceBar** | **name** : string | self    | Resets the service bar.                          |
 
+### Stylize Functions
+
+> **Console Colors**
+
+| Color Name  | 
+| ----------- | 
+| **Black**   | 
+| **Red**  |   
+| **Green**  |
+| **Yellow**|  
+| **Blue**   |  
+| **Magenta** |  
+| **Cyan**  | 
+| **White**  | 
+
+> **Style Object**
+
+All properties are optional. 
+| Type        | Description                                                                          |
+| ----------- | ------------------------------------------------------------------------------------ |
+| **fg**   | Foreground color. Must be a ConsoleColor. |
+| **bg**  | Background color. Must be a ConsoleColor. |
+| **dim**     | Makes the colors dim. |
+| **underscore**| Makes the text underscored. |
+| **blink**   | Makes the text blink |
+| **reverse** | Inverts the foreground and background colors. |
+| **hidden**  | Makes the text hidden. |
+
+| Function               | Params                                          | Returns | Description                                             |
+| ---------------------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
+| **styleize** | **text** : string, **styleObj** : StyleObject             | self    | Returns a string stylized with the given format. |
+| **black**      | **text** : string                                       | string    | Returns a string stylized to be black.         |
+| **red**      | **text** : string                                         | string    | Returns a string stylized to be red.           |
+| **green**      | **text** : string                                       | string    | Returns a string stylized to be green.         |
+| **yellow**      | **text** : string                                      | string    | Returns a string stylized to be yellow.        |
+| **blue**      | **text** : string                                        | string    | Returns a string stylized to be blue.          |
+| **magenta**      | **text** : string                                     | string    | Returns a string stylized to be magenta.       |
+| **cyan**      | **text** : string                                        | string    | Returns a string stylized to be cyan.          |
+| **white**      | **text** : string                                       | string    | Returns a string stylized to be white.         |
+| **brightBlack**  | **text** : string                                     | string    | Returns a string stylized to be bright black.         |
+| **brightRed**    | **text** : string                                     | string    | Returns a string stylized to be bright red.           |
+| **brightGreen**  | **text** : string                                     | string    | Returns a string stylized to be bright green.         |
+| **brightYellow** | **text** : string                                     | string    | Returns a string stylized to be bright yellow.        |
+| **brightBlue**   | **text** : string                                     | string    | Returns a string stylized to be bright blue.          |
+| **brightMagenta**| **text** : string                                     | string    | Returns a string stylized to be bright magenta.       |
+| **brightCyan**   | **text** : string                                     | string    | Returns a string stylized to be bright cyan.          |
+| **brightWhite**  | **text** : string                                     | string    | Returns a string stylized to be bright white.         |
+| **blackBG**      | **text** : string,**fg** ?: ConsoleColor               | string    | Returns a string stylized to be black.         |
+| **redBG**      | **text** : string,**fg** ?: ConsoleColor        | string    | Returns a string stylized to be red.           |
+| **greenBG**      | **text** : string,**fg** ?: ConsoleColor               | string    | Returns a string stylized to be green.         |
+| **yellowBG**      | **text** : string,**fg** ?: ConsoleColor                            | string    | Returns a string stylized to be yellow.        |
+| **blueBG**      | **text** : string,**fg** ?: ConsoleColor                                      | string    | Returns a string stylized to be blue.          |
+| **magentaBG**      | **text** : string,**fg** ?: ConsoleColor                   | string    | Returns a string stylized to be magenta.       |
+| **cyanBG**      | **text** : string,**fg** ?: ConsoleColor                         | string    | Returns a string stylized to be cyan.          |
+| **whiteBG**      | **text** : string,**fg** ?: ConsoleColor                      | string    | Returns a string stylized to be white.         |
+| **brightBlackBG**  | **text** : string,**fg** ?: ConsoleColor          | string    | Returns a string stylized to be bright black.         |
+| **brightRedBG**    | **text** : string,**fg** ?: ConsoleColor                      | string    | Returns a string stylized to be bright red.           |
+| **brightGreenBG**  | **text** : string,**fg** ?: ConsoleColor                        | string    | Returns a string stylized to be bright green.         |
+| **brightYellowBG** | **text** : string,**fg** ?: ConsoleColor                        | string    | Returns a string stylized to be bright yellow.        |
+| **brightBlueBG**   | **text** : string,**fg** ?: ConsoleColor                            | string    | Returns a string stylized to be bright blue.          |
+| **brightMagentaBG**| **text** : string,**fg** ?: ConsoleColor                             | string    | Returns a string stylized to be bright magenta.       |
+| **brightCyanBG**   | **text** : string,**fg** ?: ConsoleColor                               | string    | Returns a string stylized to be bright cyan.          |
+| **brightWhiteBG**  | **text** : string,**fg** ?: ConsoleColor                           | string    | Returns a string stylized to be bright white.         |
+### Define and Get Functions
+
+| Function               | Params                                          | Returns | Description                                             |
+| ---------------------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
+| **defineSplashScreen** | **func** : Function                             | self    | Define the function to be called for the splash screen. |
+| **defineProgramTitle** | **title** : string, **styleObj**: StyleObject   | self    | Defines the programs title and optionally the style     |
+| **defineHelpText**     | **text** : string                               | self    | Defines the programs help text.                         |
+| **defineMessageStyle** | **type**: MessageTypes, **styleObj**: StyleObject | self    | Use console code to styleize messages.                |
+| **getString**          | **name** : string                               | self    | Get a built in string.                                  |
+
 ### Row Functions
 
 | Function      | Params                               | Returns | Description                         |
@@ -240,46 +313,3 @@ If you need to access readline later you can grab it from the dslog object.
 | ---------- | --------------- | --------------- | ------------------------------------------- |
 | **sleep**  | **ms** : number | self            | Make the progarm sleep via a sync method.   |
 | **setRow** | **ms** : number | Promise of self | Make the program sleep via an async method. |
-
-### Define and Get Functions
-
-| Function               | Params                                          | Returns | Description                                             |
-| ---------------------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
-| **defineSplashScreen** | **func** : Function                             | self    | Define the function to be called for the splash screen. |
-| **defineProgramTitle** | **title** : string                              | self    | Defines the programs title.                             |
-| **defineMessageStyle** | **type**: MessageTypes, **styleString**: string | self    | Use console code to styleize messages.                  |
-| **getString**          | **name** : string                               | self    | Get a built in string.                                  |
-
-### Stylize Functions
-
-> **Console Codes**
-
-| Type        | Description                                                                          |
-| ----------- | ------------------------------------------------------------------------------------ |
-| **Reset**   | Resets the text style in the console. |
-| **Bright**  | Makes the colors bright. |
-| **Dim**     | Makes the colors dim. |
-| **Underscore**| Makes the text underscored. |
-| **Blink**   | Makes the text blink |
-| **Reverse** | Inverts the foreground and background colors. |
-| **Hidden**  | Makes the text hidden. |
-
-> **Console Colors**
-
-| Color Name  | 
-| ----------- | 
-| **Black**   | 
-| **Red**  |   
-| **Green**  |
-| **Yellow**|  
-| **Blue**   |  
-| **Magenta** |  
-| **Cyan**  | 
-| **White**  | 
-
-
-| Function               | Params                                          | Returns | Description                                             |
-| ---------------------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
-| **styleize** | **text** : string, **foreground**?: ConsoleColors or "none",**background**?: ConsoleColors or "none",**reverse**?:boolean,**bright**?:boolean,**dim**?:boolean ,**underscode**?:boolean,**blink**?:boolean                                 | self    | Returns a string stylized with the given format. |
-| **defineProgramTitle** | **title** : string                              | self    | Defines the programs title.                             |
-

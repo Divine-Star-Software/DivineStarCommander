@@ -1,12 +1,12 @@
-declare type ConsoleCodes = |
+type ConsoleCodes = |
   "Reset" |
   "Bright" |
   "Dim" |
   "Underscore" |
   "Blink" |
   "Reverse" |
-  "Hidden";
-declare type ConsoleColors = |
+  "Hidden"
+type ConsoleColors = |
   "Black" |
   "Red" |
   "Green" |
@@ -14,9 +14,19 @@ declare type ConsoleColors = |
   "Blue" |
   "Magenta" |
   "Cyan" |
-  "White";
-declare type DisplayScreens = "programInitError" | "helpScreen";
-declare type MessageTypes = |
+  "White"
+type StyleObject = {
+  fg ? : ConsoleColors | "none",
+  bg ? : ConsoleColors | "none",
+  reverse ? : boolean,
+  bright ? : boolean
+  dim ? : boolean,
+  underscore ? : boolean,
+  blink ? : boolean,
+  hidden ? : boolean
+}
+type DisplayScreens = "programInitError" | "helpScreen";
+type MessageTypes = |
   "Blink" |
   "Error" |
   "Title" |
@@ -25,14 +35,18 @@ declare type MessageTypes = |
   "Warning" |
   "Raw" |
   "Data";
-declare type QuestionsTypes = |
+type QuestionDisplayTypes = |
+  "question" |
+  "re-ask" |
+  "delimiter"
+type QuestionsTypes = |
   "string" |
   "number" |
   "digit" |
   "email" |
   "password" |
-  "stringall";
-type ParamTypes = "boolean" | "string" | "number" | "stringall";
+  "stringall"
+type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
 type ProgramParams = {
   flag: string;
   name: string;
@@ -41,7 +55,13 @@ type ProgramParams = {
   required ? : boolean;
   valueNeeded ? : boolean;
 }
-type ProgramParamsDataTypes = number | boolean | string | undefined
+type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined
+type Strings = |
+  "title" |
+  "helpText" |
+  "star" |
+  "seperator" |
+  "questionDelimiter"
 /** 
   # DSLogger
   ---
@@ -219,7 +239,7 @@ declare class DSLogger {
    * @param type
    * @param styleString
    */
-  defineMessageStyle(type: MessageTypes, styleString: string): this;
+  defineMessageStyle(type: MessageTypes, styleObj ?: StyleObject): this;
   /** # Define Help Text
    * ---
    * Defines the help text for the program. 
@@ -231,7 +251,7 @@ declare class DSLogger {
    * Define the programs title.
    * @param title
    */
-  defineProgramTitle(title: string): this;
+  defineProgramTitle(title: string,styleObj ?: StyleObject): this;
   /**# Define Splash Screen
    * ---
    * Define a function to be called for the splash screen.
@@ -248,7 +268,44 @@ declare class DSLogger {
    * Get a built in string.
    * @param id
    */
-  getString(id: string): string;
+  getString(id: Strings): string;
+
+  //Quick Style Functions
+  red(text: string): string;
+  green(text: string) : string;
+  blue(text: string) : string;
+  white(text: string) : string;
+  black(text: string) : string;
+  cyan(text: string) : string;
+  magenta(text: string): string;
+  yellow(text: string) : string;
+  //Bright
+  brightRed(text: string) : string;
+  brightGreen(text: string) : string;
+  brightBlue(text: string): string;
+  brightWhite(text: string) : string;
+  brightBlack(text: string): string;
+  brightCyan(text: string): string;
+  brightMagenta(text: string): string;
+  brightYellow(text: string): string;
+  //BG
+  redBG(text: string,fg : ConsoleColors | "none" ) : string;
+  greenBG(text: string,fg : ConsoleColors | "none") : string;
+  blueBG(text: string,fg : ConsoleColors | "none" ) : string;
+  whiteBG(text: string,fg : ConsoleColors | "none" ): string;
+  blackBG(text: string,fg : ConsoleColors | "none"): string;
+  cyanBG(text: string,fg : ConsoleColors | "none"): string;
+  magentaBG(text: string,fg : ConsoleColors | "none") : string;
+  yellowBG(text: string,fg : ConsoleColors | "none") : string;
+  //Bright
+  brightRedBG(text: string,fg : ConsoleColors | "none") : string;
+  brightGreenBG(text: string,fg : ConsoleColors | "none") : string;
+  brightBlueBG(text: string,fg : ConsoleColors | "none") : string;
+  brightWhiteBG(text: string,fg : ConsoleColors | "none") : string;
+  brightBlackBG(text: string,fg : ConsoleColors | "none") : string;
+  brightCyanBG(text: string,fg : ConsoleColors | "none"): string;
+  brightMagentaBG(text: string,fg : ConsoleColors | "none") : string;
+  brightYellowBG(text: string,fg : ConsoleColors | "none") : string;
 
   _addColor(type: MessageTypes, message: any): string;
   _countLines(message: string): number;
