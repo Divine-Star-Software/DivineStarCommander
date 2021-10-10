@@ -127,6 +127,7 @@ declare class DSLogger {
    * Restarat user input prompt.
    */
   restartPrompt(): Promise < this > ;
+
   /**# Ask
    * ---
    * Define a question to be asked by the pormpt
@@ -136,6 +137,15 @@ declare class DSLogger {
    * @param customType The name used for the custom question type. 
    */
   ask(question: string, varName: string, varType: QuestionsTypes,customName?:string);
+   /**# fail
+   * --
+   * Adds a fail case to the last asked question. 
+   * @param reAsk 
+   * @param reAskMessage 
+   * @param onFail 
+   * @param args 
+   */
+     fail(reAsk : boolean, reAskMessage : string,attempts : number |"all",onFail ?: Function,args ?: any);
   /**# Get Input
    * ---
    * Get input from question

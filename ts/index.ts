@@ -42,9 +42,12 @@ type MessageTypes = |
   "Raw" |
   "Data";
 type QuestionDisplayTypes = |
+"question-start" |
   "question" |
+  "delimiter" |
+  "re-ask-start" |
   "re-ask" |
-  "delimiter"
+  "re-ask-delimiter"
 type QuestionsTypes = |
   "string" |
   "number" |
@@ -68,7 +71,20 @@ type Strings = |
   "helpText" |
   "star" |
   "seperator" |
-  "questionDelimiter"
+  "questionStart" |
+  "questionDelimiter" |
+  "reAskStart" |
+  "reAskText" |
+  "reAskDelimiter"
+
+type StoredQuestions ={
+  varName: string,
+  varType: QuestionsTypes,
+  failPrompt ?: string, 
+  attempts ?: number | "all",
+  fails ?: number
+  customName ?: string
+}
 /** 
   # DSLogger
   ---
@@ -93,7 +109,11 @@ class DSLogger {
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
     seperator: "-----------------------------",
-    questionDelimiter: ":"
+    questionStart : "-->",
+    questionDelimiter: ":",
+    reAskStart: "X->",
+    reAskText : "The input was not correct please re-enter",
+    reAskDelimiter: ":"
 
   };
 
@@ -133,11 +153,22 @@ class DSLogger {
       fg: "Cyan",
       bright: true
     },
+    "question-start" : {
+
+    },
     "question": {
 
     },
+    "re-ask-start" : {
+      fg: "Red",
+      bright: true
+    },
     "re-ask": {
 
+    },
+    "re-ask-delimiter": {
+      fg: "White",
+      bright: true
     }
   };
   messageStyles: Record < MessageTypes, StyleObject > = {
@@ -185,10 +216,10 @@ class DSLogger {
   requiredParams: Map < string, boolean > = new Map();
   inputs: Map < string, string | number | undefined > = new Map();
 
+  lastQuestion :  string = "";
   askedQuestions = 0;
-  questions: Record < string, {
-    varName: string;varType: QuestionsTypes,customName ?: string
-  } > = {};
+  questions: Record < string, StoredQuestions > = {};
+  questionsFails: Record < string, {args : any,func:Function} > = {};
   currentRow = 0;
   rli: any;
 
@@ -295,15 +326,11 @@ class DSLogger {
     if (styleObj.underscore) {
       front += this.consoleCodes["Underscore"];
     }
-
     if (styleObj.blink) {
       front += this.consoleCodes["Blink"];
     }
-
     return front + text + this.consoleCodes["Reset"];
-
   }
-
   getParam(name: string): ProgramParamsDataTypes {
     let p;
     if ((p = this.params.get(name))) {
@@ -494,6 +521,8 @@ class DSLogger {
     let passed = true;
     let gotinput = false;
     let asked = false;
+    const q = this.questions[question];
+    const qID = question;
     const prom = new Promise((resolve) => {
       if (varType == "password") {
         const stdin = process.openStdin();
@@ -509,7 +538,7 @@ class DSLogger {
               process.stdout.clearLine(1);
               this.rdl.cursorTo(process.stdout, 0);
               process.stdout.write(
-                question + Array(this.rli.line.length + 1).join("*")
+                question + this.consoleCodes['Hidden'] + Array(this.rli.line.length + 1).join("*") + this.consoleCodes["Reset"]
               );
               break;
           }
@@ -527,6 +556,7 @@ class DSLogger {
         } else if (asked) {} else {
           asked = true;
           this.rli.question(question, (input: QuestionsTypes) => {
+            this.rli.history.slice(1);
             this.currentRow += this._countLines(question);
             this.rdl.cursorTo(process.stdout, 0, this.currentRow);
             (async () => {
@@ -545,7 +575,26 @@ class DSLogger {
                 passed = false;
                 gotinput = false;
                 asked = false;
-                question = "Please re-enter:";
+
+
+                if(q.attempts && q.attempts != "all" ) {
+                    (q as any).fails++;
+                    if(q.fails == q.attempts) {
+                        this.questionsFails[qID].func( this.questionsFails[qID].args)
+                    }
+
+                }
+                if(q.failPrompt){
+                  question = 
+                this.styleize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
+                this.styleize(q.failPrompt,this.questionStyles["re-ask"]) + " " +
+                this.styleize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
+                } else {
+                question = 
+                this.styleize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
+                this.styleize(this.getString("reAskText"),this.questionStyles["re-ask"]) + " " +
+                this.styleize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
+                }
               } else {
                 passed = true;
               }
@@ -567,17 +616,41 @@ class DSLogger {
     return prom;
   }
 
+  
+
+  fail(reAsk : boolean, reAskMessage : string,attempts : number | "all" ="all",onFail ?: Function,args : any = {}){
+
+    if(onFail){
+      this.questionsFails[this.lastQuestion] = {
+        func : onFail,
+        args : args
+      }
+ 
+    } 
+    this.questions[this.lastQuestion].failPrompt = reAskMessage;
+    if(attempts != "all") {
+      this.questions[this.lastQuestion].attempts = attempts;
+      this.questions[this.lastQuestion].fails = 0;
+    }
+    return this;
+    
+  }
+
   ask(question: string, varName: string, varType: QuestionsTypes,customName?:string) {
     this.askedQuestions++;
     this.inputs.set(varName, undefined);
+
+
     question =
+      this.styleize(this.getString("questionStart"), this.questionStyles["question-start"]) +
       this.styleize(question, this.questionStyles["question"]) + " " +
-      this.styleize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
-      " ";
+      this.styleize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) 
+      + " ";
     this.questions[question] = {
       varName: varName,
       varType: varType,
     };
+    this.lastQuestion = question;
     if(customName){
       this.questions[question].customName = customName;
     }

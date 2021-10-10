@@ -30,10 +30,10 @@ To make an easy chainable way to create a CLI fast. This provides a complete pac
 ### Example
 
 ```typescript
-const dsLog : DSLogger = require("dslog");
+const dsLog = require("../../dist/index.js");
 (async () => {
   dsLog
-    //Define the program 
+    //Defien the program 
     .defineSplashScreen(()=>{
       dsLog
       .newScreen()
@@ -112,6 +112,7 @@ const dsLog : DSLogger = require("dslog");
     .restartPrompt()
     .ask("enter email", "email", "email")
     .ask("enter password", "pass", "password")
+    .fail(true,"Password is not correct.",3,()=>{process.exit(0)})
     .ask("enter comment", "comment", "string");
   (await dsLog.startPrompt())
   .showSleep(dsLog.getInput("comment"), "Info")
@@ -125,7 +126,7 @@ const dsLog : DSLogger = require("dslog");
 * [Functions And Types](#functions-and-types) 
     * [Program Params](#program-params) 
     * [Show and Log Functions](#show-and-log-functions)
-    * [User Input Function](#user-input-function)
+    * [User Input Functions](#user-input-functions)
     * [Progress Bar](#progress-bar)
     * [Service Bar](#service-bar)
     * [Stylize Functions](#stylize-functions)
@@ -139,6 +140,9 @@ If you need to access readline later you can grab it from the dslog object.
 
 ## Functions And Types
 ### Program Params
+
+Functions related to getting command line input for the program. 
+
 > **Param Types**
 
 | Type          | Description                                         |
@@ -168,14 +172,8 @@ If you need to access readline later you can grab it from the dslog object.
 | **initProgramInput**| none                                                                   | self | Parse the users input. Must be called in order for the param functions to work. |
 
 ### Show and Log Functions
-> **Functions**
 
-| Function          | Params                                                                   | Returns                       | Description                    |
-| ----------------- | ------------------------------------------------------------------------ | ----------------------------- | ------------------------------ |
-| **startPrompt**   | none                                                                     | Promise of self               | Starts the user input prompt.  |
-| **restartPrompt** | none                                                                     | self                          | Re-sets the user input prompt. |
-| **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes | self                          |                                |
-| **getInput**      | none                                                                     | string or number or undefined | Get input from question        |
+Functions related to logging to the console. 
 
 > **Message Types**
 
@@ -204,7 +202,9 @@ If you need to access readline later you can grab it from the dslog object.
 | **promgramInitErrorScreen** | **message** : string                 | self    | Logs the program defined program init error screen at the current row.                        |
 | **newScreen**       | none                                                           | self    | Clears the screen and resets the console log row.                                |
 
-### User Input Function
+### User Input Functions
+
+Functions related to getting the users input. 
 
 >  **Question Types**
 
@@ -225,9 +225,12 @@ If you need to access readline later you can grab it from the dslog object.
 | **startPrompt**   | none                                                                     | Promise of self               | Starts the user input prompt.  |
 | **restartPrompt** | none                                                                     | self                          | Re-sets the user input prompt. |
 | **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes,**customName** ?: string | self | Add a question to the prompt. If using a custom question type you must supply the name of the custom type.|
+| **fail**           | **reAsk** : boolean, **reAskMessage** : string,**attempts** ?: number or "all",**onFail** ?: Function,**args** ?: any = {} | self | And a fail case to the last asked question. If reAsk is set to false it will run the function supplied and pass it the args supplied. |
 | **getInput**      | none                                                                     | string or number or undefined | Get input from question        |
 
 ### Progress Bar
+
+Functions related to making a progress bar. 
 
 | Function                 | Params                               | Returns         | Description                                                                  |
 | ------------------------ | ------------------------------------ | --------------- | ---------------------------------------------------------------------------- |
@@ -236,6 +239,8 @@ If you need to access readline later you can grab it from the dslog object.
 
 ### Service Bar
 
+Functions related to createing a service bar. 
+
 | Function             | Params            | Returns | Description                                      |
 | -------------------- | ----------------- | ------- | ------------------------------------------------ |
 | **newServiceBar**    | **name** : string | self    | Makes a continuous loading bar at the given row. |
@@ -243,6 +248,8 @@ If you need to access readline later you can grab it from the dslog object.
 | **destroyServiceBar**| **name** : string| self    | Destroys a service bar.                          |
 
 ### Stylize Functions
+
+Functions and types related to stylizing text. 
 
 > **Console Colors**
 
@@ -310,6 +317,8 @@ All properties are optional.
 | **brightWhiteBG**  | **text** : string,**fg** ?: ConsoleColor                           | string    | Returns a string stylized to be bright white blackground.         |
 ### Define and Get Functions
 
+Functions related to setting default strings, screens, and validation. 
+
 > **Strings**
 
 Built in strings.
@@ -349,6 +358,8 @@ Built in screens.
 
 ### Row Functions
 
+Functions related to the output row. 
+
 | Function      | Params                               | Returns | Description                         |
 | ------------- | ------------------------------------ | ------- | ----------------------------------- |
 | **getRow**    | none                                 | number  | Gets the current output row.        |
@@ -357,6 +368,8 @@ Built in screens.
 | **clearRows** | **start** : number, **end** : number | self    | Clears given row range.             |
 
 ### Sleep Functions
+
+Functions used to make the program sleep. 
 
 | Function   | Params          | Returns         | Description                                 |
 | ---------- | --------------- | --------------- | ------------------------------------------- |
