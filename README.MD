@@ -248,6 +248,7 @@ All properties are optional.
 | ----------- | ------------------------------------------------------------------------------------ |
 | **fg**   | Foreground color. Must be a ConsoleColor. |
 | **bg**  | Background color. Must be a ConsoleColor. |
+| **bright**     | Makes the colors bright. |
 | **dim**     | Makes the colors dim. |
 | **underscore**| Makes the text underscored. |
 | **blink**   | Makes the text blink |
