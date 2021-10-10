@@ -177,6 +177,12 @@ declare class DSLogger {
    * @param name
    */
   reInitServiceBar(name: string): this;
+    /**# Destroy Service Bar
+   * ---
+   * Destroy a service bar.
+   * @param name
+   */
+  destroyServiceBar(name: string) : this;
   /**# New Progress Bar
    * ---
    * Makes a new progress loading bar.

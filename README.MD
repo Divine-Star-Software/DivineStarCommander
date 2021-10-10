@@ -120,6 +120,19 @@ const dsLog : DSLogger = require("dslog");
 
 # Documentation
 
+## Table Of Conents
+
+* [Functions And Types](#functions-and-types) 
+    * [Program Params](#program-params) 
+    * [Show and Log Functions](#show-and-log-functions)
+    * [User Input Function](#user-input-function)
+    * [Progress Bar](#progress-bar)
+    * [Service Bar](#service-bar)
+    * [Stylize Functions](#stylize-functions)
+    * [Define and Get Functions](#define-and-get-functions)
+    * [Row Functions](#row-functions)
+    * [Sleep Functions](#row-functions)
+
 If you use this as a node module it will auto require "readline" which is built into node.js.
 
 If you need to access readline later you can grab it from the dslog object.
@@ -163,7 +176,7 @@ If you need to access readline later you can grab it from the dslog object.
 | **restartPrompt** | none                                                                     | self                          | Re-sets the user input prompt. |
 | **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes | self                          |                                |
 | **getInput**      | none                                                                     | string or number or undefined | Get input from question        |
-### Show and Log Functions
+
 > **Message Types**
 
 | Type        | Description                                                                          |
@@ -190,7 +203,9 @@ If you need to access readline later you can grab it from the dslog object.
 | **splashScreen**    | none                                                           | self    | Logs the program defined splashscreen at the current row.                        |
 | **promgramInitErrorScreen** | **message** : string                 | self    | Logs the program defined program init error screen at the current row.                        |
 | **newScreen**       | none                                                           | self    | Clears the screen and resets the console log row.                                |
+
 ### User Input Function
+
 >  **Question Types**
 
 | Type          | Description                                         |
@@ -224,7 +239,8 @@ If you need to access readline later you can grab it from the dslog object.
 | Function             | Params            | Returns | Description                                      |
 | -------------------- | ----------------- | ------- | ------------------------------------------------ |
 | **newServiceBar**    | **name** : string | self    | Makes a continuous loading bar at the given row. |
-| **reInitServiceBar** | **name** : string | self    | Resets the service bar.                          |
+| **reInitServiceBar** | **name** : string | self    | Resets a service bar.                          |
+| **destroyServiceBar**| **name** : string| self    | Destroys a service bar.                          |
 
 ### Stylize Functions
 
