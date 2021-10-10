@@ -1,3 +1,25 @@
+type ConsoleCodes =
+  | "Reset"
+  | "Bright"
+  | "Dim"
+  | "Underscore"
+  | "Blink"
+  | "Reverse"
+  | "Hidden"
+;
+
+type ConsoleColors = 
+| "Black"
+| "Red"
+| "Green"
+| "Yellow"
+| "Blue"
+| "Magenta"
+| "Cyan"
+| "White"
+;
+
+type DisplayScreens = "programInitError" | "helpScreen";
 type MessageTypes =
   | "Blink"
   | "Error"
@@ -15,6 +37,15 @@ type QuestionsTypes =
   | "password"
   | "stringall";
 
+type ParamTypes = "boolean" | "string" | "number" | "stringall";
+type ProgramParams = {
+  flag: string;
+  name: string;
+  desc: string;
+  type: ParamTypes;
+  required?: boolean;
+  valueNeeded?: boolean;
+};
 /**
   # DSLogger
   ---
@@ -28,6 +59,7 @@ class DSLogger {
   //strings
   strings: Record<string, string> = {
     title: "[ Divine Star Logger ]",
+    helpText: "",
     star: `            [1m[35m.[0m
            [1m[35m,[0m[1m[35mX[0m[1m[35m,[0m
           [1m[35m,[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m,[0m
@@ -47,10 +79,46 @@ class DSLogger {
     goodStyle: "\x1b[1m\x1b[37m\x1b[42m",
   };
 
+  consoleCodes: Record<ConsoleCodes, string> = {
+    Reset: "\x1b[0m",
+    Bright: "\x1b[1m",
+    Dim: "\x1b[2m",
+    Underscore: "\x1b[4m",
+    Blink: "\x1b[5m",
+    Reverse: "\x1b[7m",
+    Hidden: "\x1b[8m",
+  }; 
+  consoleFGColors: Record<ConsoleColors, string> = {
+    Black: "\x1b[30m",
+    Red: "\x1b[31m",
+    Green: "\x1b[32m",
+    Yellow: "\x1b[33m",
+    Blue: "\x1b[34m",
+    Magenta: "\x1b[35m",
+    Cyan: "\x1b[36m",
+    White: "\x1b[37m",
+  }
+  consoleBGColors: Record<ConsoleColors, string> = {
+    Black: "\x1b[40m",
+    Red: "\x1b[41m",
+    Green: "\x1b[42m",
+    Yellow: "\x1b[43m",
+    Blue: "\x1b[44m",
+    Magenta: "\x1b[45m",
+    Cyan: "\x1b[46m",
+    White: "\x1b[47m",
+  }
+
   splash: Function = () => {};
   ProgressBar = LoadingBar;
   ServiceBar = ServiceBar;
 
+  params: Map<string, ProgramParams> = new Map();
+  paramValues: Map<
+    string,
+    string | number | boolean | string[] | number[] | undefined
+  > = new Map();
+  requiredParams: Map<string, boolean> = new Map();
   inputs: Map<string, string | number | undefined> = new Map();
 
   askedQuestions = 0;
@@ -87,15 +155,241 @@ class DSLogger {
     },
   };
 
+  screens: Record<DisplayScreens, Function> = {
+    helpScreen: () => {
+      console.log(this._addColor("Title", this.getString("title")) + "\n");
+      console.log(this.getString("helpText") + "\n");
+      const ii = " ";
+      for (let pk of this.paramValues.keys()) {
+        let start = "   ";
+        let param = this.params.get(pk);
+        if (!param) return;
+        if (param.required) {
+          start = " * ";
+        }
+        const message = `${start}-${param.flag}, --${param.name} [${param.type}] ${ii}| ${param.desc}`;
+        console.log(message);
+      }
+      console.log("\n");
+      process.exit(1);
+    },
+    programInitError: (message: string) => {
+      this.newScreen()
+        .show(message, "Error")
+        .show("Run --help for more info.", "Raw");
+      process.exit(0);
+    },
+  };
+
   constructor(private rdl: any) {}
 
-  restartPrompt() {
-    this.questions = {};
-    this.inputs = new Map();
+  styleize(
+    text : string,
+    foreground: ConsoleColors | "none" = "none",
+    background: ConsoleColors | "none" = "none",
+    reverse : boolean = false,
+    bright: boolean = false,
+    dim: boolean = false,
+    underscode: boolean = false,
+    blink: boolean = false
+  ) : string {
+    let front = "";
+    if(foreground != "none"){
+        front += this.consoleFGColors[foreground];
+    }
+    if(background != "none"){
+      front += this.consoleBGColors[background];
+    }
+    if(reverse){
+      front += this.consoleCodes["Reverse"];
+    }
+    if(bright){
+      front += this.consoleCodes["Bright"];
+    }
+    if(dim){
+      front += this.consoleCodes["Dim"];
+    }
+    if(underscode){
+      front += this.consoleCodes["Underscore"];
+    }
+  
+    if(blink){
+      front += this.consoleCodes["Blink"];
+    }
+
+    return front + text + this.consoleCodes["Reset"];
+
+  }
+
+  getParam(name: string) {
+    let p;
+    if ((p = this.params.get(name))) {
+      if (typeof this.paramValues.get(p.flag) !== "undefined") {
+        return this.paramValues.get(p.flag);
+      }
+    }
+    return undefined;
+  }
+
+  ifParamIsset(
+    param: string,
+    func: (value: any, args: any) => {},
+    args: any = {}
+  ) {
+    let p;
+    if ((p = this.params.get(param))) {
+      const v = this.paramValues.get(p.flag);
+      if (typeof v !== "undefined") {
+        func(v, {});
+      }
+    }
+    return this;
+  }
+
+  _isProgramArg(arg: string) {
+    const reg1 = /^-/;
+    const reg2 = /^--/;
+    return reg1.test(arg) || reg2.test(arg);
+  }
+
+  promgramInitErrorScreen(message: string) {
+    this.screens["programInitError"](message);
+  }
+
+  initProgramInput() {
+    const args = process.argv;
+    const argsLength = args.length;
+    let argc = 0;
+
+    for (const arg of args) {
+      if (this._isProgramArg(arg)) {
+        if (arg == "--help") {
+          this.screens["helpScreen"]();
+        }
+        const inputString = arg.replace(/-/g, "");
+        if (this.params.get(inputString)) {
+          const param = this.params.get(inputString);
+          if (!param) return;
+          let value: any = "";
+          if (param.type == "boolean") {
+            if (args[argc + 1]) {
+              const ahead = args[argc + 1];
+              if (ahead == "true") {
+                value = true;
+              }
+              if (ahead == "false") {
+                value = false;
+              }
+              if (this._isProgramArg(ahead)) {
+                value = true;
+              } else {
+                this.promgramInitErrorScreen(
+                  `${param.name} was supplied with the wrong value type. Either leave blank or use true or false. `
+                );
+              }
+            } else {
+              value = true;
+            }
+          }
+          if (param.type == "string") {
+            if (args[argc + 1]) {
+              const ahead = args[argc + 1];
+              if (!this.validators["string"](ahead)) {
+                this.promgramInitErrorScreen(
+                  `${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`
+                );
+              } else {
+                value = ahead;
+              }
+            } else if (param.valueNeeded || param.required) {
+              this.promgramInitErrorScreen(
+                `${param.name} was not supplied with a value.`
+              );
+            } else {
+              value = "";
+            }
+          }
+          if (param.type == "stringall") {
+            if (args[argc + 1]) {
+              const ahead = args[argc + 1];
+              if (!this.validators["stringall"](ahead)) {
+                this.promgramInitErrorScreen(
+                  `${param.name} was supplied with the wrong value type. Please enter a valid string.`
+                );
+              } else {
+                value = ahead;
+              }
+            } else if (param.valueNeeded || param.required) {
+              this.promgramInitErrorScreen(
+                `${param.name} was not supplied with a value.`
+              );
+            } else {
+              value = "";
+            }
+          }
+          if (param.type == "number") {
+            if (args[argc + 1]) {
+              const ahead = args[argc + 1];
+              if (!this.validators["number"](ahead)) {
+                this.promgramInitErrorScreen(
+                  `${param.name} was supplied with the wrong value type. Please enter a valid number.`
+                );
+              } else {
+                value = ahead;
+              }
+            } else if (param.valueNeeded || param.required) {
+              this.promgramInitErrorScreen(
+                `${param.name} was not supplied with a value.`
+              );
+            } else {
+              value = 0;
+            }
+          }
+
+          if (param.required) {
+            this.requiredParams.set(param.flag, true);
+          }
+          this.paramValues.set(param.flag, value);
+        }
+      }
+      argc++;
+    }
+    for (const pk of this.requiredParams.keys()) {
+      if (!this.requiredParams.get(pk)) {
+        const param = this.params.get(pk);
+        if (!param) return;
+        this.promgramInitErrorScreen(
+          `${param.name} is required was not supplied with a value.`
+        );
+      }
+    }
 
     return this;
   }
 
+  defineHelpText(text: string) {
+    this.strings["helpText"] = text;
+    return this;
+  }
+
+  addParam(param: ProgramParams) {
+    if (this.params.get(param.flag)) {
+      throw new Error("Duplicate param.");
+    }
+    this.params.set(param.flag, param);
+    this.params.set(param.name, param);
+    this.paramValues.set(param.flag, undefined);
+    if (param.required) {
+      this.requiredParams.set(param.flag, false);
+    }
+    return this;
+  }
+
+  restartPrompt() {
+    this.questions = {};
+    this.inputs = new Map();
+    return this;
+  }
   async startPrompt() {
     this.rli = rdl.createInterface({
       input: process.stdin,
@@ -279,7 +573,9 @@ class DSLogger {
     if (type == "Data") {
       output = JSON.stringify(message, null, 3);
     }
+    const lines = this._countLines(`${output}`);
     this.rdl.cursorTo(process.stdout, 0, row);
+    this.currentRow += lines;
     console.log(output);
     return this;
   }
@@ -292,7 +588,7 @@ class DSLogger {
     if (type == "Data") {
       output = JSON.stringify(message, null, 3);
     }
-    const lines = this._countLines(output);
+    const lines = this._countLines(`${output}`);
     this.rdl.cursorTo(process.stdout, 0, this.currentRow);
     this.currentRow += lines;
 

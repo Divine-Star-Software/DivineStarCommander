@@ -14,6 +14,7 @@ class DSLogger {
         //strings
         this.strings = {
             title: "[ Divine Star Logger ]",
+            helpText: "",
             star: `            [1m[35m.[0m
            [1m[35m,[0m[1m[35mX[0m[1m[35m,[0m
           [1m[35m,[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m,[0m
@@ -31,9 +32,41 @@ class DSLogger {
             infoStyle: "\x1b[1m\x1b[37m\x1b[46m",
             goodStyle: "\x1b[1m\x1b[37m\x1b[42m",
         };
+        this.consoleCodes = {
+            Reset: "\x1b[0m",
+            Bright: "\x1b[1m",
+            Dim: "\x1b[2m",
+            Underscore: "\x1b[4m",
+            Blink: "\x1b[5m",
+            Reverse: "\x1b[7m",
+            Hidden: "\x1b[8m",
+        };
+        this.consoleFGColors = {
+            Black: "\x1b[30m",
+            Red: "\x1b[31m",
+            Green: "\x1b[32m",
+            Yellow: "\x1b[33m",
+            Blue: "\x1b[34m",
+            Magenta: "\x1b[35m",
+            Cyan: "\x1b[36m",
+            White: "\x1b[37m",
+        };
+        this.consoleBGColors = {
+            Black: "\x1b[40m",
+            Red: "\x1b[41m",
+            Green: "\x1b[42m",
+            Yellow: "\x1b[43m",
+            Blue: "\x1b[44m",
+            Magenta: "\x1b[45m",
+            Cyan: "\x1b[46m",
+            White: "\x1b[47m",
+        };
         this.splash = () => { };
         this.ProgressBar = LoadingBar;
         this.ServiceBar = ServiceBar;
+        this.params = new Map();
+        this.paramValues = new Map();
+        this.requiredParams = new Map();
         this.inputs = new Map();
         this.askedQuestions = 0;
         this.questions = {};
@@ -64,6 +97,204 @@ class DSLogger {
                 return true;
             },
         };
+        this.screens = {
+            helpScreen: () => {
+                console.log(this._addColor("Title", this.getString("title")) + "\n");
+                console.log(this.getString("helpText") + "\n");
+                const ii = " ";
+                for (let pk of this.paramValues.keys()) {
+                    let start = "   ";
+                    let param = this.params.get(pk);
+                    if (!param)
+                        return;
+                    if (param.required) {
+                        start = " * ";
+                    }
+                    const message = `${start}-${param.flag}, --${param.name} [${param.type}] ${ii}| ${param.desc}`;
+                    console.log(message);
+                }
+                console.log("\n");
+                process.exit(1);
+            },
+            programInitError: (message) => {
+                this.newScreen()
+                    .show(message, "Error")
+                    .show("Run --help for more info.", "Raw");
+                process.exit(0);
+            },
+        };
+    }
+    styleize(text, foreground = "none", background = "none", reverse = false, bright = false, dim = false, underscode = false, blink = false) {
+        let front = "";
+        if (foreground != "none") {
+            front += this.consoleFGColors[foreground];
+        }
+        if (background != "none") {
+            front += this.consoleBGColors[background];
+        }
+        if (reverse) {
+            front += this.consoleCodes["Reverse"];
+        }
+        if (bright) {
+            front += this.consoleCodes["Bright"];
+        }
+        if (dim) {
+            front += this.consoleCodes["Dim"];
+        }
+        if (underscode) {
+            front += this.consoleCodes["Underscore"];
+        }
+        if (blink) {
+            front += this.consoleCodes["Blink"];
+        }
+        return front + text + this.consoleCodes["Reset"];
+    }
+    getParam(name) {
+        let p;
+        if ((p = this.params.get(name))) {
+            if (typeof this.paramValues.get(p.flag) !== "undefined") {
+                return this.paramValues.get(p.flag);
+            }
+        }
+        return undefined;
+    }
+    ifParamIsset(param, func, args = {}) {
+        let p;
+        if ((p = this.params.get(param))) {
+            const v = this.paramValues.get(p.flag);
+            if (typeof v !== "undefined") {
+                func(v, {});
+            }
+        }
+        return this;
+    }
+    _isProgramArg(arg) {
+        const reg1 = /^-/;
+        const reg2 = /^--/;
+        return reg1.test(arg) || reg2.test(arg);
+    }
+    promgramInitErrorScreen(message) {
+        this.screens["programInitError"](message);
+    }
+    initProgramInput() {
+        const args = process.argv;
+        const argsLength = args.length;
+        let argc = 0;
+        for (const arg of args) {
+            if (this._isProgramArg(arg)) {
+                if (arg == "--help") {
+                    this.screens["helpScreen"]();
+                }
+                const inputString = arg.replace(/-/g, "");
+                if (this.params.get(inputString)) {
+                    const param = this.params.get(inputString);
+                    if (!param)
+                        return;
+                    let value = "";
+                    if (param.type == "boolean") {
+                        if (args[argc + 1]) {
+                            const ahead = args[argc + 1];
+                            if (ahead == "true") {
+                                value = true;
+                            }
+                            if (ahead == "false") {
+                                value = false;
+                            }
+                            if (this._isProgramArg(ahead)) {
+                                value = true;
+                            }
+                            else {
+                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Either leave blank or use true or false. `);
+                            }
+                        }
+                        else {
+                            value = true;
+                        }
+                    }
+                    if (param.type == "string") {
+                        if (args[argc + 1]) {
+                            const ahead = args[argc + 1];
+                            if (!this.validators["string"](ahead)) {
+                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`);
+                            }
+                            else {
+                                value = ahead;
+                            }
+                        }
+                        else if (param.valueNeeded || param.required) {
+                            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+                        }
+                        else {
+                            value = "";
+                        }
+                    }
+                    if (param.type == "stringall") {
+                        if (args[argc + 1]) {
+                            const ahead = args[argc + 1];
+                            if (!this.validators["stringall"](ahead)) {
+                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
+                            }
+                            else {
+                                value = ahead;
+                            }
+                        }
+                        else if (param.valueNeeded || param.required) {
+                            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+                        }
+                        else {
+                            value = "";
+                        }
+                    }
+                    if (param.type == "number") {
+                        if (args[argc + 1]) {
+                            const ahead = args[argc + 1];
+                            if (!this.validators["number"](ahead)) {
+                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid number.`);
+                            }
+                            else {
+                                value = ahead;
+                            }
+                        }
+                        else if (param.valueNeeded || param.required) {
+                            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+                        }
+                        else {
+                            value = 0;
+                        }
+                    }
+                    if (param.required) {
+                        this.requiredParams.set(param.flag, true);
+                    }
+                    this.paramValues.set(param.flag, value);
+                }
+            }
+            argc++;
+        }
+        for (const pk of this.requiredParams.keys()) {
+            if (!this.requiredParams.get(pk)) {
+                const param = this.params.get(pk);
+                if (!param)
+                    return;
+                this.promgramInitErrorScreen(`${param.name} is required was not supplied with a value.`);
+            }
+        }
+        return this;
+    }
+    defineHelpText(text) {
+        this.strings["helpText"] = text;
+        return this;
+    }
+    addParam(param) {
+        if (this.params.get(param.flag)) {
+            throw new Error("Duplicate param.");
+        }
+        this.params.set(param.flag, param);
+        this.params.set(param.name, param);
+        this.paramValues.set(param.flag, undefined);
+        if (param.required) {
+            this.requiredParams.set(param.flag, false);
+        }
+        return this;
     }
     restartPrompt() {
         this.questions = {};
@@ -229,7 +460,9 @@ class DSLogger {
         if (type == "Data") {
             output = JSON.stringify(message, null, 3);
         }
+        const lines = this._countLines(`${output}`);
         this.rdl.cursorTo(process.stdout, 0, row);
+        this.currentRow += lines;
         console.log(output);
         return this;
     }
@@ -241,7 +474,7 @@ class DSLogger {
         if (type == "Data") {
             output = JSON.stringify(message, null, 3);
         }
-        const lines = this._countLines(output);
+        const lines = this._countLines(`${output}`);
         this.rdl.cursorTo(process.stdout, 0, this.currentRow);
         this.currentRow += lines;
         console.log(output);

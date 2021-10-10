@@ -61,10 +61,155 @@ var DSLogger = /** @class */ (function () {
         this.splash = function () { };
         this.ProgressBar = LoadingBar;
         this.ServiceBar = ServiceBar;
+        this.inputs = new Map();
+        this.askedQuestions = 0;
+        this.questions = {};
         this.currentRow = 0;
         this.progressBars = {};
         this.serviceBars = {};
+        this.validators = {
+            number: function (input) {
+                var reg = /^\d+$/;
+                return reg.test(input);
+            },
+            digit: function (input) {
+                var reg = /^[0-9]$/;
+                return reg.test(input);
+            },
+            string: function (input) {
+                var reg = /^[a-zA-Z]+$/;
+                return reg.test(input);
+            },
+            email: function (input) {
+                var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return reg.test(input);
+            },
+            password: function (input) {
+                return true;
+            },
+            stringall: function (input) {
+                return true;
+            }
+        };
     }
+    DSLogger.prototype.restartPrompt = function () {
+        this.questions = {};
+        this.inputs = new Map();
+        return this;
+    };
+    DSLogger.prototype.startPrompt = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _i, _a, q;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        this.rli = rdl.createInterface({
+                            input: process.stdin,
+                            output: process.stdout
+                        });
+                        _i = 0, _a = Object.keys(this.questions);
+                        _b.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        q = _a[_i];
+                        return [4 /*yield*/, this._prompt(q, this.questions[q].varName, this.questions[q].varType)];
+                    case 2:
+                        _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        this.rli.close();
+                        return [2 /*return*/, this];
+                }
+            });
+        });
+    };
+    DSLogger.prototype._prompt = function (question, varName, varType) {
+        var _this = this;
+        var passed = true;
+        var gotinput = false;
+        var asked = false;
+        var prom = new Promise(function (resolve) {
+            if (varType == "password") {
+                var stdin_1 = process.openStdin();
+                var listener_1 = function (char) {
+                    char = char + "";
+                    switch (char) {
+                        case "\n":
+                        case "\r":
+                        case "\u0004":
+                            stdin_1.removeListener("data", listener_1);
+                        default:
+                            process.stdout.clearLine(1);
+                            _this.rdl.cursorTo(process.stdout, 0);
+                            process.stdout.write(question + Array(_this.rli.line.length + 1).join("*"));
+                            break;
+                    }
+                };
+                process.stdin.on("data", listener_1);
+            }
+            else {
+                process.stdin.on("data", function (char) { });
+            }
+            var inte;
+            var go = function () {
+                if (passed && gotinput) {
+                    resolve(true);
+                    clearInterval(inte);
+                }
+                else if (asked) {
+                }
+                else {
+                    asked = true;
+                    _this.rli.question(question, function (input) {
+                        _this.currentRow += _this._countLines(question);
+                        _this.rdl.cursorTo(process.stdout, 0, _this.currentRow);
+                        (function () { return __awaiter(_this, void 0, void 0, function () {
+                            return __generator(this, function (_a) {
+                                asked = true;
+                                gotinput = true;
+                                if (!this.validators[varType](input)) {
+                                    passed = false;
+                                    gotinput = false;
+                                    asked = false;
+                                    question = "Please re-enter:";
+                                }
+                                else {
+                                    passed = true;
+                                }
+                                if (passed) {
+                                    this.inputs.set(varName, input);
+                                    resolve(passed);
+                                }
+                                return [2 /*return*/];
+                            });
+                        }); })();
+                    });
+                }
+            };
+            go();
+            inte = setInterval(function () {
+                go();
+            }, 100);
+        });
+        return prom;
+    };
+    DSLogger.prototype.ask = function (question, varName, varType) {
+        this.askedQuestions++;
+        this.inputs.set(varName, undefined);
+        question =
+            this._addColor("Info", question) + this._addColor("Good", ":") + " ";
+        this.questions[question] = {
+            varName: varName,
+            varType: varType
+        };
+        return this;
+    };
+    DSLogger.prototype.getInput = function (varName) {
+        return this.inputs.get(varName);
+    };
     DSLogger.prototype.clearRows = function (rowStart, rowEnd) {
         while (rowStart < rowEnd) {
             var i = 50;
@@ -227,7 +372,7 @@ var DSLogger = /** @class */ (function () {
         return this;
     };
     DSLogger.prototype.defineProgramTitle = function (title) {
-        this.strings['title'] = title;
+        this.strings["title"] = title;
         return this;
     };
     DSLogger.prototype.defineSplashScreen = function (func) {
