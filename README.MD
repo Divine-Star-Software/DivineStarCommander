@@ -32,17 +32,15 @@ To make an easy chainable way to create a CLI fast. This provides a complete pac
 ```typescript
 const dsLog : DSLogger = require("dslog");
 (async () => {
-  //define program splash screen
-  const splash = () => {
-    dsLog
+  dsLog
+    //Defien the program 
+    .defineSplashScreen(()=>{
+      dsLog
       .newScreen()
       .show(dsLog.getString("star"), "Raw")
       .logProgramTitle()
       .sleep(500);
-  };
-  dsLog
-    //Define the program 
-    .defineSplashScreen(splash)
+    })
     .defineProgramTitle("[ DS TESTING ]")
     .defineHelpText("This is an easy command line tool.")
     //Add command line args
@@ -107,14 +105,14 @@ const dsLog : DSLogger = require("dslog");
     .newScreen()
     //Get users input
     .show("Starting user input", "Info")
-    .ask("enter name ", "name", "string")
-    .ask("enter num ", "num", "number");
+    .ask("enter name", "name", "string")
+    .ask("enter num", "num", "number");
   (await dsLog.startPrompt())
   .showSleep(dsLog.getInput("name"), "Info")
     .restartPrompt()
-    .ask("enter email ", "email", "email")
-    .ask("enter password ", "pass", "password")
-    .ask("enter comment ", "comment", "string");
+    .ask("enter email", "email", "email")
+    .ask("enter password", "pass", "password")
+    .ask("enter comment", "comment", "string");
   (await dsLog.startPrompt())
   .showSleep(dsLog.getInput("comment"), "Info")
 })();
