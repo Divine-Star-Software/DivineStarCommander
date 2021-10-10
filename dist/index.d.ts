@@ -42,16 +42,20 @@ type MessageTypes = |
   "Raw" |
   "Data";
 type QuestionDisplayTypes = |
+"question-start" |
   "question" |
+  "delimiter" |
+  "re-ask-start" |
   "re-ask" |
-  "delimiter"
+  "re-ask-delimiter"
 type QuestionsTypes = |
   "string" |
   "number" |
   "digit" |
   "email" |
   "password" |
-  "stringall"
+  "stringall" |
+  "custom"
 type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
 type ProgramParams = {
   flag: string;
@@ -67,7 +71,40 @@ type Strings = |
   "helpText" |
   "star" |
   "seperator" |
-  "questionDelimiter"
+  "questionStart" |
+  "questionDelimiter" |
+  "reAskStart" |
+  "reAskText" |
+  "reAskDelimiter" 
+type StoredQuestions ={
+  varName: string,
+  varType: QuestionsTypes,
+  reAsk ?: boolean,
+  failPrompt ?: string, 
+  attempts ?: number | "all",
+  fails ?: number
+  customName ?: string
+}
+type ProgressBarStyle = {
+  base : string,
+  baseStyle : StyleObject,
+  loaded : string,
+  loadedStyle : StyleObject,
+  size : number,
+  interval : number
+}
+type ServiceBarStyle = {
+  base : string,
+  baseStyle : StyleObject,
+  loadedOne : string,
+  loadedOneStyle : StyleObject,
+  loadedTwo : string,
+  loadedTwoStyle : StyleObject,
+  cap : string,
+  capStyle : StyleObject
+  size : number,
+  interval : number
+}
 /** 
   # DSLogger
   ---
@@ -79,13 +116,6 @@ type Strings = |
   */
 declare class DSLogger {
   rdl: any;
-  strings: Record < string, string > ;
-  splash: Function;
-  ProgressBar: typeof LoadingBar;
-  ServiceBar: typeof ServiceBar;
-  currentRow: number;
-  progressBars: Record < string, LoadingBar > ;
-  serviceBars: Record < string, ServiceBar > ;
   constructor(rdl: any);
   /** # If Param Isset
    * ---
@@ -145,7 +175,7 @@ declare class DSLogger {
    * @param onFail 
    * @param args 
    */
-     fail(reAsk : boolean, reAskMessage : string,attempts : number |"all",onFail ?: Function,args ?: any);
+     fail(reAsk : boolean, reAskMessage : string,attempts : number |"all",onFail ?: Function,arg ?: any);
   /**# Get Input
    * ---
    * Get input from question
@@ -279,6 +309,18 @@ declare class DSLogger {
    * @param styleString
    */
   defineMessageStyle(type: MessageTypes, styleObj ?: StyleObject): this;
+/**# Define Progress Bar Style
+ * ---
+ * Define the default progress bar style.
+ * @param progressBarStyle 
+ */
+  defineProgressBarStyle(progressBarStyle : ProgressBarStyle) : this;
+/**# Service Bar Style
+ * ---
+ * Define the default service bar style. 
+ * @param serviceBarStyle 
+ */
+  defineServiceBarStyle(serviceBarStyle : ServiceBarStyle) : this;
   /** # Define Help Text
    * ---
    * Defines the help text for the program. 
@@ -371,48 +413,13 @@ declare class DSLogger {
   brightMagentaBG(text: string,fg : ConsoleColors | "none") : string;
   brightYellowBG(text: string,fg : ConsoleColors | "none") : string;
 
+  /**# Exit
+   * ---
+   * Calls process.exit
+   */
+  exit()
+
   _addColor(type: MessageTypes, message: any): string;
   _countLines(message: string): number;
 }
-declare class LoadingBar {
-  private rdl;
-  row: number;
-  size: number;
-  done: boolean;
-  cursor: number;
-  timer: any;
-  constructor(rdl: any, row: number, size: number);
-  start(): void;
-  autoFill(): Promise < unknown > ;
-  /**Add Progress Percent
-   * ---
-   * Adds progress to the bar relative to the size.
-   * @param percent Supply an int between 1 - 100
-   */
-  addProgressPerfect(percent: number): Promise < true > | Promise < unknown > ;
-  addProgress(amount: number): Promise < true > | Promise < unknown > ;
-  finish(): void;
-}
-declare class ServiceBar {
-  private rdl;
-  rows: number;
-  size: number;
-  start: number;
-  interval: number;
-  cursor: number;
-  inte: any;
-  constructor(
-    rdl: any,
-    rows ? : number,
-    size ? : number,
-    start ? : number,
-    interval ? : number
-  );
-  clear(): void;
-  reInit(): void;
-  _init(): void;
-  _O(): void;
-  _X(): void;
-  _Cap(): void;
-  _Bar(): void;
-}
+

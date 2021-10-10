@@ -75,16 +75,37 @@ type Strings = |
   "questionDelimiter" |
   "reAskStart" |
   "reAskText" |
-  "reAskDelimiter"
-
+  "reAskDelimiter" 
 type StoredQuestions ={
   varName: string,
   varType: QuestionsTypes,
+  reAsk ?: boolean,
   failPrompt ?: string, 
   attempts ?: number | "all",
   fails ?: number
   customName ?: string
 }
+type ProgressBarStyle = {
+  base : string,
+  baseStyle : StyleObject,
+  loaded : string,
+  loadedStyle : StyleObject,
+  size : number,
+  interval : number
+}
+type ServiceBarStyle = {
+  base : string,
+  baseStyle : StyleObject,
+  loadedOne : string,
+  loadedOneStyle : StyleObject,
+  loadedTwo : string,
+  loadedTwoStyle : StyleObject,
+  cap : string,
+  capStyle : StyleObject
+  size : number,
+  interval : number
+}
+
 /** 
   # DSLogger
   ---
@@ -108,7 +129,7 @@ class DSLogger {
         [1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
-    seperator: "-----------------------------",
+    seperator: "{-----------------------------}",
     questionStart : "-->",
     questionDelimiter: ":",
     reAskStart: "X->",
@@ -117,6 +138,26 @@ class DSLogger {
 
   };
 
+  defaultPrgoressBarStyle : ProgressBarStyle = {
+    base : "-",
+  baseStyle : {},
+  loaded : "=",
+  loadedStyle : {},
+  size : 30,
+  interval : 15
+  }
+  defaultServiceBarStyle : ServiceBarStyle = {
+    base : "X",
+    baseStyle : {bg : "Blue",fg:"White"},
+    loadedOne : "|",
+    loadedOneStyle : {bg:"Magenta",fg:"White"},
+    loadedTwo : "0",
+    loadedTwoStyle : {bg:"Blue",fg:"White"},
+    cap : "}",
+    capStyle : {bg:"Yellow",fg:"White"},
+    size : 30,
+    interval : 80
+  }
   consoleCodes: Record < ConsoleCodes, string > = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
@@ -146,25 +187,20 @@ class DSLogger {
     Cyan: "\x1b[46m",
     White: "\x1b[47m",
   }
-
-
   questionStyles: Record < QuestionDisplayTypes, StyleObject > = {
     "delimiter": {
       fg: "Cyan",
       bright: true
     },
     "question-start" : {
-
     },
     "question": {
-
     },
     "re-ask-start" : {
       fg: "Red",
       bright: true
     },
     "re-ask": {
-
     },
     "re-ask-delimiter": {
       fg: "White",
@@ -205,9 +241,8 @@ class DSLogger {
 
   }
 
-  splash: Function = () => {};
-  ProgressBar = LoadingBar;
-  ServiceBar = ServiceBar;
+
+
 
   params: Map < string, ProgramParams > = new Map();
   paramValues: Map <
@@ -223,8 +258,8 @@ class DSLogger {
   currentRow = 0;
   rli: any;
 
-  progressBars: Record < string, LoadingBar > = {};
-  serviceBars: Record < string, ServiceBar > = {};
+  progressBars: Record < string, any > = {};
+  serviceBars: Record < string, any > = {};
 
   validators: Record < QuestionsTypes, (input: string,type?:string) => boolean > = {
     number: (input: string) => {
@@ -477,10 +512,7 @@ class DSLogger {
     return this;
   }
 
-  defineHelpText(text: string) {
-    this.strings["helpText"] = text;
-    return this;
-  }
+
 
   addParam(param: ProgramParams) {
     if (this.params.get(param.flag)) {
@@ -579,7 +611,7 @@ class DSLogger {
 
                 if(q.attempts && q.attempts != "all" ) {
                     (q as any).fails++;
-                    if(q.fails == q.attempts) {
+                    if(q.fails == q.attempts || !q.reAsk) {
                         this.questionsFails[qID].func( this.questionsFails[qID].args)
                     }
 
@@ -618,12 +650,12 @@ class DSLogger {
 
   
 
-  fail(reAsk : boolean, reAskMessage : string,attempts : number | "all" ="all",onFail ?: Function,args : any = {}){
-
+  fail(reAsk : boolean, reAskMessage : string,attempts : number | "all" ="all",onFail ?: Function,arg : any = {}){
+    this.questions[this.lastQuestion].reAsk = reAsk;
     if(onFail){
       this.questionsFails[this.lastQuestion] = {
         func : onFail,
-        args : args
+        args : arg
       }
  
     } 
@@ -689,8 +721,16 @@ class DSLogger {
   }
 
 
-  newServiceBar(name: string) {
-    const bar = new this.ServiceBar(this.rdl, this.currentRow, 31, 0, 80);
+  newServiceBar(name: string,serviceBarStyle : ServiceBarStyle) {
+    let s;
+    if(serviceBarStyle){
+      s = serviceBarStyle
+    } else {
+      s = this.defaultServiceBarStyle;
+    }
+    const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval,
+      this.styleize(s.base,s.baseStyle),this.styleize(s.loadedOne,s.loadedOneStyle),
+      this.styleize(s.loadedTwo,s.loadedTwoStyle),this.styleize(s.cap,s.capStyle));
     this.currentRow++;
     this.serviceBars[name] = bar;
     return this;
@@ -709,8 +749,17 @@ class DSLogger {
     return this;
   }
 
-  newProgressBar(name: string) {
-    const bar = new this.ProgressBar(this.rdl, this.currentRow, 30);
+
+  newProgressBar(name: string,progressBarStyle ?: ProgressBarStyle) {
+
+    let d;
+    if(progressBarStyle){
+       d = progressBarStyle;
+    } else {
+      d = this.defaultPrgoressBarStyle;
+    }
+   const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size,
+    d.interval,this.styleize(d.base,d.baseStyle),this.styleize(d.loaded,d.loadedStyle));
     this.currentRow++;
     bar.start();
     this.progressBars[name] = bar;
@@ -819,11 +868,24 @@ class DSLogger {
     return this;
   }
 
+  defineProgressBarStyle(progressBarStyle : ProgressBarStyle) {
+    this.defaultPrgoressBarStyle = progressBarStyle;
+    return this;
+  }
+  defineServiceBarStyle(serviceBarStyle : ServiceBarStyle) {
+    this.defaultServiceBarStyle = serviceBarStyle;
+    return this;
+  }
+
   defineProgramTitle(title: string, styleObj ? : StyleObject) {
     this.strings["title"] = title;
     if (styleObj) {
       this.messageStyles["Title"] = styleObj;
     }
+    return this;
+  }
+  defineHelpText(text: string) {
+    this.strings["helpText"] = text;
     return this;
   }
 
@@ -837,12 +899,12 @@ class DSLogger {
   }
 
   defineSplashScreen(func: Function) {
-    this.splash = func;
+    this.screens["splash"] = func;
     return this;
   }
 
   splashScreen() {
-    this.splash();
+    this.screens["splash"]();
     return this;
   }
 
@@ -1046,149 +1108,140 @@ class DSLogger {
 
 
 
+  exit(){
+    process.exit(0);
+  }
 
-}
 
-class LoadingBar {
-  done = false;
-  cursor = 0;
-  timer: any = null;
-  constructor(private rdl: any, public row: number, public size: number) {}
-  start() {
-    //    process.stdout.write("\x1B[?25l")
 
-    for (let i = 0; i < this.size; i++) {
-      process.stdout.write("-");
-      //process.stdout.write("=");
+  ServiceBar = class  {
+    cursor = 0;
+    inte: any;
+    constructor(
+      private rdl: any,
+      public rows: number = 0,
+      public size: number = 32,
+      public start: number = 2,
+      public interval: number = 150,
+      public base = "X",
+      public loadedOne = "0",
+      public loadedTwo = "|",
+      public cap = "}"
+    ) {
+      this._init();
     }
-
-    this.rdl.cursorTo(process.stdout, 0, this.row);
-  }
-
-  autoFill() {
-    this.rdl.cursorTo(process.stdout, 0, this.row);
-    const prom = new Promise((resolve) => {
-      this.start();
-      this.rdl.cursorTo(process.stdout, 0, this.row);
-      this.timer = setInterval(() => {
-        this.addProgress(1);
-        if (this.cursor >= this.size) {
-          clearInterval(this.timer);
-          resolve(true);
-          //  rdl.cursorTo(process.stdout, this.cursor, done);
-        }
-      }, 1200);
-    });
-    return prom;
-  }
-
-  /**Add Progress Percent
-   * ---
-   * Adds progress to the bar relative to the size.
-   * @param percent Supply an int between 1 - 100
-   */
-  addProgressPerfect(percent: number): Promise < true > | Promise < unknown > {
-    const num = this.size * (percent / 100);
-    return this.addProgress(num);
-  }
-
-  addProgress(amount: number): Promise < true > | Promise < unknown > {
-    this.rdl.cursorTo(process.stdout, this.cursor, this.row);
-    let doneLocal = false;
-    const prom = new Promise((resolve) => {
-      let num = this.cursor + amount;
-      const timer = setInterval(() => {
-        if (this.done || doneLocal) {
-          clearInterval(timer);
-          resolve(true);
-          return;
-        }
+  
+    clear() {
+      clearInterval(this.inte);
+    }
+  
+    reInit() {
+      clearInterval(this.inte);
+      this._init();
+    }
+  
+    _init() {
+      this.rdl.cursorTo(process.stdout, this.start, this.rows);
+      for (let i = this.start; i < this.size; i++) {
+        this._X();
+      }
+      this.cursor = this.start;
+      this.inte = setInterval(() => {
+        this.rdl.cursorTo(process.stdout, this.cursor, this.rows);
         this.cursor++;
-
-        if (this.cursor >= this.size) {
-          this.done = true;
-          process.stdout.write("=");
-          console.log("\r");
-        } else if (this.cursor >= num) {
-          process.stdout.write("=");
-          doneLocal = true;
+        if (this.cursor % 2) {
+          this._Bar();
         } else {
-          process.stdout.write("=");
+          this._O();
         }
-      }, 20);
-    });
-    return prom;
-  }
-
-  finish() {
-    const left = this.size - this.cursor;
-    this.addProgress(left);
-  }
-}
-
-class ServiceBar {
-  cursor = 0;
-  inte: any;
-  constructor(
-    private rdl: any,
-    public rows: number = 0,
-    public size: number = 32,
-    public start: number = 2,
-    public interval: number = 150
-  ) {
-    this._init();
-  }
-
-  clear() {
-    clearInterval(this.inte);
-  }
-
-  reInit() {
-    clearInterval(this.inte);
-    this._init();
-  }
-
-  _init() {
-    this.rdl.cursorTo(process.stdout, this.start, this.rows);
-    for (let i = this.start; i < this.size; i++) {
-      this._X();
+        if (this.cursor == this.size) {
+          this.cursor = this.start;
+  
+          this._Cap();
+          this.rdl.cursorTo(process.stdout, this.start, this.rows);
+          for (let i = this.start; i < this.size; i++) {
+            this._X();
+          }
+        }
+      }, this.interval);
     }
-    this.cursor = this.start;
-    this.inte = setInterval(() => {
-      this.rdl.cursorTo(process.stdout, this.cursor, this.rows);
-      this.cursor++;
-      if (this.cursor % 2) {
-        this._Bar();
-      } else {
-        this._O();
+    _X() {
+      process.stdout.write(`\x1b[37m\x1b[44m${this.base}\x1b[0m`);
+    }
+    _O() {
+      process.stdout.write(`\x1b[37m\x1b[45m${this.loadedOne}\x1b[0m`);
+    }
+    _Bar() {
+      process.stdout.write(`\x1b[37m\x1b[44m${this.loadedTwo}\x1b[0m`);
+    }
+    _Cap() {
+      process.stdout.write(`\x1b[37m\x1b[43m${this.cap}\x1b[0m`);
+    }
+  
+  }
+
+  ProgressBar = class  {
+    done = false;
+    cursor = 0;
+    timer: any = null;
+    constructor(private rdl: any, 
+      public row: number, 
+      public size: number,
+      public interval : number = 20,
+      public base = "-",
+      public loaded = "=") {}
+    start() {
+      for (let i = 0; i < this.size; i++) {
+        process.stdout.write(this.base);
       }
-      if (this.cursor == this.size) {
-        this.cursor = this.start;
-
-        this._Cap();
-        this.rdl.cursorTo(process.stdout, this.start, this.rows);
-        for (let i = this.start; i < this.size; i++) {
-          this._X();
-        }
-      }
-    }, this.interval);
-  }
-
-  _O() {
-    const char = "0";
-    process.stdout.write(`\x1b[37m\x1b[45m${char}\x1b[0m`);
-  }
-
-  _X() {
-    process.stdout.write("\x1b[37m\x1b[44mX\x1b[0m");
-  }
-  _Cap() {
-    process.stdout.write("\x1b[37m\x1b[43m}\x1b[0m");
-  }
-  _Bar() {
-    process.stdout.write("\x1b[37m\x1b[44m|\x1b[0m");
+      this.rdl.cursorTo(process.stdout, 0, this.row);
+    }
+    /**Add Progress Percent
+     * ---
+     * Adds progress to the bar relative to the size.
+     * @param percent Supply an int between 1 - 100
+     */
+    addProgressPerfect(percent: number): Promise < true > | Promise < unknown > {
+      const num = this.size * (percent / 100);
+      return this.addProgress(num);
+    }
+    addProgress(amount: number): Promise < true > | Promise < unknown > {
+      this.rdl.cursorTo(process.stdout, this.cursor, this.row);
+      let doneLocal = false;
+      const prom = new Promise((resolve) => {
+        let num = this.cursor + amount;
+        const timer = setInterval(() => {
+          if (this.done || doneLocal) {
+            clearInterval(timer);
+            resolve(true);
+            return;
+          }
+          this.cursor++;
+  
+          if (this.cursor >= this.size) {
+            this.done = true;
+            process.stdout.write(this.loaded);
+            console.log("\r");
+          } else if (this.cursor >= num) {
+            process.stdout.write(this.loaded);
+            doneLocal = true;
+          } else {
+            process.stdout.write(this.loaded);
+          }
+        }, this.interval);
+      });
+      return prom;
+    }
+    finish() {
+      const left = this.size - this.cursor;
+      this.addProgress(left);
+    }
   }
 }
+
+
+
+
 
 const rdl = require("readline");
 const DS = new DSLogger(rdl);

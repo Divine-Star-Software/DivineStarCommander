@@ -225,25 +225,56 @@ Functions related to getting the users input.
 | **startPrompt**   | none                                                                     | Promise of self               | Starts the user input prompt.  |
 | **restartPrompt** | none                                                                     | self                          | Re-sets the user input prompt. |
 | **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes,**customName** ?: string | self | Add a question to the prompt. If using a custom question type you must supply the name of the custom type.|
-| **fail**           | **reAsk** : boolean, **reAskMessage** : string,**attempts** ?: number or "all",**onFail** ?: Function,**args** ?: any = {} | self | And a fail case to the last asked question. If reAsk is set to false it will run the function supplied and pass it the args supplied. |
+| **fail**           | **reAsk** : boolean, **reAskMessage** : string,**attempts** ?: number or "all",**onFail** ?: Function,**arg** ?: any = {} | self | And a fail case to the last asked question. If reAsk is set to false it will run the function supplied and pass it the args supplied. |
 | **getInput**      | none                                                                     | string or number or undefined | Get input from question        |
 
 ### Progress Bar
 
-Functions related to making a progress bar. 
+Functions and types related to making a progress bar. 
+
+> **Progres Bar Style**
+
+| Type          | Description                                         |
+| ------------- | --------------------------------------------------- |
+| **base**    | The base char. Default is "-".                                  |
+| **baseStyle** | A style object for the base char.                    |
+| **loaded**    | A loaded part for the  bar. Default is "=".               |
+| **loadedStyle**     | A style objet for the loaded char.         |
+| **size**     | The size of the progress bar.                            |
+| **interval**    | The interval at which the bar fills. Default is 20ms. |
+
+> **Functions**
+
 
 | Function                 | Params                               | Returns         | Description                                                                  |
 | ------------------------ | ------------------------------------ | --------------- | ---------------------------------------------------------------------------- |
-| **newProgressBar**       | **name** : string                    | self            | Creates a new progress bar at the current row with the given name as its id. |
+| **newProgressBar**       | **name** : string,**style** ?: ProgressBarStyle        | self            | Creates a new progress bar at the current row with the given name as its id. |
 | **incrementProgressBar** | **name**: string, **amount**: number | Promise of self | Increase the given progress bars progress.                                   |
 
 ### Service Bar
 
-Functions related to createing a service bar. 
+Functions and types related to createing a service bar. 
+
+> **Progres Bar Style**
+
+| Type          | Description                                         |
+| ------------- | --------------------------------------------------- |
+| **base**    | The base char for the service bar. Default is "X".                                         |
+| **baseStyle** | Style object for base char.                    |
+| **loadedOne**    | First char for load sequence. Default is "0"                                    |
+| **loadedOneStyle**     | Style object for loaded one char.                            |
+| **loadedTwo**    | Second char for load sequence. Default is "|"                                        |
+| **loadedTwoStyle**     | Style object for loaded two char.                             |
+| **cap**    | Char to appear at the end of the service bar.                                   |
+| **capStyle**     | Style for the cap char.                           |
+| **size**     | Size of the service bar.                                          |
+| **interval**    | Interval at which the bar loads. Default is 80ms.  |
+
+> **Functions**
 
 | Function             | Params            | Returns | Description                                      |
 | -------------------- | ----------------- | ------- | ------------------------------------------------ |
-| **newServiceBar**    | **name** : string | self    | Makes a continuous loading bar at the given row. |
+| **newServiceBar**    | **name** : string,**style** ?: ServiceBarStyle | self    | Makes a continuous loading bar at the given row. |
 | **reInitServiceBar** | **name** : string | self    | Resets a service bar.                          |
 | **destroyServiceBar**| **name** : string| self    | Destroys a service bar.                          |
 
@@ -317,7 +348,7 @@ All properties are optional.
 | **brightWhiteBG**  | **text** : string,**fg** ?: ConsoleColor                           | string    | Returns a string stylized to be bright white blackground.         |
 ### Define and Get Functions
 
-Functions related to setting default strings, screens, and validation. 
+Functions related to setting default strings, screens, and validation. This is for full customization of the program. 
 
 > **Strings**
 
@@ -328,7 +359,24 @@ Built in strings.
 | **helpText**  | Text used for the help screen. |
 | **star**     | Star art. |
 | **seperator**| The seperator displayed when using logSeperator() |
+| **questionStart**   | The string that appears at the start of a question. |
 | **questionDelimiter**   | The string that appears at the end of a question. |
+| **reAskStart**   | The string that appears at the start of a re-ask. |
+| **reAskText**   | The string that appears as the default for a re-ask. |
+| **reAskDelimiter**   | The string that appears at the end of a re-ask. |
+
+> **QuestionDisplayTypes**
+
+Defined styles for the question outputs.
+| Name        | Description                                                                          |
+| ----------- | ------------------------------------------------------------------------------------ |
+| **question-star**   | Style for question start string. |
+| **question**  | Style for questions. |
+| **delimiter**     | Style for question delimiter. |
+| **re-ask-start**| Style for re-ask start |
+| **re-ask**   | Style for re-ask. |
+| **re-ask-delimiter**   | Style for re-ask delimiter |
+
 
 > **Screens**
 
@@ -351,8 +399,10 @@ Built in screens.
 | **defineSplashScreen** | **func** : Function                             | self    | Define the function to be called for the splash screen. This function is just to make it easy cause it is the most common screen to adjust. |
 | **defineProgramTitle** | **title** : string, **styleObj**: StyleObject   | self    | Defines the programs title and optionally the style     |
 | **defineHelpText**     | **text** : string                               | self    | Defines the programs help text.                         |
-| **defineQuestionStyle**| **type**: "question" or "re-ask" or "delimiter", **styleObj**: StyleObject | self    | Use a style object to define a questions style.   |
-| **defineMessageStyle** | **type**: MessageTypes, **styleObj**: StyleObject | self    | se a style object to define a message style.  |
+| **defineQuestionStyle**| **type**: QuestionDisplayTypes, **styleObj**: StyleObject | self    | Use a style object to define a questions style.   |
+| **defineMessageStyle** | **type**: MessageTypes, **styleObj**: StyleObject | self    | Set a style object to define a message style.  |
+ **defineProgressBarStyle** | **style**: ProgressBarStyle | self    | Define the default progress bar style. |
+ **defineServiceBarStyle** | **style**: ServiceBarStyle | self    | Define the default service bar style. |
 | **getString**          | **name** : String                               | self    | Get a built in string.                                  |
 | **setString**          | **name** : String, **string** : string          | self    | Set a built in string.                                  |
 
@@ -375,3 +425,12 @@ Functions used to make the program sleep.
 | ---------- | --------------- | --------------- | ------------------------------------------- |
 | **sleep**  | **ms** : number | self            | Make the progarm sleep via a sync method.   |
 | **setRow** | **ms** : number | Promise of self | Make the program sleep via an async method. |
+
+### Other Functions
+
+Other usefull functions. 
+
+| Function   | Params          | Returns         | Description                                 |
+| ---------- | --------------- | --------------- | ------------------------------------------- |
+| **exit**  | **ms** : number  | none            | Runs process.exit(0).  |
+

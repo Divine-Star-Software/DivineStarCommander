@@ -14,12 +14,32 @@ class DSLogger {
         [1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
-            seperator: "-----------------------------",
+            seperator: "{-----------------------------}",
             questionStart: "-->",
             questionDelimiter: ":",
             reAskStart: "X->",
             reAskText: "The input was not correct please re-enter",
             reAskDelimiter: ":"
+        };
+        this.defaultPrgoressBarStyle = {
+            base: "-",
+            baseStyle: {},
+            loaded: "=",
+            loadedStyle: {},
+            size: 30,
+            interval: 15
+        };
+        this.defaultServiceBarStyle = {
+            base: "X",
+            baseStyle: { bg: "Blue", fg: "White" },
+            loadedOne: "|",
+            loadedOneStyle: { bg: "Magenta", fg: "White" },
+            loadedTwo: "0",
+            loadedTwoStyle: { bg: "Blue", fg: "White" },
+            cap: "}",
+            capStyle: { bg: "Yellow", fg: "White" },
+            size: 30,
+            interval: 80
         };
         this.consoleCodes = {
             Reset: "\x1b[0m",
@@ -99,9 +119,6 @@ class DSLogger {
                 bright: true
             }
         };
-        this.splash = () => { };
-        this.ProgressBar = LoadingBar;
-        this.ServiceBar = ServiceBar;
         this.params = new Map();
         this.paramValues = new Map();
         this.requiredParams = new Map();
@@ -176,6 +193,120 @@ class DSLogger {
             noInput: (message) => {
             },
             done: (message) => {
+            }
+        };
+        this.ServiceBar = class {
+            constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
+                this.rdl = rdl;
+                this.rows = rows;
+                this.size = size;
+                this.start = start;
+                this.interval = interval;
+                this.base = base;
+                this.loadedOne = loadedOne;
+                this.loadedTwo = loadedTwo;
+                this.cap = cap;
+                this.cursor = 0;
+                this._init();
+            }
+            clear() {
+                clearInterval(this.inte);
+            }
+            reInit() {
+                clearInterval(this.inte);
+                this._init();
+            }
+            _init() {
+                this.rdl.cursorTo(process.stdout, this.start, this.rows);
+                for (let i = this.start; i < this.size; i++) {
+                    this._X();
+                }
+                this.cursor = this.start;
+                this.inte = setInterval(() => {
+                    this.rdl.cursorTo(process.stdout, this.cursor, this.rows);
+                    this.cursor++;
+                    if (this.cursor % 2) {
+                        this._Bar();
+                    }
+                    else {
+                        this._O();
+                    }
+                    if (this.cursor == this.size) {
+                        this.cursor = this.start;
+                        this._Cap();
+                        this.rdl.cursorTo(process.stdout, this.start, this.rows);
+                        for (let i = this.start; i < this.size; i++) {
+                            this._X();
+                        }
+                    }
+                }, this.interval);
+            }
+            _X() {
+                process.stdout.write(`\x1b[37m\x1b[44m${this.base}\x1b[0m`);
+            }
+            _O() {
+                process.stdout.write(`\x1b[37m\x1b[45m${this.loadedOne}\x1b[0m`);
+            }
+            _Bar() {
+                process.stdout.write(`\x1b[37m\x1b[44m${this.loadedTwo}\x1b[0m`);
+            }
+            _Cap() {
+                process.stdout.write(`\x1b[37m\x1b[43m${this.cap}\x1b[0m`);
+            }
+        };
+        this.ProgressBar = class {
+            constructor(rdl, row, size, interval = 20, base = "-", loaded = "=") {
+                this.rdl = rdl;
+                this.row = row;
+                this.size = size;
+                this.interval = interval;
+                this.base = base;
+                this.loaded = loaded;
+                this.done = false;
+                this.cursor = 0;
+                this.timer = null;
+            }
+            start() {
+                for (let i = 0; i < this.size; i++) {
+                    process.stdout.write(this.base);
+                }
+                this.rdl.cursorTo(process.stdout, 0, this.row);
+            }
+            addProgressPerfect(percent) {
+                const num = this.size * (percent / 100);
+                return this.addProgress(num);
+            }
+            addProgress(amount) {
+                this.rdl.cursorTo(process.stdout, this.cursor, this.row);
+                let doneLocal = false;
+                const prom = new Promise((resolve) => {
+                    let num = this.cursor + amount;
+                    const timer = setInterval(() => {
+                        if (this.done || doneLocal) {
+                            clearInterval(timer);
+                            resolve(true);
+                            return;
+                        }
+                        this.cursor++;
+                        if (this.cursor >= this.size) {
+                            this.done = true;
+                            process.stdout.write(this.loaded);
+                            console.log("\r");
+                        }
+                        else if (this.cursor >= num) {
+                            process.stdout.write(this.loaded);
+                            doneLocal = true;
+                        }
+                        else {
+                            process.stdout.write(this.loaded);
+                        }
+                    }, this.interval);
+                });
+                return prom;
+            }
+            finish() {
+                const left = this.size - this.cursor;
+                this.addProgress(left);
             }
         };
     }
@@ -338,10 +469,6 @@ class DSLogger {
         }
         return this;
     }
-    defineHelpText(text) {
-        this.strings["helpText"] = text;
-        return this;
-    }
     addParam(param) {
         if (this.params.get(param.flag)) {
             throw new Error("Duplicate param.");
@@ -427,7 +554,7 @@ class DSLogger {
                                 asked = false;
                                 if (q.attempts && q.attempts != "all") {
                                     q.fails++;
-                                    if (q.fails == q.attempts) {
+                                    if (q.fails == q.attempts || !q.reAsk) {
                                         this.questionsFails[qID].func(this.questionsFails[qID].args);
                                     }
                                 }
@@ -462,11 +589,12 @@ class DSLogger {
         });
         return prom;
     }
-    fail(reAsk, reAskMessage, attempts = "all", onFail, args = {}) {
+    fail(reAsk, reAskMessage, attempts = "all", onFail, arg = {}) {
+        this.questions[this.lastQuestion].reAsk = reAsk;
         if (onFail) {
             this.questionsFails[this.lastQuestion] = {
                 func: onFail,
-                args: args
+                args: arg
             };
         }
         this.questions[this.lastQuestion].failPrompt = reAskMessage;
@@ -520,8 +648,15 @@ class DSLogger {
         this.currentRow++;
         return this;
     }
-    newServiceBar(name) {
-        const bar = new this.ServiceBar(this.rdl, this.currentRow, 31, 0, 80);
+    newServiceBar(name, serviceBarStyle) {
+        let s;
+        if (serviceBarStyle) {
+            s = serviceBarStyle;
+        }
+        else {
+            s = this.defaultServiceBarStyle;
+        }
+        const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval, this.styleize(s.base, s.baseStyle), this.styleize(s.loadedOne, s.loadedOneStyle), this.styleize(s.loadedTwo, s.loadedTwoStyle), this.styleize(s.cap, s.capStyle));
         this.currentRow++;
         this.serviceBars[name] = bar;
         return this;
@@ -539,8 +674,15 @@ class DSLogger {
         delete this.serviceBars[name];
         return this;
     }
-    newProgressBar(name) {
-        const bar = new this.ProgressBar(this.rdl, this.currentRow, 30);
+    newProgressBar(name, progressBarStyle) {
+        let d;
+        if (progressBarStyle) {
+            d = progressBarStyle;
+        }
+        else {
+            d = this.defaultPrgoressBarStyle;
+        }
+        const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size, d.interval, this.styleize(d.base, d.baseStyle), this.styleize(d.loaded, d.loadedStyle));
         this.currentRow++;
         bar.start();
         this.progressBars[name] = bar;
@@ -631,11 +773,23 @@ class DSLogger {
         this.messageStyles[type] = styleObj;
         return this;
     }
+    defineProgressBarStyle(progressBarStyle) {
+        this.defaultPrgoressBarStyle = progressBarStyle;
+        return this;
+    }
+    defineServiceBarStyle(serviceBarStyle) {
+        this.defaultServiceBarStyle = serviceBarStyle;
+        return this;
+    }
     defineProgramTitle(title, styleObj) {
         this.strings["title"] = title;
         if (styleObj) {
             this.messageStyles["Title"] = styleObj;
         }
+        return this;
+    }
+    defineHelpText(text) {
+        this.strings["helpText"] = text;
         return this;
     }
     defineScreen(screen, func) {
@@ -646,11 +800,11 @@ class DSLogger {
         this.screens[screen](args);
     }
     defineSplashScreen(func) {
-        this.splash = func;
+        this.screens["splash"] = func;
         return this;
     }
     splashScreen() {
-        this.splash();
+        this.screens["splash"]();
         return this;
     }
     getString(id) {
@@ -844,128 +998,8 @@ class DSLogger {
             fg: fg
         });
     }
-}
-class LoadingBar {
-    constructor(rdl, row, size) {
-        this.rdl = rdl;
-        this.row = row;
-        this.size = size;
-        this.done = false;
-        this.cursor = 0;
-        this.timer = null;
-    }
-    start() {
-        for (let i = 0; i < this.size; i++) {
-            process.stdout.write("-");
-        }
-        this.rdl.cursorTo(process.stdout, 0, this.row);
-    }
-    autoFill() {
-        this.rdl.cursorTo(process.stdout, 0, this.row);
-        const prom = new Promise((resolve) => {
-            this.start();
-            this.rdl.cursorTo(process.stdout, 0, this.row);
-            this.timer = setInterval(() => {
-                this.addProgress(1);
-                if (this.cursor >= this.size) {
-                    clearInterval(this.timer);
-                    resolve(true);
-                }
-            }, 1200);
-        });
-        return prom;
-    }
-    addProgressPerfect(percent) {
-        const num = this.size * (percent / 100);
-        return this.addProgress(num);
-    }
-    addProgress(amount) {
-        this.rdl.cursorTo(process.stdout, this.cursor, this.row);
-        let doneLocal = false;
-        const prom = new Promise((resolve) => {
-            let num = this.cursor + amount;
-            const timer = setInterval(() => {
-                if (this.done || doneLocal) {
-                    clearInterval(timer);
-                    resolve(true);
-                    return;
-                }
-                this.cursor++;
-                if (this.cursor >= this.size) {
-                    this.done = true;
-                    process.stdout.write("=");
-                    console.log("\r");
-                }
-                else if (this.cursor >= num) {
-                    process.stdout.write("=");
-                    doneLocal = true;
-                }
-                else {
-                    process.stdout.write("=");
-                }
-            }, 20);
-        });
-        return prom;
-    }
-    finish() {
-        const left = this.size - this.cursor;
-        this.addProgress(left);
-    }
-}
-class ServiceBar {
-    constructor(rdl, rows = 0, size = 32, start = 2, interval = 150) {
-        this.rdl = rdl;
-        this.rows = rows;
-        this.size = size;
-        this.start = start;
-        this.interval = interval;
-        this.cursor = 0;
-        this._init();
-    }
-    clear() {
-        clearInterval(this.inte);
-    }
-    reInit() {
-        clearInterval(this.inte);
-        this._init();
-    }
-    _init() {
-        this.rdl.cursorTo(process.stdout, this.start, this.rows);
-        for (let i = this.start; i < this.size; i++) {
-            this._X();
-        }
-        this.cursor = this.start;
-        this.inte = setInterval(() => {
-            this.rdl.cursorTo(process.stdout, this.cursor, this.rows);
-            this.cursor++;
-            if (this.cursor % 2) {
-                this._Bar();
-            }
-            else {
-                this._O();
-            }
-            if (this.cursor == this.size) {
-                this.cursor = this.start;
-                this._Cap();
-                this.rdl.cursorTo(process.stdout, this.start, this.rows);
-                for (let i = this.start; i < this.size; i++) {
-                    this._X();
-                }
-            }
-        }, this.interval);
-    }
-    _O() {
-        const char = "0";
-        process.stdout.write(`\x1b[37m\x1b[45m${char}\x1b[0m`);
-    }
-    _X() {
-        process.stdout.write("\x1b[37m\x1b[44mX\x1b[0m");
-    }
-    _Cap() {
-        process.stdout.write("\x1b[37m\x1b[43m}\x1b[0m");
-    }
-    _Bar() {
-        process.stdout.write("\x1b[37m\x1b[44m|\x1b[0m");
+    exit() {
+        process.exit(0);
     }
 }
 const rdl = require("readline");
