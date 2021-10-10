@@ -25,7 +25,13 @@ type StyleObject = {
   blink ? : boolean,
   hidden ? : boolean
 }
-type DisplayScreens = "programInitError" | "helpScreen";
+type DisplayScreens = |
+  "splash" |
+  "programInitError" |
+  "helpScreen" |
+  "crash" |
+  "done" |
+  "noInput"
 type MessageTypes = |
   "Blink" |
   "Error" |
@@ -127,8 +133,9 @@ declare class DSLogger {
    * @param question 
    * @param varName 
    * @param varType 
+   * @param customType The name used for the custom question type. 
    */
-  ask(question: string, varName: string, varType: QuestionsTypes);
+  ask(question: string, varName: string, varType: QuestionsTypes,customName?:string);
   /**# Get Input
    * ---
    * Get input from question
@@ -233,9 +240,25 @@ declare class DSLogger {
    * Logs program title
    */
   logProgramTitle(): this;
+
+  /** # Define Validator
+   * ---
+   * Define a validate function for a question type.
+   * @param type 
+   * @param func 
+   * @param name 
+   */
+  defineValidator(type : QuestionsTypes,func : (input:any)=>boolean,name?:string)
+    /**# Define Question Style
+   * ---
+   * Use a style object to define a questions style. 
+   * @param type "question" | "re-ask" | "delimiter"
+   * @param styleString
+   */
+   defineQustionStyle(type: QuestionDisplayTypes, styleObj ?: StyleObject): this;
   /**# Define Message Style
    * ---
-   * Use console code to styleize messages.
+   * Use a style object to define a messages style. 
    * @param type
    * @param styleString
    */
@@ -258,18 +281,43 @@ declare class DSLogger {
    * @param func
    */
   defineSplashScreen(func: Function): this;
+    /**# Define Screen 
+   * ---
+   * Define a function to be called for a screen.
+   * @param screen 
+   * @param func
+   */
+  defineScreen(screen : DisplayScreens, func: Function): this;
+  /**# Display Screen
+   * ---
+   * Display a built in screen. 
+   * @param screen 
+   * @param args Args to be pased to screen. Default is an enpty object. 
+   */
+  displayScreen(screen : DisplayScreens, args ?: any )
   /**# Splash Screen
    * ---
    * Meant to show the programs title/splash screen.
    */
   splashScreen(): this;
+  /**# Program Init Error Screen
+   * ---
+   * Error screen for when the program fails to init. 
+   * @param message 
+   */
+  promgramInitErrorScreen(message : string) : this;
   /**# Get String
    * ---
    * Get a built in string.
    * @param id
    */
   getString(id: Strings): string;
-
+    /**# Set String
+   * ---
+   * Set a built in string. 
+   * @param id
+   */
+  setString(id: Strings,string : string): string;
   //Quick Style Functions
   red(text: string): string;
   green(text: string) : string;

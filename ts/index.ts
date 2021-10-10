@@ -25,7 +25,13 @@ type StyleObject = {
   blink ? : boolean,
   hidden ? : boolean
 }
-type DisplayScreens = "programInitError" | "helpScreen";
+type DisplayScreens = |
+  "splash" |
+  "programInitError" |
+  "helpScreen" |
+  "crash" |
+  "done" |
+  "noInput"
 type MessageTypes = |
   "Blink" |
   "Error" |
@@ -45,7 +51,8 @@ type QuestionsTypes = |
   "digit" |
   "email" |
   "password" |
-  "stringall"
+  "stringall" |
+  "custom"
 type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
 type ProgramParams = {
   flag: string;
@@ -174,14 +181,13 @@ class DSLogger {
   params: Map < string, ProgramParams > = new Map();
   paramValues: Map <
     string,
-    ProgramParamsDataTypes >
-    = new Map();
+    ProgramParamsDataTypes > = new Map();
   requiredParams: Map < string, boolean > = new Map();
   inputs: Map < string, string | number | undefined > = new Map();
 
   askedQuestions = 0;
   questions: Record < string, {
-    varName: string;varType: QuestionsTypes
+    varName: string;varType: QuestionsTypes,customName ?: string
   } > = {};
   currentRow = 0;
   rli: any;
@@ -189,7 +195,7 @@ class DSLogger {
   progressBars: Record < string, LoadingBar > = {};
   serviceBars: Record < string, ServiceBar > = {};
 
-  validators: Record < QuestionsTypes, (input: string) => boolean > = {
+  validators: Record < QuestionsTypes, (input: string,type?:string) => boolean > = {
     number: (input: string) => {
       const reg = /^\d+$/;
       return reg.test(input);
@@ -213,9 +219,20 @@ class DSLogger {
     stringall: (input: string) => {
       return true;
     },
+    custom: (input : string,type ?: string  ) =>{
+      if(!type){
+        return false;
+      }
+      return this.customValidators[type](input);
+    }
   };
 
+  customValidators : Record<string,(input:any)=>boolean>= {};
+
   screens: Record < DisplayScreens, Function > = {
+    splash : () =>{
+
+    },
     helpScreen: () => {
       console.log(this._addColor("Title", this.getString("title")) + "\n");
       console.log(this.getString("helpText") + "\n");
@@ -239,6 +256,15 @@ class DSLogger {
         .show("Run --help for more info.", "Raw");
       process.exit(0);
     },
+    crash : (message : string) =>{
+
+    },
+    noInput : (message : string) =>{
+
+    },
+    done : (message : string) =>{
+
+    }
   };
 
   constructor(private rdl: any) {}
@@ -455,7 +481,8 @@ class DSLogger {
       await this._prompt(
         q,
         this.questions[q].varName,
-        this.questions[q].varType
+        this.questions[q].varType,
+        this.questions[q].customName
       );
     }
 
@@ -463,7 +490,7 @@ class DSLogger {
     return this;
   }
 
-  _prompt(question: string, varName: string, varType: QuestionsTypes) {
+  _prompt(question: string, varName: string, varType: QuestionsTypes,custonName?:string) {
     let passed = true;
     let gotinput = false;
     let asked = false;
@@ -506,7 +533,15 @@ class DSLogger {
               asked = true;
               gotinput = true;
 
-              if (!this.validators[varType](input)) {
+              let valid = false;
+
+              if(varType != "custom"){
+                valid = this.validators[varType](input);
+              } else {
+                valid = this.validators[varType](input,custonName);
+              }
+
+              if (!valid) {
                 passed = false;
                 gotinput = false;
                 asked = false;
@@ -532,7 +567,7 @@ class DSLogger {
     return prom;
   }
 
-  ask(question: string, varName: string, varType: QuestionsTypes) {
+  ask(question: string, varName: string, varType: QuestionsTypes,customName?:string) {
     this.askedQuestions++;
     this.inputs.set(varName, undefined);
     question =
@@ -543,6 +578,9 @@ class DSLogger {
       varName: varName,
       varType: varType,
     };
+    if(customName){
+      this.questions[question].customName = customName;
+    }
     return this;
   }
 
@@ -686,6 +724,23 @@ class DSLogger {
     return this;
   }
 
+
+  defineValidator(type : QuestionsTypes,func : (input:any)=>boolean,name?:string){
+
+    if(type==="custom"){
+      if(!name)return;
+      this.customValidators[name]=func;
+    } else {
+      this.validators[type] = func;
+    }
+
+  }
+
+  defineQuestionStyle(type: QuestionDisplayTypes, styleObj: StyleObject) {
+    this.questionStyles[type] = styleObj;
+    return this;
+  }
+
   defineMessageStyle(type: MessageTypes, styleObj: StyleObject) {
     this.messageStyles[type] = styleObj;
     return this;
@@ -697,6 +752,15 @@ class DSLogger {
       this.messageStyles["Title"] = styleObj;
     }
     return this;
+  }
+
+  defineScreen(screen : DisplayScreens,func : Function) {
+    this.screens[screen] = func;
+    return this;
+  }
+
+  displayScreen(screen : DisplayScreens, args : any = {} ){
+      this.screens[screen](args);
   }
 
   defineSplashScreen(func: Function) {
@@ -711,6 +775,10 @@ class DSLogger {
 
   getString(id: Strings) {
     return this.strings[id];
+  }
+  setString(id: Strings,string : string) {
+    this.strings[id] = string;
+    return this;
   }
   //Quick Styles
   //FG 
@@ -804,102 +872,102 @@ class DSLogger {
     });
   }
   //BG
-  redBG(text: string,fg : ConsoleColors | "none"= "none") {
+  redBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Red",
-      fg : fg
+      fg: fg
     });
   }
-  greenBG(text: string,fg : ConsoleColors | "none"= "none") {
+  greenBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
-      fg : fg
+      fg: fg
     });
   }
-  blueBG(text: string,fg : ConsoleColors | "none"= "none") {
+  blueBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
-      fg : fg
+      fg: fg
     });
   }
-  whiteBG(text: string,fg : ConsoleColors | "none"= "none") {
+  whiteBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
-      fg : fg
+      fg: fg
     });
   }
-  blackBG(text: string,fg : ConsoleColors | "none"= "none") {
+  blackBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Black",
-      fg : fg
+      fg: fg
     });
   }
-  cyanBG(text: string,fg : ConsoleColors | "none"= "none") {
+  cyanBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
-      fg : fg
+      fg: fg
     });
   }
-  magentaBG(text: string,fg : ConsoleColors | "none"= "none") {
+  magentaBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
-      fg : fg
+      fg: fg
     });
   }
-  yellowBG(text: string,fg : ConsoleColors | "none"= "none") {
+  yellowBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
-      fg : fg
+      fg: fg
     });
   }
 
   //Bright
-  brightRedBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightRedBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Red",
-      fg : fg
+      fg: fg
     });
   }
-  brightGreenBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightGreenBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
-      fg : fg
+      fg: fg
     });
   }
-  brightBlueBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightBlueBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
-      fg : fg
+      fg: fg
     });
   }
-  brightWhiteBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightWhiteBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
-      fg : fg
+      fg: fg
     });
   }
-  brightBlackBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightBlackBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Black",
-      fg : fg
+      fg: fg
     });
   }
-  brightCyanBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightCyanBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
-      fg : fg
+      fg: fg
     });
   }
-  brightMagentaBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightMagentaBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
-      fg : fg
+      fg: fg
     });
   }
-  brightYellowBG(text: string,fg : ConsoleColors | "none"= "none") {
+  brightYellowBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
-      fg : fg
+      fg: fg
     });
   }
 

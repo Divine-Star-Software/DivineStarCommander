@@ -15,7 +15,11 @@
   "keywords": [
     "log",
     "logger",
-    "console"
+    "console",
+    "cli",
+    "args",
+    "color",
+    "prompt"
   ],
   "author": "Divine Star LLC",
   "license": "MIT",

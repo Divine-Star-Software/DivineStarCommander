@@ -25,7 +25,7 @@ colored messages, progress bars, and so on.
 
 ## Why?
 
-To make an easy chainable way to create a CLI fast. 
+To make an easy chainable way to create a CLI fast. This provides a complete package for basic command line tools. 
 
 ### Example
 
@@ -188,7 +188,9 @@ If you need to access readline later you can grab it from the dslog object.
 | **showAt**          | **message** : string, **type** : MessageType, **row** : number | self    | Logs message at given row.                                                       |
 | **logProgramTitle** | none                                                           | self    | Logs the program defined title at the current row with the given title style.    |
 | **logSeperator**    | none                                                           | self    | Logs the program defined seperator at the current row with the given info style. |
+| **displayScreen**    | (**screen**:Screens,**args**:any)                                                           | self    | Logs the program defined screen at the current 
 | **splashScreen**    | none                                                           | self    | Logs the program defined splashscreen at the current row.                        |
+| **promgramInitErrorScreen** | **message** : string                 | self    | Logs the program defined program init error screen at the current row.                        |
 | **newScreen**       | none                                                           | self    | Clears the screen and resets the console log row.                                |
 ### User Input Function
 >  **Question Types**
@@ -201,6 +203,7 @@ If you need to access readline later you can grab it from the dslog object.
 | **digit**     | Just one digit.                                     |
 | **email**     | An email.                                           |
 | **password**  | String of chars and numbers. Output will be hidden. |
+| **custom**    | Allow for a custom input type. Must define validation later. |
 
 > **Functions**
 
@@ -208,7 +211,7 @@ If you need to access readline later you can grab it from the dslog object.
 | ----------------- | ------------------------------------------------------------------------ | ----------------------------- | ------------------------------ |
 | **startPrompt**   | none                                                                     | Promise of self               | Starts the user input prompt.  |
 | **restartPrompt** | none                                                                     | self                          | Re-sets the user input prompt. |
-| **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes | self                          |                                |
+| **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes,**customName** ?: string | self | Add a question to the prompt. If using a custom question type you must supply the name of the custom type.|
 | **getInput**      | none                                                                     | string or number or undefined | Get input from question        |
 
 ### Progress Bar
@@ -243,7 +246,7 @@ If you need to access readline later you can grab it from the dslog object.
 > **Style Object**
 
 All properties are optional. 
-| Type        | Description                                                                          |
+| Name        | Description                                                                          |
 | ----------- | ------------------------------------------------------------------------------------ |
 | **fg**   | Foreground color. Must be a ConsoleColor. |
 | **bg**  | Background color. Must be a ConsoleColor. |
@@ -252,6 +255,8 @@ All properties are optional.
 | **blink**   | Makes the text blink |
 | **reverse** | Inverts the foreground and background colors. |
 | **hidden**  | Makes the text hidden. |
+
+> **Style Functions**
 
 | Function               | Params                                          | Returns | Description                                             |
 | ---------------------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
@@ -290,13 +295,42 @@ All properties are optional.
 | **brightWhiteBG**  | **text** : string,**fg** ?: ConsoleColor                           | string    | Returns a string stylized to be bright white blackground.         |
 ### Define and Get Functions
 
+> **Strings**
+
+Built in strings.
+| Name        | Description                                                                          |
+| ----------- | ------------------------------------------------------------------------------------ |
+| **title**   | Title of the program. |
+| **helpText**  | Text used for the help screen. |
+| **star**     | Star art. |
+| **seperator**| The seperator displayed when using logSeperator() |
+| **questionDelimiter**   | The string that appears at the end of a question. |
+
+> **Screens**
+
+Built in screens. 
+| Name        | Description                                                                          |
+| ----------- | ------------------------------------------------------------------------------------ |
+| **splash**  | The program splash screen. |
+| **programInitError**   | Program init error screen. |
+| **helpScreen**  | A userful help screen generated from the program params. |
+| **crash**  | A crash screen. |
+| **done**  | A screen to show when the program is done. |
+| **noInput**  | a screen to show when the program runs with no input.  |
+
+> **Functions**
+
 | Function               | Params                                          | Returns | Description                                             |
 | ---------------------- | ----------------------------------------------- | ------- | ------------------------------------------------------- |
-| **defineSplashScreen** | **func** : Function                             | self    | Define the function to be called for the splash screen. |
+| **defineValidator**    | type : QuestionTypes, **func** : (**input**:string)=>boolean, **customName** : string  | self    | Define the function to be called to validate input. |
+| **defineScreen**       | screen : Screens, **func** : Function           | self    | Define the function to be called for a screen. |
+| **defineSplashScreen** | **func** : Function                             | self    | Define the function to be called for the splash screen. This function is just to make it easy cause it is the most common screen to adjust. |
 | **defineProgramTitle** | **title** : string, **styleObj**: StyleObject   | self    | Defines the programs title and optionally the style     |
 | **defineHelpText**     | **text** : string                               | self    | Defines the programs help text.                         |
-| **defineMessageStyle** | **type**: MessageTypes, **styleObj**: StyleObject | self    | Use console code to styleize messages.                |
-| **getString**          | **name** : string                               | self    | Get a built in string.                                  |
+| **defineQuestionStyle**| **type**: "question" or "re-ask" or "delimiter", **styleObj**: StyleObject | self    | Use a style object to define a questions style.   |
+| **defineMessageStyle** | **type**: MessageTypes, **styleObj**: StyleObject | self    | se a style object to define a message style.  |
+| **getString**          | **name** : String                               | self    | Get a built in string.                                  |
+| **setString**          | **name** : String, **string** : string          | self    | Set a built in string.                                  |
 
 ### Row Functions
 

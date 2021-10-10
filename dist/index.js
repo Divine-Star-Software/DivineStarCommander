@@ -121,8 +121,17 @@ class DSLogger {
             stringall: (input) => {
                 return true;
             },
+            custom: (input, type) => {
+                if (!type) {
+                    return false;
+                }
+                return this.customValidators[type](input);
+            }
         };
+        this.customValidators = {};
         this.screens = {
+            splash: () => {
+            },
             helpScreen: () => {
                 console.log(this._addColor("Title", this.getString("title")) + "\n");
                 console.log(this.getString("helpText") + "\n");
@@ -147,6 +156,12 @@ class DSLogger {
                     .show("Run --help for more info.", "Raw");
                 process.exit(0);
             },
+            crash: (message) => {
+            },
+            noInput: (message) => {
+            },
+            done: (message) => {
+            }
         };
     }
     styleize(text, styleObj) {
@@ -335,12 +350,12 @@ class DSLogger {
             output: process.stdout,
         });
         for (const q of Object.keys(this.questions)) {
-            await this._prompt(q, this.questions[q].varName, this.questions[q].varType);
+            await this._prompt(q, this.questions[q].varName, this.questions[q].varType, this.questions[q].customName);
         }
         this.rli.close();
         return this;
     }
-    _prompt(question, varName, varType) {
+    _prompt(question, varName, varType, custonName) {
         let passed = true;
         let gotinput = false;
         let asked = false;
@@ -381,7 +396,14 @@ class DSLogger {
                         (async () => {
                             asked = true;
                             gotinput = true;
-                            if (!this.validators[varType](input)) {
+                            let valid = false;
+                            if (varType != "custom") {
+                                valid = this.validators[varType](input);
+                            }
+                            else {
+                                valid = this.validators[varType](input, custonName);
+                            }
+                            if (!valid) {
                                 passed = false;
                                 gotinput = false;
                                 asked = false;
@@ -405,7 +427,7 @@ class DSLogger {
         });
         return prom;
     }
-    ask(question, varName, varType) {
+    ask(question, varName, varType, customName) {
         this.askedQuestions++;
         this.inputs.set(varName, undefined);
         question =
@@ -416,6 +438,9 @@ class DSLogger {
             varName: varName,
             varType: varType,
         };
+        if (customName) {
+            this.questions[question].customName = customName;
+        }
         return this;
     }
     getInput(varName) {
@@ -537,6 +562,20 @@ class DSLogger {
         this.show(this.getString("title"), "Title");
         return this;
     }
+    defineValidator(type, func, name) {
+        if (type === "custom") {
+            if (!name)
+                return;
+            this.customValidators[name] = func;
+        }
+        else {
+            this.validators[type] = func;
+        }
+    }
+    defineQuestionStyle(type, styleObj) {
+        this.questionStyles[type] = styleObj;
+        return this;
+    }
     defineMessageStyle(type, styleObj) {
         this.messageStyles[type] = styleObj;
         return this;
@@ -548,6 +587,13 @@ class DSLogger {
         }
         return this;
     }
+    defineScreen(screen, func) {
+        this.screens[screen] = func;
+        return this;
+    }
+    displayScreen(screen, args = {}) {
+        this.screens[screen](args);
+    }
     defineSplashScreen(func) {
         this.splash = func;
         return this;
@@ -558,6 +604,10 @@ class DSLogger {
     }
     getString(id) {
         return this.strings[id];
+    }
+    setString(id, string) {
+        this.strings[id] = string;
+        return this;
     }
     red(text) {
         return this.styleize(text, {
