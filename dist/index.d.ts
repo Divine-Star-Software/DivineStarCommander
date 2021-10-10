@@ -1,49 +1,106 @@
-declare type MessageTypes =
-  | "Blink"
-  | "Error"
-  | "Title"
-  | "Info"
-  | "Good"
-  | "Warning"
-  | "Raw"
-  | "Data";
-  type QuestionsTypes =
-  | "string"
-  | "number"
-  | "digit"
-  | "email"
-  | "password"
-  | "stringall";
-/**
+declare type ConsoleCodes = |
+  "Reset" |
+  "Bright" |
+  "Dim" |
+  "Underscore" |
+  "Blink" |
+  "Reverse" |
+  "Hidden";
+declare type ConsoleColors = |
+  "Black" |
+  "Red" |
+  "Green" |
+  "Yellow" |
+  "Blue" |
+  "Magenta" |
+  "Cyan" |
+  "White";
+declare type DisplayScreens = "programInitError" | "helpScreen";
+declare type MessageTypes = |
+  "Blink" |
+  "Error" |
+  "Title" |
+  "Info" |
+  "Good" |
+  "Warning" |
+  "Raw" |
+  "Data";
+declare type QuestionsTypes = |
+  "string" |
+  "number" |
+  "digit" |
+  "email" |
+  "password" |
+  "stringall";
+type ParamTypes = "boolean" | "string" | "number" | "stringall";
+type ProgramParams = {
+  flag: string;
+  name: string;
+  desc: string;
+  type: ParamTypes;
+  required ? : boolean;
+  valueNeeded ? : boolean;
+}
+type ProgramParamsDataTypes = number | boolean | string | undefined
+/** 
   # DSLogger
   ---
-  Helper class for the programs output.
-  
+  All in one CLI solution for Node.Js made by Divine Star
+  @organization Divine Star LLC
   @author Luke Johnson
   @since 9-19-2021
-  @version 0.0.1
+  @version 1.0.1
   */
 declare class DSLogger {
   rdl: any;
-  strings: Record<string, string>;
+  strings: Record < string, string > ;
   splash: Function;
   ProgressBar: typeof LoadingBar;
   ServiceBar: typeof ServiceBar;
   currentRow: number;
-  progressBars: Record<string, LoadingBar>;
-  serviceBars: Record<string, ServiceBar>;
+  progressBars: Record < string, LoadingBar > ;
+  serviceBars: Record < string, ServiceBar > ;
   constructor(rdl: any);
-
+  /** # If Param Isset
+   * ---
+   * If the param is set run a function. 
+   * @param param Either the name or the flag of the param. 
+   * @param func The function to be run. Will be passed the value of the param and the args given. 
+   * @param args Args to be passed to the function. 
+   */
+  ifParamIsset(
+    param: string,
+    func: (value: ProgramParamsDataTypes, args: any) => {},
+    args: any 
+  )
+  /**# Get Param
+   * ---
+   * Adds a command line arg to the program.
+   * @param name Either the flag or the name of the param.  
+   */
+  getParam(name: string): ProgramParamsDataTypes;
+  /**# Add Param
+   * ---
+   * Adds a command line arg to the program.
+   * @param param An object to specify the param. 
+   */
+  addParam(param: ProgramParams): this;
+  /**# Init Program Input
+   * ---
+   * Parses the arguments sent to the program and stores the values. 
+   * Must run before you can access the values.
+   */
+  initProgramInput(): this;
   /**# Start Prompt
    * ---
    * Starts user input prompt.
    */
-  startPrompt(): Promise<this>;
+  startPrompt(): Promise < this > ;
   /**# Restart Prompt
    * ---
    * Restarat user input prompt.
    */
-  restartPrompt(): Promise<this>;
+  restartPrompt(): Promise < this > ;
   /**# Ask
    * ---
    * Define a question to be asked by the pormpt
@@ -105,7 +162,7 @@ declare class DSLogger {
    * @param name name of bar to increase
    * @param amount amount to increase by
    */
-  incrementProgressBar(name: string, amount: number): Promise<this>;
+  incrementProgressBar(name: string, amount: number): Promise < this > ;
   /**# Sleep
    * ---
    * Makes the program sleep via a loop.
@@ -117,7 +174,7 @@ declare class DSLogger {
    * Makes the program sleep via a promsie.
    * @param ms miliseconds to sleep
    */
-  asyncSleep(ms: number): Promise<this>;
+  asyncSleep(ms: number): Promise < this > ;
   /** # New Screen
    * ---
    * Clears the screen and resets the row.
@@ -145,7 +202,7 @@ declare class DSLogger {
    * @param type
    * @param ms
    */
-  showSleep(message: any, type: MessageTypes, ms?: number): this;
+  showSleep(message: any, type: MessageTypes, ms ? : number): this;
   /** # Log Seperator
    * ---
    * Logs output seperator
@@ -163,6 +220,12 @@ declare class DSLogger {
    * @param styleString
    */
   defineMessageStyle(type: MessageTypes, styleString: string): this;
+  /** # Define Help Text
+   * ---
+   * Defines the help text for the program. 
+   * @param text 
+   */
+  defineHelpText(text : string ): this;
   /**# Define Program Title
    * ---
    * Define the programs title.
@@ -199,14 +262,14 @@ declare class LoadingBar {
   timer: any;
   constructor(rdl: any, row: number, size: number);
   start(): void;
-  autoFill(): Promise<unknown>;
+  autoFill(): Promise < unknown > ;
   /**Add Progress Percent
    * ---
    * Adds progress to the bar relative to the size.
    * @param percent Supply an int between 1 - 100
    */
-  addProgressPerfect(percent: number): Promise<true> | Promise<unknown>;
-  addProgress(amount: number): Promise<true> | Promise<unknown>;
+  addProgressPerfect(percent: number): Promise < true > | Promise < unknown > ;
+  addProgress(amount: number): Promise < true > | Promise < unknown > ;
   finish(): void;
 }
 declare class ServiceBar {
@@ -219,10 +282,10 @@ declare class ServiceBar {
   inte: any;
   constructor(
     rdl: any,
-    rows?: number,
-    size?: number,
-    start?: number,
-    interval?: number
+    rows ? : number,
+    size ? : number,
+    start ? : number,
+    interval ? : number
   );
   clear(): void;
   reInit(): void;

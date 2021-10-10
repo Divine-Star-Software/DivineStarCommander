@@ -2,11 +2,11 @@
 /**
   # DSLogger
   ---
-  Helper class for the programs output.
-  
+  All in one CLI solution for Node.Js made by Divine Star
+  @organization Divine Star LLC
   @author Luke Johnson
   @since 9-19-2021
-  @version 0.0.1
+  @version 1.0.1
   */
 class DSLogger {
     constructor(rdl) {

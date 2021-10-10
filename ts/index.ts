@@ -6,8 +6,6 @@ type ConsoleCodes =
   | "Blink"
   | "Reverse"
   | "Hidden"
-;
-
 type ConsoleColors = 
 | "Black"
 | "Red"
@@ -16,7 +14,7 @@ type ConsoleColors =
 | "Blue"
 | "Magenta"
 | "Cyan"
-| "White";
+| "White"
 type DisplayScreens = "programInitError" | "helpScreen";
 type MessageTypes =
   | "Blink"
@@ -33,9 +31,8 @@ type QuestionsTypes =
   | "digit"
   | "email"
   | "password"
-  | "stringall";
-
-type ParamTypes = "boolean" | "string" | "number" | "stringall";
+  | "stringall"
+type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
 type ProgramParams = {
   flag: string;
   name: string;
@@ -43,15 +40,16 @@ type ProgramParams = {
   type: ParamTypes;
   required?: boolean;
   valueNeeded?: boolean;
-};
-/**
+}
+type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined
+/** 
   # DSLogger
   ---
-  Helper class for the programs output. 
-  
+  All in one CLI solution for Node.Js made by Divine Star
+  @organization Divine Star LLC
   @author Luke Johnson
   @since 9-19-2021
-  @version 0.0.1
+  @version 1.0.1
   */
 class DSLogger {
   //strings
@@ -114,7 +112,7 @@ class DSLogger {
   params: Map<string, ProgramParams> = new Map();
   paramValues: Map<
     string,
-    string | number | boolean | string[] | number[] | undefined
+    ProgramParamsDataTypes
   > = new Map();
   requiredParams: Map<string, boolean> = new Map();
   inputs: Map<string, string | number | undefined> = new Map();
@@ -219,7 +217,7 @@ class DSLogger {
 
   }
 
-  getParam(name: string) {
+  getParam(name: string) : ProgramParamsDataTypes {
     let p;
     if ((p = this.params.get(name))) {
       if (typeof this.paramValues.get(p.flag) !== "undefined") {
@@ -231,7 +229,7 @@ class DSLogger {
 
   ifParamIsset(
     param: string,
-    func: (value: any, args: any) => {},
+    func: (value: ProgramParamsDataTypes, args: any) => {},
     args: any = {}
   ) {
     let p;
