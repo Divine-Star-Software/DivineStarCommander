@@ -312,12 +312,6 @@ class DSLogger {
     }
     styleize(text, styleObj) {
         let front = "";
-        if (styleObj.fg && styleObj.fg != "none") {
-            front += this.consoleFGColors[styleObj.fg];
-        }
-        if (styleObj.bg && styleObj.bg != "none") {
-            front += this.consoleBGColors[styleObj.bg];
-        }
         if (styleObj.reverse) {
             front += this.consoleCodes["Reverse"];
         }
@@ -335,6 +329,12 @@ class DSLogger {
         }
         if (styleObj.blink) {
             front += this.consoleCodes["Blink"];
+        }
+        if (styleObj.bg && styleObj.bg != "none") {
+            front += this.consoleBGColors[styleObj.bg];
+        }
+        if (styleObj.fg && styleObj.fg != "none") {
+            front += this.consoleFGColors[styleObj.fg];
         }
         return front + text + this.consoleCodes["Reset"];
     }
@@ -813,6 +813,14 @@ class DSLogger {
     setString(id, string) {
         this.strings[id] = string;
         return this;
+    }
+    redInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Red",
+            bg: bg,
+            bright: true,
+            reverse: true
+        });
     }
     red(text) {
         return this.styleize(text, {
