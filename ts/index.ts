@@ -1,28 +1,31 @@
-interface StyleShortCode { (string : string): string;
-   s: (message : string)=>DSLogger; 
-   ss: (message : string,sleep ?: number)=>DSLogger; 
-   sa: (message : string,row : number,col ?: number)=>DSLogger; 
-   sas: (message : string,row : number,col ?: number,sleep?:number)=>DSLogger; 
-   l: (message : string )=>DSLogger; 
-   ls: (message : string,sleep ?: number)=>DSLogger; 
-  }
-  interface StyleInvertShortCode { (string : string,bg ?: ConsoleColors | "none"): string;
-  s: (message : string,bg ?: ConsoleColors | "none")=>DSLogger; 
-  ss: (message : string,bg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
-  sa: (message : string,row : number,bg ?: ConsoleColors | "none",col ?: number)=>DSLogger; 
-  sas: (message : string,row : number,bg ?: ConsoleColors | "none",sleep?:number,col ?: number)=>DSLogger; 
-  l: (message : string ,bg ?: ConsoleColors | "none")=>DSLogger; 
-  ls: (message : string,bg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
-   }
-   interface StyleBGShortCode { (string : string,fg ?: ConsoleColors | "none"): string;
-    s: (message : string,fg ?: ConsoleColors | "none")=>DSLogger; 
-    ss: (message : string,fg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
-    sa: (message : string,row : number,fg ?: ConsoleColors | "none",col ?: number)=>DSLogger; 
-    sas: (message : string,row : number,fg ?: ConsoleColors | "none",sleep?:number,col ?: number)=>DSLogger; 
-    l: (message : string ,fg ?: ConsoleColors | "none")=>DSLogger; 
-    ls: (message : string,fg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
-   }
-
+interface StyleShortCode {
+  (string: string): string;
+  s: (message: string) => StyleShortCode;
+  ss: (message: string, sleep ? : number) => StyleShortCode;
+  sa: (message: string, row: number, col ? : number) => StyleShortCode;
+  sas: (message: string, row: number, col ? : number, sleep ? : number) => StyleShortCode;
+  l: (message: string) => StyleShortCode;
+  ls: (message: string, sleep ? : number) => StyleShortCode;
+  DS: DSLogger;
+}
+interface StyleInvertShortCode {
+  (string: string, bg ? : ConsoleColors | "none"): string;
+  s: (message: string, bg ? : ConsoleColors | "none") => DSLogger;
+  ss: (message: string, bg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
+  sa: (message: string, row: number, bg ? : ConsoleColors | "none", col ? : number) => DSLogger;
+  sas: (message: string, row: number, bg ? : ConsoleColors | "none", sleep ? : number, col ? : number) => DSLogger;
+  l: (message: string, bg ? : ConsoleColors | "none") => DSLogger;
+  ls: (message: string, bg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
+}
+interface StyleBGShortCode {
+  (string: string, fg ? : ConsoleColors | "none"): string;
+  s: (message: string, fg ? : ConsoleColors | "none") => DSLogger;
+  ss: (message: string, fg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
+  sa: (message: string, row: number, fg ? : ConsoleColors | "none", col ? : number) => DSLogger;
+  sas: (message: string, row: number, fg ? : ConsoleColors | "none", sleep ? : number, col ? : number) => DSLogger;
+  l: (message: string, fg ? : ConsoleColors | "none") => DSLogger;
+  ls: (message: string, fg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
+}
 type ConsoleCodes = |
   "Reset" |
   "Bright" |
@@ -67,7 +70,7 @@ type MessageTypes = |
   "Raw" |
   "Data";
 type QuestionDisplayTypes = |
-"question-start" |
+  "question-start" |
   "question" |
   "delimiter" |
   "re-ask-start" |
@@ -100,35 +103,35 @@ type Strings = |
   "questionDelimiter" |
   "reAskStart" |
   "reAskText" |
-  "reAskDelimiter" 
-type StoredQuestions ={
+  "reAskDelimiter"
+type StoredQuestions = {
   varName: string,
   varType: QuestionsTypes,
-  reAsk ?: boolean,
-  failPrompt ?: string, 
-  attempts ?: number | "all",
-  fails ?: number
-  customName ?: string
+  reAsk ? : boolean,
+  failPrompt ? : string,
+  attempts ? : number | "all",
+  fails ? : number
+  customName ? : string
 }
 type ProgressBarStyle = {
-  base : string,
-  baseStyle : StyleObject,
-  loaded : string,
-  loadedStyle : StyleObject,
-  size : number,
-  interval : number
+  base: string,
+  baseStyle: StyleObject,
+  loaded: string,
+  loadedStyle: StyleObject,
+  size: number,
+  interval: number
 }
 type ServiceBarStyle = {
-  base : string,
-  baseStyle : StyleObject,
-  loadedOne : string,
-  loadedOneStyle : StyleObject,
-  loadedTwo : string,
-  loadedTwoStyle : StyleObject,
-  cap : string,
-  capStyle : StyleObject
-  size : number,
-  interval : number
+  base: string,
+  baseStyle: StyleObject,
+  loadedOne: string,
+  loadedOneStyle: StyleObject,
+  loadedTwo: string,
+  loadedTwoStyle: StyleObject,
+  cap: string,
+  capStyle: StyleObject
+  size: number,
+  interval: number
 }
 
 /** 
@@ -141,6 +144,10 @@ type ServiceBarStyle = {
   @version 1.0.1
   */
 class DSLogger {
+
+  //Used for chaining styles 
+  defaultStyleDelimiter: StyleObject = {};
+  styleDelimiter: StyleObject = {};
   defaultSleepTime = 800;
   //strings
   strings: Record < Strings, string > = {
@@ -156,33 +163,45 @@ class DSLogger {
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
     seperator: "{-----------------------------}",
-    questionStart : "-->",
+    questionStart: "-->",
     questionDelimiter: ":",
     reAskStart: "X->",
-    reAskText : "The input was not correct please re-enter",
+    reAskText: "The input was not correct please re-enter",
     reAskDelimiter: ":"
 
   };
 
-  defaultPrgoressBarStyle : ProgressBarStyle = {
-    base : "-",
-  baseStyle : {},
-  loaded : "=",
-  loadedStyle : {},
-  size : 30,
-  interval : 15
+  defaultPrgoressBarStyle: ProgressBarStyle = {
+    base: "-",
+    baseStyle: {},
+    loaded: "=",
+    loadedStyle: {},
+    size: 30,
+    interval: 15
   }
-  defaultServiceBarStyle : ServiceBarStyle = {
-    base : "X",
-    baseStyle : {bg : "Blue",fg:"White"},
-    loadedOne : "|",
-    loadedOneStyle : {bg:"Blue",fg:"White"},
-    loadedTwo : "0",
-    loadedTwoStyle : {bg:"Magenta",fg:"White"},
-    cap : "}",
-    capStyle : {bg:"Yellow",fg:"White"},
-    size : 30,
-    interval : 80
+  defaultServiceBarStyle: ServiceBarStyle = {
+    base: "X",
+    baseStyle: {
+      bg: "Blue",
+      fg: "White"
+    },
+    loadedOne: "|",
+    loadedOneStyle: {
+      bg: "Blue",
+      fg: "White"
+    },
+    loadedTwo: "0",
+    loadedTwoStyle: {
+      bg: "Magenta",
+      fg: "White"
+    },
+    cap: "}",
+    capStyle: {
+      bg: "Yellow",
+      fg: "White"
+    },
+    size: 30,
+    interval: 80
   }
   consoleCodes: Record < ConsoleCodes, string > = {
     Reset: "\x1b[0m",
@@ -218,16 +237,13 @@ class DSLogger {
       fg: "Cyan",
       bright: true
     },
-    "question-start" : {
-    },
-    "question": {
-    },
-    "re-ask-start" : {
+    "question-start": {},
+    "question": {},
+    "re-ask-start": {
       fg: "Red",
       bright: true
     },
-    "re-ask": {
-    },
+    "re-ask": {},
     "re-ask-delimiter": {
       fg: "White",
       bright: true
@@ -270,6 +286,7 @@ class DSLogger {
 
 
 
+
   params: Map < string, ProgramParams > = new Map();
   paramValues: Map <
     string,
@@ -277,17 +294,20 @@ class DSLogger {
   requiredParams: Map < string, boolean > = new Map();
   inputs: Map < string, string | number | undefined > = new Map();
 
-  lastQuestion :  string = "";
+  lastQuestion: string = "";
   askedQuestions = 0;
   questions: Record < string, StoredQuestions > = {};
-  questionsFails: Record < string, {args : any,func:Function} > = {};
+  questionsFails: Record < string, {
+    args: any,
+    func: Function
+  } > = {};
   currentRow = 0;
   rli: any;
 
   progressBars: Record < string, any > = {};
   serviceBars: Record < string, any > = {};
 
-  validators: Record < QuestionsTypes, (input: string,type?:string) => boolean > = {
+  validators: Record < QuestionsTypes, (input: string, type ? : string) => boolean > = {
     number: (input: string) => {
       const reg = /^\d+$/;
       return reg.test(input);
@@ -311,18 +331,18 @@ class DSLogger {
     stringall: (input: string) => {
       return true;
     },
-    custom: (input : string,type ?: string  ) =>{
-      if(!type){
+    custom: (input: string, type ? : string) => {
+      if (!type) {
         return false;
       }
       return this.customValidators[type](input);
     }
   };
 
-  customValidators : Record<string,(input:any)=>boolean>= {};
+  customValidators: Record < string, (input: any) => boolean >= {};
 
   screens: Record < DisplayScreens, Function > = {
-    splash : () =>{
+    splash: () => {
 
     },
     helpScreen: () => {
@@ -348,19 +368,19 @@ class DSLogger {
         .show("Run --help for more info.", "Raw");
       process.exit(0);
     },
-    crash : (message : string) =>{
+    crash: (message: string) => {
 
     },
-    noInput : (message : string) =>{
+    noInput: (message: string) => {
 
     },
-    done : (message : string) =>{
+    done: (message: string) => {
 
     }
   };
 
   constructor(public rdl: any) {
-      this._initShortCodes();
+
 
   }
 
@@ -578,7 +598,7 @@ class DSLogger {
     return this;
   }
 
-  _prompt(question: string, varName: string, varType: QuestionsTypes,custonName?:string) {
+  _prompt(question: string, varName: string, varType: QuestionsTypes, custonName ? : string) {
     let passed = true;
     let gotinput = false;
     let asked = false;
@@ -626,10 +646,10 @@ class DSLogger {
 
               let valid = false;
 
-              if(varType != "custom"){
+              if (varType != "custom") {
                 valid = this.validators[varType](input);
               } else {
-                valid = this.validators[varType](input,custonName);
+                valid = this.validators[varType](input, custonName);
               }
 
               if (!valid) {
@@ -638,23 +658,23 @@ class DSLogger {
                 asked = false;
 
 
-                if(q.attempts && q.attempts != "all" ) {
-                    (q as any).fails++;
-                    if(q.fails == q.attempts || !q.reAsk) {
-                        this.questionsFails[qID].func( this.questionsFails[qID].args)
-                    }
+                if (q.attempts && q.attempts != "all") {
+                  (q as any).fails++;
+                  if (q.fails == q.attempts || !q.reAsk) {
+                    this.questionsFails[qID].func(this.questionsFails[qID].args)
+                  }
 
                 }
-                if(q.failPrompt){
-                  question = 
-                this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                this.stylize(q.failPrompt,this.questionStyles["re-ask"]) + " " +
-                this.stylize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
+                if (q.failPrompt) {
+                  question =
+                    this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
+                    this.stylize(q.failPrompt, this.questionStyles["re-ask"]) + " " +
+                    this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) + " ";
                 } else {
-                question = 
-                this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                this.stylize(this.getString("reAskText"),this.questionStyles["re-ask"]) + " " +
-                this.stylize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
+                  question =
+                    this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
+                    this.stylize(this.getString("reAskText"), this.questionStyles["re-ask"]) + " " +
+                    this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) + " ";
                 }
               } else {
                 passed = true;
@@ -677,27 +697,27 @@ class DSLogger {
     return prom;
   }
 
-  
 
-  fail(reAsk : boolean, reAskMessage : string,attempts : number | "all" ="all",onFail ?: Function,arg : any = {}){
+
+  fail(reAsk: boolean, reAskMessage: string, attempts: number | "all" = "all", onFail ? : Function, arg: any = {}) {
     this.questions[this.lastQuestion].reAsk = reAsk;
-    if(onFail){
+    if (onFail) {
       this.questionsFails[this.lastQuestion] = {
-        func : onFail,
-        args : arg
+        func: onFail,
+        args: arg
       }
- 
-    } 
+
+    }
     this.questions[this.lastQuestion].failPrompt = reAskMessage;
-    if(attempts != "all") {
+    if (attempts != "all") {
       this.questions[this.lastQuestion].attempts = attempts;
       this.questions[this.lastQuestion].fails = 0;
     }
     return this;
-    
+
   }
 
-  ask(question: string, varName: string, varType: QuestionsTypes,customName?:string) {
+  ask(question: string, varName: string, varType: QuestionsTypes, customName ? : string) {
     this.askedQuestions++;
     this.inputs.set(varName, undefined);
 
@@ -705,14 +725,14 @@ class DSLogger {
     question =
       this.stylize(this.getString("questionStart"), this.questionStyles["question-start"]) +
       this.stylize(question, this.questionStyles["question"]) + " " +
-      this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) 
-      + " ";
+      this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
+      " ";
     this.questions[question] = {
       varName: varName,
       varType: varType,
     };
     this.lastQuestion = question;
-    if(customName){
+    if (customName) {
       this.questions[question].customName = customName;
     }
     return this;
@@ -750,16 +770,16 @@ class DSLogger {
   }
 
 
-  newServiceBar(name: string,serviceBarStyle : ServiceBarStyle) {
+  newServiceBar(name: string, serviceBarStyle: ServiceBarStyle) {
     let s;
-    if(serviceBarStyle){
+    if (serviceBarStyle) {
       s = serviceBarStyle
     } else {
       s = this.defaultServiceBarStyle;
     }
     const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval,
-      this.stylize(s.base,s.baseStyle),this.stylize(s.loadedOne,s.loadedOneStyle),
-      this.stylize(s.loadedTwo,s.loadedTwoStyle),this.stylize(s.cap,s.capStyle));
+      this.stylize(s.base, s.baseStyle), this.stylize(s.loadedOne, s.loadedOneStyle),
+      this.stylize(s.loadedTwo, s.loadedTwoStyle), this.stylize(s.cap, s.capStyle));
     this.currentRow++;
     this.serviceBars[name] = bar;
     return this;
@@ -779,16 +799,16 @@ class DSLogger {
   }
 
 
-  newProgressBar(name: string,progressBarStyle ?: ProgressBarStyle) {
+  newProgressBar(name: string, progressBarStyle ? : ProgressBarStyle) {
 
     let d;
-    if(progressBarStyle){
-       d = progressBarStyle;
+    if (progressBarStyle) {
+      d = progressBarStyle;
     } else {
       d = this.defaultPrgoressBarStyle;
     }
-   const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size,
-    d.interval,this.stylize(d.base,d.baseStyle),this.stylize(d.loaded,d.loadedStyle));
+    const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size,
+      d.interval, this.stylize(d.base, d.baseStyle), this.stylize(d.loaded, d.loadedStyle));
     this.currentRow++;
     bar.start();
     this.progressBars[name] = bar;
@@ -820,12 +840,12 @@ class DSLogger {
     return this;
   }
 
-  showAtSleep(message: any, type: MessageTypes, row: number,col : number = 0,sleep : number = this.defaultSleepTime) {
-    this.showAt(message,type,row,col);
+  showAtSleep(message: any, type: MessageTypes, row: number, col: number = 0, sleep: number = this.defaultSleepTime) {
+    this.showAt(message, type, row, col);
     return this.sleep(sleep);
   }
 
-  showAt(message: any, type: MessageTypes, row: number,col : number = 0) {
+  showAt(message: any, type: MessageTypes, row: number, col: number = 0) {
     let output = message;
     if (type != "Raw" && type != "Data") {
       output = this._addColor(type, message);
@@ -840,11 +860,17 @@ class DSLogger {
     return this;
   }
 
-  show(message: any, type: MessageTypes) {
+  show(message: any, type : MessageTypes | "none" = "none") {
     let output = message;
     if (type != "Raw" && type != "Data") {
-      output = this._addColor(type, message);
-    }
+              
+      if(type != "none"){
+      output = this.stylize(message,this.messageStyles[type]);
+      } else {
+      output = this.stylize(message,this.styleDelimiter); 
+      }
+  }
+    
     if (type == "Data") {
       output = JSON.stringify(message, null, 3);
     }
@@ -862,7 +888,7 @@ class DSLogger {
     return this;
   }
 
-  log(message : any,type : MessageTypes) {
+  log(message: any, type: MessageTypes) {
     let output = message;
     if (type != "Raw" && type != "Data") {
       output = this._addColor(type, message);
@@ -876,10 +902,26 @@ class DSLogger {
     return this;
   }
 
-  logSleep(message : any,type : MessageTypes, ms: number = this.defaultSleepTime) {
+  logSleep(message: any, type: MessageTypes, ms: number = this.defaultSleepTime) {
 
-    this.log(message,type);
+    this.log(message, type);
     this.sleep(ms);
+    return this;
+  }
+
+
+  logTable(data: object, collumns ? : string[]) {
+    const lines = Object.keys(data).length + 2;
+    this.currentRow += lines;
+    console.table(data, collumns);
+    return this;
+  }
+
+  showTable(data: any, collumns ? : string[]) {
+    const lines = Object.keys(data).length + 2;
+    this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+    console.table(data, collumns);
+    this.currentRow += lines;
     return this;
   }
 
@@ -902,11 +944,11 @@ class DSLogger {
   }
 
 
-  defineValidator(type : QuestionsTypes,func : (input:any)=>boolean,name?:string){
+  defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name ? : string) {
 
-    if(type==="custom"){
-      if(!name)return;
-      this.customValidators[name]=func;
+    if (type === "custom") {
+      if (!name) return;
+      this.customValidators[name] = func;
     } else {
       this.validators[type] = func;
     }
@@ -923,11 +965,11 @@ class DSLogger {
     return this;
   }
 
-  defineProgressBarStyle(progressBarStyle : ProgressBarStyle) {
+  defineProgressBarStyle(progressBarStyle: ProgressBarStyle) {
     this.defaultPrgoressBarStyle = progressBarStyle;
     return this;
   }
-  defineServiceBarStyle(serviceBarStyle : ServiceBarStyle) {
+  defineServiceBarStyle(serviceBarStyle: ServiceBarStyle) {
     this.defaultServiceBarStyle = serviceBarStyle;
     return this;
   }
@@ -944,13 +986,13 @@ class DSLogger {
     return this;
   }
 
-  defineScreen(screen : DisplayScreens,func : Function) {
+  defineScreen(screen: DisplayScreens, func: Function) {
     this.screens[screen] = func;
     return this;
   }
 
-  displayScreen(screen : DisplayScreens, args : any = {} ){
-      this.screens[screen](args);
+  displayScreen(screen: DisplayScreens, args: any = {}) {
+    this.screens[screen](args);
   }
 
   defineSplashScreen(func: Function) {
@@ -966,619 +1008,390 @@ class DSLogger {
   getString(id: Strings) {
     return this.strings[id];
   }
-  setString(id: Strings,string : string) {
+  setString(id: Strings, string: string) {
     this.strings[id] = string;
     return this;
   }
+
+  _copyDefaultStyle(): StyleObject {
+    return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
+  }
   //Quick Styles
+  blink(text: string) {
+
+    this.styleDelimiter.hidden = true;
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+
+  }
+  get BI() {
+    this.styleDelimiter.hidden = true;
+    return this;
+  }
+
+  get BLINK() {
+    this.styleDelimiter.hidden = true;
+    return this;
+  }
+  
+  hidden(text: string) {
+
+    this.styleDelimiter.hidden = true;
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+
+  }
+  get H() {
+    this.styleDelimiter.hidden = true;
+    return this;
+  }
+
+  get HIDDEN() {
+    this.styleDelimiter.hidden = true;
+    return this;
+  }
+
+  underscore(text: string) {
+
+    this.styleDelimiter.underscore = true;
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+
+  }
+  get U() {
+    this.styleDelimiter.underscore = true;
+    return this;
+  }
+
+  get UNDERSCORE() {
+    this.styleDelimiter.underscore = true;
+    return this;
+  }
+
+  dim(text: string) {
+
+    this.styleDelimiter.dim = true;
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+
+  }
+  get D() {
+    this.styleDelimiter.dim = true;
+    return this;
+  }
+
+  get DIM() {
+    this.styleDelimiter.dim = true;
+    return this;
+  }
+
+  bright(text: string) {
+
+    this.styleDelimiter.bright = true;
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+
+  }
+  get BR() {
+    this.styleDelimiter.bright = true;
+    return this;
+  }
+
+  get BRIGHT() {
+    this.styleDelimiter.bright = true;
+    return this;
+  }
+
+
+  invert(text: string) {
+    this.styleDelimiter.reverse = true;
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+
+  }
+  get I() {
+    this.styleDelimiter.reverse = true;
+    return this;
+  }
+
+  get INVERT() {
+    this.styleDelimiter.reverse = true;
+    return this;
+  }
+
+
   //FG 
   //RED TEXT
   red(text: string) {
-    return this.stylize(text, {
-      fg: "Red"
-    });
-
+    this.styleDelimiter.fg = "Red";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  R =<StyleShortCode> this.red;
-  
+  get R() {
+    this.styleDelimiter.fg = "Red";
+    return this;
+  }
+  get RED() {
+    this.styleDelimiter.fg = "Red";
+    return this;
+  }
 
-
-//Green Text
+  //Green Text
   green(text: string) {
-    return this.stylize(text, {
-      fg: "Green"
-    });
+    this.styleDelimiter.fg = "Green";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  G = <StyleShortCode> this.green;
+  get G() {
+    this.styleDelimiter.fg = "Green";
+    return this;
+  }
+  get GREEN() {
+    this.styleDelimiter.fg = "Green";
+    return this;
+  }
 
   //Blue Text
   blue(text: string) {
-    return this.stylize(text, {
-      fg: "Green"
-    });
+    this.styleDelimiter.fg = "Blue";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  B = <StyleShortCode> this.blue;
+  get B() {
+    this.styleDelimiter.fg = "Blue";
+    return this;
+  }
+  get BLUE() {
+    this.styleDelimiter.fg = "Blue";
+    return this;
+  }
 
   //White Text
+
   white(text: string) {
-    return this.stylize(text, {
-      fg: "White"
-    });
+    this.styleDelimiter.fg = "White";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  W = <StyleShortCode> this.white;
+  get W()  {
+    this.styleDelimiter.fg = "White";
+    return this;
+  }
+  get WHITE() {
+    this.styleDelimiter.fg = "White";
+    return this;
+  }
+
 
   black(text: string) {
-    return this.stylize(text, {
-      fg: "Black"
-    });
-
+    this.styleDelimiter.fg = "Black";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  //Black Text
-  BL = <StyleShortCode> this.black;
+  get BL()  {
+    this.styleDelimiter.fg = "Black";
+    return this;
+  }
+  get BLACK() {
+    this.styleDelimiter.fg = "Black";
+    return this;
+  }
 
   //Cyan Text
   cyan(text: string) {
-    return this.stylize(text, {
-      fg: "Cyan"
-    });
+    this.styleDelimiter.fg = "Cyan";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  C = <StyleShortCode> this.cyan;
-
+  get C()  {
+    this.styleDelimiter.fg = "Cyan";
+    return this;
+  }
+  get CYAN() {
+    this.styleDelimiter.fg = "Cyan";
+    return this;
+  }
+//Magenta text
   magenta(text: string) {
-    return this.stylize(text, {
-      fg: "Magenta"
-    });
+    this.styleDelimiter.fg = "Magenta";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  //Magenta Text
-  M =<StyleShortCode>  this.magenta;
+  get M()  {
+    this.styleDelimiter.fg = "Magenta";
+    return this;
+  }
+  get MAGENTA() {
+    this.styleDelimiter.fg = "Magenta";
+    return this;
+  }
 
   //Yellow Text
   yellow(text: string) {
-    return this.stylize(text, {
-      fg: "Yellow"
-    });
+    this.styleDelimiter.fg = "Yellow";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
   }
-  Y = <StyleShortCode> this.yellow;
-
-  //Bright
-  brightRed(text: string) {
-    return this.stylize(text, {
-      fg: "Red",
-      bright: true
-    });
+  get Y()  {
+    this.styleDelimiter.fg = "Yellow";
+    return this;
   }
-  BR = <StyleShortCode> this.brightRed;
- 
-  brightGreen(text: string) {
-    return this.stylize(text, {
-      fg: "Green",
-      bright: true
-    });
-  }
-  BG = <StyleShortCode> this.brightGreen;
-  brightBlue(text: string) {
-    return this.stylize(text, {
-      fg: "Green",
-      bright: true
-    });
-  }
-  BB = <StyleShortCode> this.brightBlue;
-  brightWhite(text: string) {
-    return this.stylize(text, {
-      fg: "White",
-      bright: true
-    });
-  }
-  BW  = <StyleShortCode> this.brightWhite;
-  brightBlack(text: string) {
-    return this.stylize(text, {
-      fg: "Black",
-      bright: true
-    });
-  }
-  BBL = <StyleShortCode> this.brightBlack;
-  brightCyan(text: string) {
-    return this.stylize(text, {
-      fg: "Cyan",
-      bright: true
-    });
-  }
-  BC = <StyleShortCode> this.brightCyan;
-  brightMagenta(text: string) {
-    return this.stylize(text, {
-      fg: "Magenta",
-      bright: true
-    });
-  }
-  BM = <StyleShortCode> this.brightMagenta;
-  brightYellow(text: string) {
-    return this.stylize(text, {
-      fg: "Yellow",
-      bright: true
-    });
-  }
-  BY = <StyleShortCode> this.brightYellow;
-  //Invert
-  blackInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Black",
-      bg : bg,
-      reverse : true
-    });
-  }
-  BLI = <StyleInvertShortCode> this.blackInvert;
-  redInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Red",
-      bg : bg,
-      reverse : true
-    });
-  }
-  RI = <StyleInvertShortCode> this.redInvert;
-  greenInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Green",
-      bg : bg,
-      reverse : true
-    });
-  }
-  GI = <StyleInvertShortCode> this.greenInvert;
-  yellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Yellow",
-      bg : bg,
-      reverse : true
-    });
-  }
-  YI = <StyleInvertShortCode> this.yellowInvert;
-  blueInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Blue",
-      bg : bg,
-      reverse : true
-    });
-  }
-  BI = <StyleInvertShortCode> this.blueInvert;
-  magentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Magenta",
-      bg : bg,
-      reverse : true
-    });
-  }
-  MI = <StyleInvertShortCode> this.magentaInvert;
-  cyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Cyan",
-      bg : bg,
-      reverse : true
-    });
-  }
-  CI = <StyleInvertShortCode> this.cyanInvert;
-  whiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "White",
-      bg : bg,
-      reverse : true
-    });
-  }
-  WI = <StyleInvertShortCode> this.whiteInvert;
-  
-  //Invert Bright
-  brightBlackInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Black",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BBLI = <StyleInvertShortCode> this.brightBlackInvert;
-  brightRedInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Red",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BRI =<StyleInvertShortCode>  this.brightRedInvert;
-
-  brightGreenInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Green",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BGI =<StyleInvertShortCode>  this.brightGreenInvert;
-  brightYellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Yellow",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BYI =<StyleInvertShortCode>  this.brightYellowInvert;
-  brightBlueInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Blue",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BBI =<StyleInvertShortCode>  this.brightBlackInvert;
-  brightMagentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Magenta",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BMI =<StyleInvertShortCode>  this.brightBlueInvert;
-  brightCyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "Cyan",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BCI =<StyleInvertShortCode>  this.brightCyanInvert;
-  brightWhiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      fg: "White",
-      bg : bg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BWI =<StyleInvertShortCode>  this.brightWhiteInvert;
-  //BG
-  redBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Red",
-      fg: fg
-    });
-  }
-  RBG =<StyleBGShortCode>  this.redBG;
-  greenBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Green",
-      fg: fg
-    });
-  }
-  GBG =<StyleBGShortCode>  this.greenBG;
-  blueBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Green",
-      fg: fg
-    });
-  }
-  BBG =<StyleBGShortCode>  this.blueBG
-  whiteBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "White",
-      fg: fg
-    });
-  }
-  WBG =<StyleBGShortCode> this.whiteBG;
-  blackBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Black",
-      fg: fg
-    });
-  }
-  BLBG =<StyleBGShortCode>  this.blackBG;
-  cyanBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Cyan",
-      fg: fg
-    });
-  }
-  CBG =<StyleBGShortCode>  this.cyanBG;
-  magentaBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Magenta",
-      fg: fg
-    });
-  }
-  MBG =<StyleBGShortCode>  this.magentaBG;
-  yellowBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Yellow",
-      fg: fg
-    });
-  }
-  YBG =<StyleBGShortCode>  this.yellowBG;
-  //Bright
-  brightRedBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Red",
-      fg: fg
-    });
-  }
-  BRBG =<StyleBGShortCode>  this.brightRedBG;
-  brightGreenBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Green",
-      fg: fg
-    });
-  }
-  BGBG =<StyleBGShortCode>  this.brightGreenBG;
-  brightBlueBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Green",
-      fg: fg
-    });
-  }
-  BBBG =<StyleBGShortCode>  this.brightBlueBG;
-  brightWhiteBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "White",
-      fg: fg
-    });
-  }
-  BWBG =<StyleBGShortCode>  this.brightWhiteBG;
-  brightBlackBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Black",
-      fg: fg
-    });
-  }
-  BBLBG =<StyleBGShortCode>  this.brightBlackBG;
-  brightCyanBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Cyan",
-      fg: fg
-    });
-  }
-  BCBG =<StyleBGShortCode>  this.brightCyanBG;
-  brightMagentaBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Magenta",
-      fg: fg
-    });
-  }
-  BMBG =<StyleBGShortCode>  this.brightMagentaBG;
-  brightYellowBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Yellow",
-      fg: fg
-    });
-  }
-  BYBG =<StyleBGShortCode>  this.brightYellowBG;
-
-  //Invert
-  blackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Black",
-      fg : fg,
-      reverse : true
-    });
-  }
-  BLIBG =<StyleBGShortCode>  this.blackInvertBG;
-  redInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Red",
-      fg : fg,
-      reverse : true
-    });
-  }
-  RIBG =<StyleBGShortCode>  this.redInvertBG;
-  greenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Green",
-      fg : fg,
-      reverse : true
-    });
-  }
-  GIBG =<StyleBGShortCode>  this.greenInvertBG;
-  yellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Yellow",
-      fg : fg,
-      reverse : true
-    });
-  }
-  YIBG =<StyleBGShortCode>  this.yellowInvertBG;
-  blueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Blue",
-      fg : fg,
-      reverse : true
-    });
-  }
-  BIBG =<StyleBGShortCode>  this.blueInvertBG;
-  magentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Magenta",
-      fg : fg,
-      reverse : true
-    });
-  }
-  MIBG =<StyleBGShortCode>  this.magentaInvertBG;
-  cyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Cyan",
-      fg : fg,
-      reverse : true
-    });
-  }
-  CIBG = <StyleBGShortCode> this.cyanInvertBG;
-  whiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "White",
-      fg : fg,
-      reverse : true
-    });
-  }
-  WIBG = <StyleBGShortCode> this.whiteInvertBG;
-  
-  //Invert Bright
-  brightBlackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Black",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BBLIBG =<StyleBGShortCode>  this.brightBlackInvertBG;
-  brightRedInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Red",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BRIBG =<StyleBGShortCode>  this.brightRedInvertBG;
-  brightGreenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Green",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BGIBG =<StyleBGShortCode>  this.brightGreenInvertBG;
-  brightYellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Yellow",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BYIBG =<StyleBGShortCode>  this.BG;
-  brightBlueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Blue",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BBIBG = <StyleBGShortCode> this.brightBlueInvertBG;
-  brightMagentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Magenta",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BMIBG =<StyleBGShortCode>  this.brightMagentaInvertBG;
-  brightCyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "Cyan",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BCIBG =<StyleBGShortCode>  this.brightCyanInvertBG;
-  brightWhiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.stylize(text, {
-      bg: "White",
-      fg : fg,
-      reverse : true,
-      bright : true
-    });
-  }
-  BWIBG =<StyleBGShortCode>  this.brightWhiteInvertBG;
-
-/*
-*
-*==========================
-*==========================
-*
-*/
-//initShort codes
-
-
-_initShortCodes(){
-  const shortCodes = ["R","G","B","Y","M","C","BL","W","BR","BG","BB","BY","BM","BC","BBL","BW"];
-  for(const code of shortCodes) {
-    const func = <StyleShortCode> (this as any)[code];
-      func.s = (message : string)=>{
-      return this.show(func.call(this,message),"Raw");
-    }
-    func.ss = (message : string,sleep ?: number)=>{
-      return this.show(func.call(this,message),"Raw");
-    }
-    func.sa = (message : string,row : number,col : number = 0 )=> {
-      return this.showAt(func.call(this,message),"Raw",row,col);
-    }
-    func.sas = (message : string,row : number,col ?: number,sleep ?:number )=> { 
-      return this.showAtSleep(func.call(this,message),"Raw",row,col,sleep);
-    }
-    func.l = (message : string)=>{
-      return this.log(func.call(this,message),"Raw");
-    }
-    func.ls = (message : string,sleep ?: number)=>{
-      return this.logSleep(func.call(this,message),"Raw",sleep);
-    }
-  }
-  const invertShortCodes = ["RI","GI","BI","YI","MI","CI","BLI","WI","BRI","BGI","BBI","BYI","BMI","BCI","BBLI","BWI"];
-  for(const code of invertShortCodes) {
-    const func = <StyleInvertShortCode> (this as any)[code];
-   func.s = (message : string,bg : ConsoleColors | "none" = "none")=>{
-    return this.show(func.call(this,message,bg),"Raw");
-    }
-    func.sa = (message : string,row : number,bg : ConsoleColors | "none" = "none" ,col : number = 0)=> {
-    return this.showAt(func.call(this,message,bg),"Raw",row,col);
-    }
-    func.sas = (message : string,row : number,bg : ConsoleColors | "none" = "none",col ?: number,sleep ?:number )=> { 
-    return this.showAtSleep(func.call(this,message,bg),"Raw",row,col,sleep);
-    }
-    func.l = (message : string,bg : ConsoleColors | "none" = "none")=>{
-    return this.log(func.call(this,message,bg),"Raw");
-    }
-    func.ls = (message : string,bg : ConsoleColors | "none" = "none",sleep ?: number)=>{
-    return this.logSleep(func.call(this,message,bg),"Raw",sleep);
-    }
-
-  }
-  const backgroundShortCodes = ["RBG","GBG","BBG","YBG","MBG","CBG","BLBG","WBG","BRBG","BGBG","BBBG","BYBG","BMBG","BCBG","BBLBG","BWBG",
- "RIBG","GIBG","BIBG","YIBG","MIBG","CIBG","BLIBG","WIBG","BRIBG","BGIBG","BBIBG","BYIBG","BMIBG","BCIBG","BBLIBG","BWIBG"];
-  for(const code of backgroundShortCodes) {
-    const func = <StyleBGShortCode> (this as any)[code];
-    func.s = (message : string,fg : ConsoleColors | "none" = "none")=>{
-    return this.show(func.call(this,message,fg),"Raw");
-    }
-    func.sa = (message : string,row : number,fg : ConsoleColors | "none" = "none" ,col : number = 0)=> {
-    return this.showAt(func.call(this,message,fg),"Raw",row,col);
-    }
-    func.sas = (message : string,row : number,fg : ConsoleColors | "none" = "none",col ?: number,sleep ?:number )=> { 
-    return this.showAtSleep(func.call(this,message,fg),"Raw",row,col,sleep);
-    }
-    func.l = (message : string,fg : ConsoleColors | "none" = "none")=>{
-    return this.log(func.call(this,message,fg),"Raw");
-    }
-    func.ls = (message : string,fg : ConsoleColors | "none" = "none",sleep ?: number)=>{
-    return this.logSleep(func.call(this,message,fg),"Raw",sleep);
-    }
+  get YELLOW() {
+    this.styleDelimiter.fg = "Yellow";
+    return this;
   }
 
-} 
+//RED TEXT
+redBG(text: string) {
+  this.styleDelimiter.bg = "Red";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get RBG() {
+  this.styleDelimiter.bg = "Red";
+  return this;
+}
+get REDBG() {
+  this.styleDelimiter.bg = "Red";
+  return this;
+}
+
+//Green Text
+greenBG(text: string) {
+  this.styleDelimiter.bg = "Green";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get GBG() {
+  this.styleDelimiter.bg = "Green";
+  return this;
+}
+get GREENBG() {
+  this.styleDelimiter.bg = "Green";
+  return this;
+}
+
+//Blue Text
+blueBG(text: string) {
+  this.styleDelimiter.bg = "Blue";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get BBG() {
+  this.styleDelimiter.bg = "Blue";
+  return this;
+}
+get BLUEBG() {
+  this.styleDelimiter.bg = "Blue";
+  return this;
+}
+
+//White Text
+
+whiteBG(text: string) {
+  this.styleDelimiter.bg = "White";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get WBG()  {
+  this.styleDelimiter.bg = "White";
+  return this;
+}
+get WHITEBG() {
+  this.styleDelimiter.bg = "White";
+  return this;
+}
+
+
+blackBG(text: string) {
+  this.styleDelimiter.bg = "Black";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get BLBG()  {
+  this.styleDelimiter.bg = "Black";
+  return this;
+}
+get BLACKBG() {
+  this.styleDelimiter.bg = "Black";
+  return this;
+}
+
+//Cyan Text
+cyanBG(text: string) {
+  this.styleDelimiter.bg = "Cyan";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get CBG()  {
+  this.styleDelimiter.bg = "Cyan";
+  return this;
+}
+get CYANBG() {
+  this.styleDelimiter.bg = "Cyan";
+  return this;
+}
+//Magenta text
+magentaBG(text: string) {
+  this.styleDelimiter.bg = "Magenta";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get MBG()  {
+  this.styleDelimiter.bg = "Magenta";
+  return this;
+}
+get MAGENTABG() {
+  this.styleDelimiter.bg = "Magenta";
+  return this;
+}
+
+//Yellow Text
+yellowBG(text: string) {
+  this.styleDelimiter.bg = "Yellow";
+  const string = this.stylize(text, this.styleDelimiter)
+  this.styleDelimiter = this._copyDefaultStyle();
+  return string;
+}
+get YBG()  {
+  this.styleDelimiter.bg = "Yellow";
+  return this;
+}
+get YELLOWBG() {
+  this.styleDelimiter.bg = "Yellow";
+  return this;
+}
+
+
+
   //Other Functions
-  exit(){
+  exit() {
     process.exit(0);
   }
 
-/*
-*
-*==========================
-*==========================
-*
-*/
-  ServiceBar = class  {
+
+  ServiceBar = class {
     cursor = 0;
     inte: any;
     constructor(
@@ -1594,16 +1407,16 @@ _initShortCodes(){
     ) {
       this._init();
     }
-  
+
     clear() {
       clearInterval(this.inte);
     }
-  
+
     reInit() {
       clearInterval(this.inte);
       this._init();
     }
-  
+
     _init() {
       this.rdl.cursorTo(process.stdout, this.start, this.rows);
       for (let i = this.start; i < this.size; i++) {
@@ -1620,7 +1433,7 @@ _initShortCodes(){
         }
         if (this.cursor == this.size) {
           this.cursor = this.start;
-  
+
           this._Cap();
           this.rdl.cursorTo(process.stdout, this.start, this.rows);
           for (let i = this.start; i < this.size; i++) {
@@ -1641,18 +1454,18 @@ _initShortCodes(){
     _Cap() {
       process.stdout.write(`\x1b[37m\x1b[43m${this.cap}\x1b[0m`);
     }
-  
+
   }
 
-  ProgressBar = class  {
+  ProgressBar = class {
     done = false;
     cursor = 0;
     timer: any = null;
     constructor(
-      public rdl: any, 
-      public row: number, 
+      public rdl: any,
+      public row: number,
       public size: number,
-      public interval : number = 20,
+      public interval: number = 20,
       public base = "-",
       public loaded = "=") {}
     start() {
@@ -1677,7 +1490,7 @@ _initShortCodes(){
             return;
           }
           this.cursor++;
-  
+
           if (this.cursor >= this.size) {
             this.done = true;
             process.stdout.write(this.loaded);

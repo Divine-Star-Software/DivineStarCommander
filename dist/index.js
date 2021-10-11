@@ -2,6 +2,8 @@
 class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
+        this.defaultStyleDelimiter = {};
+        this.styleDelimiter = {};
         this.defaultSleepTime = 800;
         this.strings = {
             title: "[ Divine Star Logger ]",
@@ -32,13 +34,25 @@ class DSLogger {
         };
         this.defaultServiceBarStyle = {
             base: "X",
-            baseStyle: { bg: "Blue", fg: "White" },
+            baseStyle: {
+                bg: "Blue",
+                fg: "White"
+            },
             loadedOne: "|",
-            loadedOneStyle: { bg: "Blue", fg: "White" },
+            loadedOneStyle: {
+                bg: "Blue",
+                fg: "White"
+            },
             loadedTwo: "0",
-            loadedTwoStyle: { bg: "Magenta", fg: "White" },
+            loadedTwoStyle: {
+                bg: "Magenta",
+                fg: "White"
+            },
             cap: "}",
-            capStyle: { bg: "Yellow", fg: "White" },
+            capStyle: {
+                bg: "Yellow",
+                fg: "White"
+            },
             size: 30,
             interval: 80
         };
@@ -196,70 +210,6 @@ class DSLogger {
             done: (message) => {
             }
         };
-        this.R = this.red;
-        this.G = this.green;
-        this.B = this.blue;
-        this.W = this.white;
-        this.BL = this.black;
-        this.C = this.cyan;
-        this.M = this.magenta;
-        this.Y = this.yellow;
-        this.BR = this.brightRed;
-        this.BG = this.brightGreen;
-        this.BB = this.brightBlue;
-        this.BW = this.brightWhite;
-        this.BBL = this.brightBlack;
-        this.BC = this.brightCyan;
-        this.BM = this.brightMagenta;
-        this.BY = this.brightYellow;
-        this.BLI = this.blackInvert;
-        this.RI = this.redInvert;
-        this.GI = this.greenInvert;
-        this.YI = this.yellowInvert;
-        this.BI = this.blueInvert;
-        this.MI = this.magentaInvert;
-        this.CI = this.cyanInvert;
-        this.WI = this.whiteInvert;
-        this.BBLI = this.brightBlackInvert;
-        this.BRI = this.brightRedInvert;
-        this.BGI = this.brightGreenInvert;
-        this.BYI = this.brightYellowInvert;
-        this.BBI = this.brightBlackInvert;
-        this.BMI = this.brightBlueInvert;
-        this.BCI = this.brightCyanInvert;
-        this.BWI = this.brightWhiteInvert;
-        this.RBG = this.redBG;
-        this.GBG = this.greenBG;
-        this.BBG = this.blueBG;
-        this.WBG = this.whiteBG;
-        this.BLBG = this.blackBG;
-        this.CBG = this.cyanBG;
-        this.MBG = this.magentaBG;
-        this.YBG = this.yellowBG;
-        this.BRBG = this.brightRedBG;
-        this.BGBG = this.brightGreenBG;
-        this.BBBG = this.brightBlueBG;
-        this.BWBG = this.brightWhiteBG;
-        this.BBLBG = this.brightBlackBG;
-        this.BCBG = this.brightCyanBG;
-        this.BMBG = this.brightMagentaBG;
-        this.BYBG = this.brightYellowBG;
-        this.BLIBG = this.blackInvertBG;
-        this.RIBG = this.redInvertBG;
-        this.GIBG = this.greenInvertBG;
-        this.YIBG = this.yellowInvertBG;
-        this.BIBG = this.blueInvertBG;
-        this.MIBG = this.magentaInvertBG;
-        this.CIBG = this.cyanInvertBG;
-        this.WIBG = this.whiteInvertBG;
-        this.BBLIBG = this.brightBlackInvertBG;
-        this.BRIBG = this.brightRedInvertBG;
-        this.BGIBG = this.brightGreenInvertBG;
-        this.BYIBG = this.BG;
-        this.BBIBG = this.brightBlueInvertBG;
-        this.BMIBG = this.brightMagentaInvertBG;
-        this.BCIBG = this.brightCyanInvertBG;
-        this.BWIBG = this.brightWhiteInvertBG;
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
                 this.rdl = rdl;
@@ -374,7 +324,6 @@ class DSLogger {
                 this.addProgress(left);
             }
         };
-        this._initShortCodes();
     }
     stylize(text, styleObj) {
         let front = "";
@@ -676,8 +625,8 @@ class DSLogger {
         question =
             this.stylize(this.getString("questionStart"), this.questionStyles["question-start"]) +
                 this.stylize(question, this.questionStyles["question"]) + " " +
-                this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"])
-                + " ";
+                this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
+                " ";
         this.questions[question] = {
             varName: varName,
             varType: varType,
@@ -792,10 +741,15 @@ class DSLogger {
         console.log(output);
         return this;
     }
-    show(message, type) {
+    show(message, type = "none") {
         let output = message;
         if (type != "Raw" && type != "Data") {
-            output = this._addColor(type, message);
+            if (type != "none") {
+                output = this.stylize(message, this.messageStyles[type]);
+            }
+            else {
+                output = this.stylize(message, this.styleDelimiter);
+            }
         }
         if (type == "Data") {
             output = JSON.stringify(message, null, 3);
@@ -827,6 +781,19 @@ class DSLogger {
     logSleep(message, type, ms = this.defaultSleepTime) {
         this.log(message, type);
         this.sleep(ms);
+        return this;
+    }
+    logTable(data, collumns) {
+        const lines = Object.keys(data).length + 2;
+        this.currentRow += lines;
+        console.table(data, collumns);
+        return this;
+    }
+    showTable(data, collumns) {
+        const lines = Object.keys(data).length + 2;
+        this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+        console.table(data, collumns);
+        this.currentRow += lines;
         return this;
     }
     _addColor(type, message) {
@@ -902,492 +869,316 @@ class DSLogger {
         this.strings[id] = string;
         return this;
     }
+    _copyDefaultStyle() {
+        return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
+    }
+    blink(text) {
+        this.styleDelimiter.hidden = true;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get BI() {
+        this.styleDelimiter.hidden = true;
+        return this;
+    }
+    get BLINK() {
+        this.styleDelimiter.hidden = true;
+        return this;
+    }
+    hidden(text) {
+        this.styleDelimiter.hidden = true;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get H() {
+        this.styleDelimiter.hidden = true;
+        return this;
+    }
+    get HIDDEN() {
+        this.styleDelimiter.hidden = true;
+        return this;
+    }
+    underscore(text) {
+        this.styleDelimiter.underscore = true;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get U() {
+        this.styleDelimiter.underscore = true;
+        return this;
+    }
+    get UNDERSCORE() {
+        this.styleDelimiter.underscore = true;
+        return this;
+    }
+    dim(text) {
+        this.styleDelimiter.dim = true;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get D() {
+        this.styleDelimiter.dim = true;
+        return this;
+    }
+    get DIM() {
+        this.styleDelimiter.dim = true;
+        return this;
+    }
+    bright(text) {
+        this.styleDelimiter.bright = true;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get BR() {
+        this.styleDelimiter.bright = true;
+        return this;
+    }
+    get BRIGHT() {
+        this.styleDelimiter.bright = true;
+        return this;
+    }
+    invert(text) {
+        this.styleDelimiter.reverse = true;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get I() {
+        this.styleDelimiter.reverse = true;
+        return this;
+    }
+    get INVERT() {
+        this.styleDelimiter.reverse = true;
+        return this;
+    }
     red(text) {
-        return this.stylize(text, {
-            fg: "Red"
-        });
+        this.styleDelimiter.fg = "Red";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get R() {
+        this.styleDelimiter.fg = "Red";
+        return this;
+    }
+    get RED() {
+        this.styleDelimiter.fg = "Red";
+        return this;
     }
     green(text) {
-        return this.stylize(text, {
-            fg: "Green"
-        });
+        this.styleDelimiter.fg = "Green";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get G() {
+        this.styleDelimiter.fg = "Green";
+        return this;
+    }
+    get GREEN() {
+        this.styleDelimiter.fg = "Green";
+        return this;
     }
     blue(text) {
-        return this.stylize(text, {
-            fg: "Green"
-        });
+        this.styleDelimiter.fg = "Blue";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get B() {
+        this.styleDelimiter.fg = "Blue";
+        return this;
+    }
+    get BLUE() {
+        this.styleDelimiter.fg = "Blue";
+        return this;
     }
     white(text) {
-        return this.stylize(text, {
-            fg: "White"
-        });
+        this.styleDelimiter.fg = "White";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get W() {
+        this.styleDelimiter.fg = "White";
+        return this;
+    }
+    get WHITE() {
+        this.styleDelimiter.fg = "White";
+        return this;
     }
     black(text) {
-        return this.stylize(text, {
-            fg: "Black"
-        });
+        this.styleDelimiter.fg = "Black";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get BL() {
+        this.styleDelimiter.fg = "Black";
+        return this;
+    }
+    get BLACK() {
+        this.styleDelimiter.fg = "Black";
+        return this;
     }
     cyan(text) {
-        return this.stylize(text, {
-            fg: "Cyan"
-        });
+        this.styleDelimiter.fg = "Cyan";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get C() {
+        this.styleDelimiter.fg = "Cyan";
+        return this;
+    }
+    get CYAN() {
+        this.styleDelimiter.fg = "Cyan";
+        return this;
     }
     magenta(text) {
-        return this.stylize(text, {
-            fg: "Magenta"
-        });
+        this.styleDelimiter.fg = "Magenta";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get M() {
+        this.styleDelimiter.fg = "Magenta";
+        return this;
+    }
+    get MAGENTA() {
+        this.styleDelimiter.fg = "Magenta";
+        return this;
     }
     yellow(text) {
-        return this.stylize(text, {
-            fg: "Yellow"
-        });
+        this.styleDelimiter.fg = "Yellow";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    brightRed(text) {
-        return this.stylize(text, {
-            fg: "Red",
-            bright: true
-        });
+    get Y() {
+        this.styleDelimiter.fg = "Yellow";
+        return this;
     }
-    brightGreen(text) {
-        return this.stylize(text, {
-            fg: "Green",
-            bright: true
-        });
+    get YELLOW() {
+        this.styleDelimiter.fg = "Yellow";
+        return this;
     }
-    brightBlue(text) {
-        return this.stylize(text, {
-            fg: "Green",
-            bright: true
-        });
+    redBG(text) {
+        this.styleDelimiter.bg = "Red";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    brightWhite(text) {
-        return this.stylize(text, {
-            fg: "White",
-            bright: true
-        });
+    get RBG() {
+        this.styleDelimiter.bg = "Red";
+        return this;
     }
-    brightBlack(text) {
-        return this.stylize(text, {
-            fg: "Black",
-            bright: true
-        });
+    get REDBG() {
+        this.styleDelimiter.bg = "Red";
+        return this;
     }
-    brightCyan(text) {
-        return this.stylize(text, {
-            fg: "Cyan",
-            bright: true
-        });
+    greenBG(text) {
+        this.styleDelimiter.bg = "Green";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    brightMagenta(text) {
-        return this.stylize(text, {
-            fg: "Magenta",
-            bright: true
-        });
+    get GBG() {
+        this.styleDelimiter.bg = "Green";
+        return this;
     }
-    brightYellow(text) {
-        return this.stylize(text, {
-            fg: "Yellow",
-            bright: true
-        });
+    get GREENBG() {
+        this.styleDelimiter.bg = "Green";
+        return this;
     }
-    blackInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Black",
-            bg: bg,
-            reverse: true
-        });
+    blueBG(text) {
+        this.styleDelimiter.bg = "Blue";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    redInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Red",
-            bg: bg,
-            reverse: true
-        });
+    get BBG() {
+        this.styleDelimiter.bg = "Blue";
+        return this;
     }
-    greenInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Green",
-            bg: bg,
-            reverse: true
-        });
+    get BLUEBG() {
+        this.styleDelimiter.bg = "Blue";
+        return this;
     }
-    yellowInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Yellow",
-            bg: bg,
-            reverse: true
-        });
+    whiteBG(text) {
+        this.styleDelimiter.bg = "White";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    blueInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Blue",
-            bg: bg,
-            reverse: true
-        });
+    get WBG() {
+        this.styleDelimiter.bg = "White";
+        return this;
     }
-    magentaInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Magenta",
-            bg: bg,
-            reverse: true
-        });
+    get WHITEBG() {
+        this.styleDelimiter.bg = "White";
+        return this;
     }
-    cyanInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Cyan",
-            bg: bg,
-            reverse: true
-        });
+    blackBG(text) {
+        this.styleDelimiter.bg = "Black";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    whiteInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "White",
-            bg: bg,
-            reverse: true
-        });
+    get BLBG() {
+        this.styleDelimiter.bg = "Black";
+        return this;
     }
-    brightBlackInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Black",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    get BLACKBG() {
+        this.styleDelimiter.bg = "Black";
+        return this;
     }
-    brightRedInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Red",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    cyanBG(text) {
+        this.styleDelimiter.bg = "Cyan";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    brightGreenInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Green",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    get CBG() {
+        this.styleDelimiter.bg = "Cyan";
+        return this;
     }
-    brightYellowInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Yellow",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    get CYANBG() {
+        this.styleDelimiter.bg = "Cyan";
+        return this;
     }
-    brightBlueInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Blue",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    magentaBG(text) {
+        this.styleDelimiter.bg = "Magenta";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    brightMagentaInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Magenta",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    get MBG() {
+        this.styleDelimiter.bg = "Magenta";
+        return this;
     }
-    brightCyanInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "Cyan",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    get MAGENTABG() {
+        this.styleDelimiter.bg = "Magenta";
+        return this;
     }
-    brightWhiteInvert(text, bg = "none") {
-        return this.stylize(text, {
-            fg: "White",
-            bg: bg,
-            reverse: true,
-            bright: true
-        });
+    yellowBG(text) {
+        this.styleDelimiter.bg = "Yellow";
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
     }
-    redBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Red",
-            fg: fg
-        });
+    get YBG() {
+        this.styleDelimiter.bg = "Yellow";
+        return this;
     }
-    greenBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Green",
-            fg: fg
-        });
-    }
-    blueBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Green",
-            fg: fg
-        });
-    }
-    whiteBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "White",
-            fg: fg
-        });
-    }
-    blackBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Black",
-            fg: fg
-        });
-    }
-    cyanBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Cyan",
-            fg: fg
-        });
-    }
-    magentaBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Magenta",
-            fg: fg
-        });
-    }
-    yellowBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Yellow",
-            fg: fg
-        });
-    }
-    brightRedBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Red",
-            fg: fg
-        });
-    }
-    brightGreenBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Green",
-            fg: fg
-        });
-    }
-    brightBlueBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Green",
-            fg: fg
-        });
-    }
-    brightWhiteBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "White",
-            fg: fg
-        });
-    }
-    brightBlackBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Black",
-            fg: fg
-        });
-    }
-    brightCyanBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Cyan",
-            fg: fg
-        });
-    }
-    brightMagentaBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Magenta",
-            fg: fg
-        });
-    }
-    brightYellowBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Yellow",
-            fg: fg
-        });
-    }
-    blackInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Black",
-            fg: fg,
-            reverse: true
-        });
-    }
-    redInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Red",
-            fg: fg,
-            reverse: true
-        });
-    }
-    greenInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Green",
-            fg: fg,
-            reverse: true
-        });
-    }
-    yellowInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Yellow",
-            fg: fg,
-            reverse: true
-        });
-    }
-    blueInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Blue",
-            fg: fg,
-            reverse: true
-        });
-    }
-    magentaInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Magenta",
-            fg: fg,
-            reverse: true
-        });
-    }
-    cyanInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Cyan",
-            fg: fg,
-            reverse: true
-        });
-    }
-    whiteInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "White",
-            fg: fg,
-            reverse: true
-        });
-    }
-    brightBlackInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Black",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightRedInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Red",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightGreenInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Green",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightYellowInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Yellow",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightBlueInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Blue",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightMagentaInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Magenta",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightCyanInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "Cyan",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    brightWhiteInvertBG(text, fg = "none") {
-        return this.stylize(text, {
-            bg: "White",
-            fg: fg,
-            reverse: true,
-            bright: true
-        });
-    }
-    _initShortCodes() {
-        const shortCodes = ["R", "G", "B", "Y", "M", "C", "BL", "W", "BR", "BG", "BB", "BY", "BM", "BC", "BBL", "BW"];
-        for (const code of shortCodes) {
-            const func = this[code];
-            func.s = (message) => {
-                return this.show(func.call(this, message), "Raw");
-            };
-            func.ss = (message, sleep) => {
-                return this.show(func.call(this, message), "Raw");
-            };
-            func.sa = (message, row, col = 0) => {
-                return this.showAt(func.call(this, message), "Raw", row, col);
-            };
-            func.sas = (message, row, col, sleep) => {
-                return this.showAtSleep(func.call(this, message), "Raw", row, col, sleep);
-            };
-            func.l = (message) => {
-                return this.log(func.call(this, message), "Raw");
-            };
-            func.ls = (message, sleep) => {
-                return this.logSleep(func.call(this, message), "Raw", sleep);
-            };
-        }
-        const invertShortCodes = ["RI", "GI", "BI", "YI", "MI", "CI", "BLI", "WI", "BRI", "BGI", "BBI", "BYI", "BMI", "BCI", "BBLI", "BWI"];
-        for (const code of invertShortCodes) {
-            const func = this[code];
-            func.s = (message, bg = "none") => {
-                return this.show(func.call(this, message, bg), "Raw");
-            };
-            func.sa = (message, row, bg = "none", col = 0) => {
-                return this.showAt(func.call(this, message, bg), "Raw", row, col);
-            };
-            func.sas = (message, row, bg = "none", col, sleep) => {
-                return this.showAtSleep(func.call(this, message, bg), "Raw", row, col, sleep);
-            };
-            func.l = (message, bg = "none") => {
-                return this.log(func.call(this, message, bg), "Raw");
-            };
-            func.ls = (message, bg = "none", sleep) => {
-                return this.logSleep(func.call(this, message, bg), "Raw", sleep);
-            };
-        }
-        const backgroundShortCodes = ["RBG", "GBG", "BBG", "YBG", "MBG", "CBG", "BLBG", "WBG", "BRBG", "BGBG", "BBBG", "BYBG", "BMBG", "BCBG", "BBLBG", "BWBG",
-            "RIBG", "GIBG", "BIBG", "YIBG", "MIBG", "CIBG", "BLIBG", "WIBG", "BRIBG", "BGIBG", "BBIBG", "BYIBG", "BMIBG", "BCIBG", "BBLIBG", "BWIBG"];
-        for (const code of backgroundShortCodes) {
-            const func = this[code];
-            func.s = (message, fg = "none") => {
-                return this.show(func.call(this, message, fg), "Raw");
-            };
-            func.sa = (message, row, fg = "none", col = 0) => {
-                return this.showAt(func.call(this, message, fg), "Raw", row, col);
-            };
-            func.sas = (message, row, fg = "none", col, sleep) => {
-                return this.showAtSleep(func.call(this, message, fg), "Raw", row, col, sleep);
-            };
-            func.l = (message, fg = "none") => {
-                return this.log(func.call(this, message, fg), "Raw");
-            };
-            func.ls = (message, fg = "none", sleep) => {
-                return this.logSleep(func.call(this, message, fg), "Raw", sleep);
-            };
-        }
+    get YELLOWBG() {
+        this.styleDelimiter.bg = "Yellow";
+        return this;
     }
     exit() {
         process.exit(0);
