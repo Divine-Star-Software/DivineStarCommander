@@ -1,3 +1,28 @@
+interface StyleShortCode { (string : string): string;
+   s: (message : string)=>DSLogger; 
+   ss: (message : string,sleep ?: number)=>DSLogger; 
+   sa: (message : string,row : number,col ?: number)=>DSLogger; 
+   sas: (message : string,row : number,col ?: number,sleep?:number)=>DSLogger; 
+   l: (message : string )=>DSLogger; 
+   ls: (message : string,sleep ?: number)=>DSLogger; 
+  }
+  interface StyleInvertShortCode { (string : string,bg ?: ConsoleColors | "none"): string;
+  s: (message : string,bg ?: ConsoleColors | "none")=>DSLogger; 
+  ss: (message : string,bg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
+  sa: (message : string,row : number,bg ?: ConsoleColors | "none",col ?: number)=>DSLogger; 
+  sas: (message : string,row : number,bg ?: ConsoleColors | "none",sleep?:number,col ?: number)=>DSLogger; 
+  l: (message : string ,bg ?: ConsoleColors | "none")=>DSLogger; 
+  ls: (message : string,bg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
+   }
+   interface StyleBGShortCode { (string : string,fg ?: ConsoleColors | "none"): string;
+    s: (message : string,fg ?: ConsoleColors | "none")=>DSLogger; 
+    ss: (message : string,fg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
+    sa: (message : string,row : number,fg ?: ConsoleColors | "none",col ?: number)=>DSLogger; 
+    sas: (message : string,row : number,fg ?: ConsoleColors | "none",sleep?:number,col ?: number)=>DSLogger; 
+    l: (message : string ,fg ?: ConsoleColors | "none")=>DSLogger; 
+    ls: (message : string,fg ?: ConsoleColors | "none",sleep ?: number)=>DSLogger; 
+   }
+
 type ConsoleCodes = |
   "Reset" |
   "Bright" |
@@ -334,15 +359,16 @@ class DSLogger {
     }
   };
 
-  constructor(private rdl: any) {}
+  constructor(public rdl: any) {
+      this._initShortCodes();
+
+  }
 
   styleize(
     text: string,
     styleObj: StyleObject
   ): string {
     let front = "";
- 
-  
     if (styleObj.reverse) {
       front += this.consoleCodes["Reverse"];
     }
@@ -794,6 +820,11 @@ class DSLogger {
     return this;
   }
 
+  showAtSleep(message: any, type: MessageTypes, row: number,col : number = 0,sleep : number = this.defaultSleepTime) {
+    this.showAt(message,type,row,col);
+    return this.sleep(sleep);
+  }
+
   showAt(message: any, type: MessageTypes, row: number,col : number = 0) {
     let output = message;
     if (type != "Raw" && type != "Data") {
@@ -846,6 +877,7 @@ class DSLogger {
   }
 
   logSleep(message : any,type : MessageTypes, ms: number = this.defaultSleepTime) {
+
     this.log(message,type);
     this.sleep(ms);
     return this;
@@ -945,23 +977,11 @@ class DSLogger {
     return this.styleize(text, {
       fg: "Red"
     });
+
   }
-  R = this.red;
-  sR(text : string) {
-    return this.show(this.R(text),"Raw");
-  }
-  ssR(text : string) {
-    return this.showSleep(this.R(text),"Raw");
-  }
-  saR(text : string,row : number,col : number = 0) {
-    return this.showAt(this.R(text),"Raw",row,col);
-  }
-  lR(text : string) {
-    return this.log(this.R(text),"Raw");
-  }
-  lsR(text : string){
-    return this.logSleep(this.R(text),"Raw");
-  }
+  R =<StyleShortCode> this.red;
+  
+
 
 //Green Text
   green(text: string) {
@@ -969,154 +989,57 @@ class DSLogger {
       fg: "Green"
     });
   }
-  G = this.green;
-  sG(text : string) {
-    return this.show(this.G(text),"Raw");
-  }
-  ssG(text : string) {
-    return this.showSleep(this.G(text),"Raw");
-  }
-  saG(text : string,row : number,col : number = 0) {
-    return this.showAt(this.G(text),"Raw",row,col);
-  }
-  lG(text : string) {
-    return this.log(this.G(text),"Raw");
-  }
-  lsG(text : string){
-    return this.logSleep(this.G(text),"Raw");
-  }
+  G = <StyleShortCode> this.green;
+
   //Blue Text
   blue(text: string) {
     return this.styleize(text, {
       fg: "Green"
     });
   }
-  B = this.blue;
-  sB(text : string) {
-    return this.show(this.B(text),"Raw");
-  }
-  ssB(text : string) {
-    return this.showSleep(this.B(text),"Raw");
-  }
-  saB(text : string,row : number,col : number = 0) {
-    return this.showAt(this.B(text),"Raw",row,col);
-  }
-  lB(text : string) {
-    return this.log(this.B(text),"Raw");
-  }
-  lsB(text : string){
-    return this.logSleep(this.B(text),"Raw");
-  }
+  B = <StyleShortCode> this.blue;
+
   //White Text
   white(text: string) {
     return this.styleize(text, {
       fg: "White"
     });
   }
-  W = this.white;
-  sW(text : string) {
-    return this.show(this.W(text),"Raw");
-  }
-  ssW(text : string) {
-    return this.showSleep(this.W(text),"Raw");
-  }
-  saW(text : string,row : number,col : number = 0) {
-    return this.showAt(this.W(text),"Raw",row,col);
-  }
-  lW(text : string) {
-    return this.log(this.W(text),"Raw");
-  }
-  lsW(text : string){
-    return this.logSleep(this.W(text),"Raw");
-  }
+  W = <StyleShortCode> this.white;
+
   black(text: string) {
     return this.styleize(text, {
       fg: "Black"
     });
+
   }
   //Black Text
-  BL = this.black;
-  sBL(text : string) {
-    return this.show(this.BL(text),"Raw");
-  }
-  ssBL(text : string) {
-    return this.showSleep(this.BL(text),"Raw");
-  }
-  saBL(text : string,row : number,col : number = 0) {
-    return this.showAt(this.BL(text),"Raw",row,col);
-  }
-  lBL(text : string) {
-    return this.log(this.BL(text),"Raw");
-  }
-  lsBL(text : string){
-    return this.logSleep(this.BL(text),"Raw");
-  }
+  BL = <StyleShortCode> this.black;
+
   //Cyan Text
   cyan(text: string) {
     return this.styleize(text, {
       fg: "Cyan"
     });
   }
-  C = this.cyan;
-  sC(text : string) {
-    return this.show(this.C(text),"Raw");
-  }
-  ssC(text : string) {
-    return this.showSleep(this.C(text),"Raw");
-  }
-  saC(text : string,row : number,col : number = 0) {
-    return this.showAt(this.C(text),"Raw",row,col);
-  }
-  lC(text : string) {
-    return this.log(this.C(text),"Raw");
-  }
-  lsC(text : string){
-    return this.logSleep(this.C(text),"Raw");
-  }
+  C = <StyleShortCode> this.cyan;
+
   magenta(text: string) {
     return this.styleize(text, {
       fg: "Magenta"
     });
   }
   //Magenta Text
-  M = this.magenta;
-  sM(text : string) {
-    return this.show(this.M(text),"Raw");
-  }
-  ssM(text : string) {
-    return this.showSleep(this.M(text),"Raw");
-  }
-  saM(text : string,row : number,col : number = 0) {
-    return this.showAt(this.M(text),"Raw",row,col);
-  }
-  lM(text : string) {
-    return this.log(this.M(text),"Raw");
-  }
-  lsM(text : string){
-    return this.logSleep(this.M(text),"Raw");
-  }
+  M =<StyleShortCode>  this.magenta;
+
   //Yellow Text
   yellow(text: string) {
     return this.styleize(text, {
       fg: "Yellow"
     });
   }
-  Y = this.yellow;
-  sY(text : string) {
-    return this.show(this.Y(text),"Raw");
-  }
-  ssY(text : string) {
-    return this.showSleep(this.Y(text),"Raw");
-  }
-  saY(text : string,row : number,col : number = 0) {
-    return this.showAt(this.Y(text),"Raw",row,col);
-  }
-  lY(text : string) {
-    return this.log(this.Y(text),"Raw");
-  }
-  lsY(text : string){
-    return this.logSleep(this.Y(text),"Raw");
-  }
+  Y = <StyleShortCode> this.yellow;
+
   //Bright
   brightRed(text: string) {
     return this.styleize(text, {
@@ -1124,71 +1047,57 @@ class DSLogger {
       bright: true
     });
   }
-  BR = this.brightRed;
-  sBR(text : string) {
-    return this.show(this.BR(text),"Raw");
-  }
-  ssBR(text : string) {
-    return this.showSleep(this.BR(text),"Raw");
-  }
-  saBR(text : string,row : number,col : number = 0) {
-    return this.showAt(this.BR(text),"Raw",row,col);
-  }
-  lBR(text : string) {
-    return this.log(this.BR(text),"Raw");
-  }
-  lsBR(text : string){
-    return this.logSleep(this.BR(text),"Raw");
-  }
+  BR = <StyleShortCode> this.brightRed;
+ 
   brightGreen(text: string) {
     return this.styleize(text, {
       fg: "Green",
       bright: true
     });
   }
-  BG = this.brightGreen;
+  BG = <StyleShortCode> this.brightGreen;
   brightBlue(text: string) {
     return this.styleize(text, {
       fg: "Green",
       bright: true
     });
   }
-  BB = this.brightBlue;
+  BB = <StyleShortCode> this.brightBlue;
   brightWhite(text: string) {
     return this.styleize(text, {
       fg: "White",
       bright: true
     });
   }
-  BW  = this.brightWhite;
+  BW  = <StyleShortCode> this.brightWhite;
   brightBlack(text: string) {
     return this.styleize(text, {
       fg: "Black",
       bright: true
     });
   }
-  BBL = this.brightBlack;
+  BBL = <StyleShortCode> this.brightBlack;
   brightCyan(text: string) {
     return this.styleize(text, {
       fg: "Cyan",
       bright: true
     });
   }
-  BC = this.brightCyan;
+  BC = <StyleShortCode> this.brightCyan;
   brightMagenta(text: string) {
     return this.styleize(text, {
       fg: "Magenta",
       bright: true
     });
   }
-  BM = this.brightMagenta;
+  BM = <StyleShortCode> this.brightMagenta;
   brightYellow(text: string) {
     return this.styleize(text, {
       fg: "Yellow",
       bright: true
     });
   }
-  BY = this.brightYellow;
+  BY = <StyleShortCode> this.brightYellow;
   //Invert
   blackInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1197,7 +1106,7 @@ class DSLogger {
       reverse : true
     });
   }
-  BLI = this.blackInvert;
+  BLI = <StyleInvertShortCode> this.blackInvert;
   redInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Red",
@@ -1205,7 +1114,7 @@ class DSLogger {
       reverse : true
     });
   }
-  RI = this.redInvert;
+  RI = <StyleInvertShortCode> this.redInvert;
   greenInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Green",
@@ -1213,7 +1122,7 @@ class DSLogger {
       reverse : true
     });
   }
-  GI = this.greenInvert;
+  GI = <StyleInvertShortCode> this.greenInvert;
   yellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Yellow",
@@ -1221,7 +1130,7 @@ class DSLogger {
       reverse : true
     });
   }
-  YI = this.yellowInvert;
+  YI = <StyleInvertShortCode> this.yellowInvert;
   blueInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Blue",
@@ -1229,7 +1138,7 @@ class DSLogger {
       reverse : true
     });
   }
-  BI = this.blueInvert;
+  BI = <StyleInvertShortCode> this.blueInvert;
   magentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Magenta",
@@ -1237,7 +1146,7 @@ class DSLogger {
       reverse : true
     });
   }
-  MI = this.magentaInvert;
+  MI = <StyleInvertShortCode> this.magentaInvert;
   cyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Cyan",
@@ -1245,7 +1154,7 @@ class DSLogger {
       reverse : true
     });
   }
-  CI = this.cyanInvert;
+  CI = <StyleInvertShortCode> this.cyanInvert;
   whiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "White",
@@ -1253,7 +1162,7 @@ class DSLogger {
       reverse : true
     });
   }
-  WI = this.whiteInvert;
+  WI = <StyleInvertShortCode> this.whiteInvert;
   
   //Invert Bright
   brightBlackInvert(text: string,bg : ConsoleColors | "none" = "none") {
@@ -1264,7 +1173,7 @@ class DSLogger {
       bright : true
     });
   }
-  BBLI = this.brightBlackInvert;
+  BBLI = <StyleInvertShortCode> this.brightBlackInvert;
   brightRedInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Red",
@@ -1273,7 +1182,8 @@ class DSLogger {
       bright : true
     });
   }
-  BRI = this.brightRedInvert;
+  BRI =<StyleInvertShortCode>  this.brightRedInvert;
+
   brightGreenInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Green",
@@ -1282,7 +1192,7 @@ class DSLogger {
       bright : true
     });
   }
-  BGI = this.brightGreenInvert;
+  BGI =<StyleInvertShortCode>  this.brightGreenInvert;
   brightYellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Yellow",
@@ -1291,7 +1201,7 @@ class DSLogger {
       bright : true
     });
   }
-  BYI = this.brightYellowInvert;
+  BYI =<StyleInvertShortCode>  this.brightYellowInvert;
   brightBlueInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Blue",
@@ -1300,7 +1210,7 @@ class DSLogger {
       bright : true
     });
   }
-  BBI = this.brightBlackInvert;
+  BBI =<StyleInvertShortCode>  this.brightBlackInvert;
   brightMagentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Magenta",
@@ -1309,7 +1219,7 @@ class DSLogger {
       bright : true
     });
   }
-  BMI = this.brightBlueInvert;
+  BMI =<StyleInvertShortCode>  this.brightBlueInvert;
   brightCyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Cyan",
@@ -1318,7 +1228,7 @@ class DSLogger {
       bright : true
     });
   }
-  BCI = this.brightCyanInvert;
+  BCI =<StyleInvertShortCode>  this.brightCyanInvert;
   brightWhiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "White",
@@ -1327,7 +1237,7 @@ class DSLogger {
       bright : true
     });
   }
-  BWI = this.brightWhiteInvert;
+  BWI =<StyleInvertShortCode>  this.brightWhiteInvert;
   //BG
   redBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1335,55 +1245,56 @@ class DSLogger {
       fg: fg
     });
   }
-  RBG = this.redBG;
+  RBG =<StyleBGShortCode>  this.redBG;
   greenBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
-  GBG = this.greenBG;
+  GBG =<StyleBGShortCode>  this.greenBG;
   blueBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
-  BBG = this.blueBG
+  BBG =<StyleBGShortCode>  this.blueBG
   whiteBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
       fg: fg
     });
   }
+  WBG =<StyleBGShortCode> this.whiteBG;
   blackBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Black",
       fg: fg
     });
   }
-  BLBG = this.blackBG;
+  BLBG =<StyleBGShortCode>  this.blackBG;
   cyanBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
       fg: fg
     });
   }
-  CBG = this.cyanBG;
+  CBG =<StyleBGShortCode>  this.cyanBG;
   magentaBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
       fg: fg
     });
   }
-  MBG = this.magentaBG;
+  MBG =<StyleBGShortCode>  this.magentaBG;
   yellowBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
       fg: fg
     });
   }
-  YBG = this.yellowBG;
+  YBG =<StyleBGShortCode>  this.yellowBG;
   //Bright
   brightRedBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1391,56 +1302,56 @@ class DSLogger {
       fg: fg
     });
   }
-  BRBG = this.brightRedBG;
+  BRBG =<StyleBGShortCode>  this.brightRedBG;
   brightGreenBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
-  BGBG = this.brightGreenBG;
+  BGBG =<StyleBGShortCode>  this.brightGreenBG;
   brightBlueBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
-  BBBG = this.brightBlueBG;
+  BBBG =<StyleBGShortCode>  this.brightBlueBG;
   brightWhiteBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
       fg: fg
     });
   }
-  BWBG = this.brightWhiteBG;
+  BWBG =<StyleBGShortCode>  this.brightWhiteBG;
   brightBlackBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Black",
       fg: fg
     });
   }
-  BBLBG = this.brightBlackBG;
+  BBLBG =<StyleBGShortCode>  this.brightBlackBG;
   brightCyanBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
       fg: fg
     });
   }
-  BCBG = this.brightCyanBG;
+  BCBG =<StyleBGShortCode>  this.brightCyanBG;
   brightMagentaBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
       fg: fg
     });
   }
-  BMBG = this.brightMagentaBG;
+  BMBG =<StyleBGShortCode>  this.brightMagentaBG;
   brightYellowBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
       fg: fg
     });
   }
-  BYBG = this.brightYellowBG;
+  BYBG =<StyleBGShortCode>  this.brightYellowBG;
 
   //Invert
   blackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
@@ -1450,7 +1361,7 @@ class DSLogger {
       reverse : true
     });
   }
-  BLIBG = this.blackInvertBG;
+  BLIBG =<StyleBGShortCode>  this.blackInvertBG;
   redInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Red",
@@ -1458,7 +1369,7 @@ class DSLogger {
       reverse : true
     });
   }
-  RIBG = this.redInvertBG;
+  RIBG =<StyleBGShortCode>  this.redInvertBG;
   greenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
@@ -1466,7 +1377,7 @@ class DSLogger {
       reverse : true
     });
   }
-  GIBG = this.greenInvertBG;
+  GIBG =<StyleBGShortCode>  this.greenInvertBG;
   yellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
@@ -1474,7 +1385,7 @@ class DSLogger {
       reverse : true
     });
   }
-  YIGB = this.yellowInvertBG;
+  YIBG =<StyleBGShortCode>  this.yellowInvertBG;
   blueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Blue",
@@ -1482,7 +1393,7 @@ class DSLogger {
       reverse : true
     });
   }
-  BIBG = this.blueInvertBG;
+  BIBG =<StyleBGShortCode>  this.blueInvertBG;
   magentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
@@ -1490,7 +1401,7 @@ class DSLogger {
       reverse : true
     });
   }
-  MIBG = this.magentaInvertBG;
+  MIBG =<StyleBGShortCode>  this.magentaInvertBG;
   cyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
@@ -1498,7 +1409,7 @@ class DSLogger {
       reverse : true
     });
   }
-  CIBG = this.cyanInvertBG;
+  CIBG = <StyleBGShortCode> this.cyanInvertBG;
   whiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
@@ -1506,7 +1417,7 @@ class DSLogger {
       reverse : true
     });
   }
-  WIBG = this.whiteInvertBG;
+  WIBG = <StyleBGShortCode> this.whiteInvertBG;
   
   //Invert Bright
   brightBlackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
@@ -1517,7 +1428,7 @@ class DSLogger {
       bright : true
     });
   }
-  BBLIBG = this.brightBlackInvertBG;
+  BBLIBG =<StyleBGShortCode>  this.brightBlackInvertBG;
   brightRedInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Red",
@@ -1526,7 +1437,7 @@ class DSLogger {
       bright : true
     });
   }
-  BRIBG = this.brightRedInvertBG;
+  BRIBG =<StyleBGShortCode>  this.brightRedInvertBG;
   brightGreenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
@@ -1535,7 +1446,7 @@ class DSLogger {
       bright : true
     });
   }
-  BGIBG = this.brightGreenInvertBG;
+  BGIBG =<StyleBGShortCode>  this.brightGreenInvertBG;
   brightYellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
@@ -1544,7 +1455,7 @@ class DSLogger {
       bright : true
     });
   }
-  BYIBG = this.BG;
+  BYIBG =<StyleBGShortCode>  this.BG;
   brightBlueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Blue",
@@ -1553,7 +1464,7 @@ class DSLogger {
       bright : true
     });
   }
-  BBIBG = this.brightBlueInvertBG;
+  BBIBG = <StyleBGShortCode> this.brightBlueInvertBG;
   brightMagentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
@@ -1562,7 +1473,7 @@ class DSLogger {
       bright : true
     });
   }
-  BMIBG = this.brightMagentaInvertBG;
+  BMIBG =<StyleBGShortCode>  this.brightMagentaInvertBG;
   brightCyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
@@ -1571,7 +1482,7 @@ class DSLogger {
       bright : true
     });
   }
-  BCIBG = this.brightCyanInvertBG;
+  BCIBG =<StyleBGShortCode>  this.brightCyanInvertBG;
   brightWhiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
@@ -1580,17 +1491,98 @@ class DSLogger {
       bright : true
     });
   }
-  BWIBG = this.brightWhiteInvertBG;
+  BWIBG =<StyleBGShortCode>  this.brightWhiteInvertBG;
 
+/*
+*
+*==========================
+*==========================
+*
+*/
+//initShort codes
+
+
+_initShortCodes(){
+  const shortCodes = ["R","G","B","Y","M","C","BL","W","BR","BG","BB","BY","BM","BC","BBL","BW"];
+  for(const code of shortCodes) {
+    const func = <StyleShortCode> (this as any)[code];
+      func.s = (message : string)=>{
+      return this.show(func.call(this,message),"Raw");
+    }
+    func.ss = (message : string,sleep ?: number)=>{
+      return this.show(func.call(this,message),"Raw");
+    }
+    func.sa = (message : string,row : number,col : number = 0 )=> {
+      return this.showAt(func.call(this,message),"Raw",row,col);
+    }
+    func.sas = (message : string,row : number,col ?: number,sleep ?:number )=> { 
+      return this.showAtSleep(func.call(this,message),"Raw",row,col,sleep);
+    }
+    func.l = (message : string)=>{
+      return this.log(func.call(this,message),"Raw");
+    }
+    func.ls = (message : string,sleep ?: number)=>{
+      return this.logSleep(func.call(this,message),"Raw",sleep);
+    }
+  }
+  const invertShortCodes = ["RI","GI","BI","YI","MI","CI","BLI","WI","BRI","BGI","BBI","BYI","BMI","BCI","BBLI","BWI"];
+  for(const code of invertShortCodes) {
+    const func = <StyleInvertShortCode> (this as any)[code];
+   func.s = (message : string,bg : ConsoleColors | "none" = "none")=>{
+    return this.show(func.call(this,message,bg),"Raw");
+    }
+    func.sa = (message : string,row : number,bg : ConsoleColors | "none" = "none" ,col : number = 0)=> {
+    return this.showAt(func.call(this,message,bg),"Raw",row,col);
+    }
+    func.sas = (message : string,row : number,bg : ConsoleColors | "none" = "none",col ?: number,sleep ?:number )=> { 
+    return this.showAtSleep(func.call(this,message,bg),"Raw",row,col,sleep);
+    }
+    func.l = (message : string,bg : ConsoleColors | "none" = "none")=>{
+    return this.log(func.call(this,message,bg),"Raw");
+    }
+    func.ls = (message : string,bg : ConsoleColors | "none" = "none",sleep ?: number)=>{
+    return this.logSleep(func.call(this,message,bg),"Raw",sleep);
+    }
+
+  }
+  const backgroundShortCodes = ["RBG","GBG","BBG","YBG","MBG","CBG","BLBG","WBG","BRBG","BGBG","BBBG","BYBG","BMBG","BCBG","BBLBG","BWBG",
+ "RIBG","GIBG","BIBG","YIBG","MIBG","CIBG","BLIBG","WIBG","BRIBG","BGIBG","BBIBG","BYIBG","BMIBG","BCIBG","BBLIBG","BWIBG"];
+  for(const code of backgroundShortCodes) {
+    const func = <StyleBGShortCode> (this as any)[code];
+    func.s = (message : string,fg : ConsoleColors | "none" = "none")=>{
+    return this.show(func.call(this,message,fg),"Raw");
+    }
+    func.sa = (message : string,row : number,fg : ConsoleColors | "none" = "none" ,col : number = 0)=> {
+    return this.showAt(func.call(this,message,fg),"Raw",row,col);
+    }
+    func.sas = (message : string,row : number,fg : ConsoleColors | "none" = "none",col ?: number,sleep ?:number )=> { 
+    return this.showAtSleep(func.call(this,message,fg),"Raw",row,col,sleep);
+    }
+    func.l = (message : string,fg : ConsoleColors | "none" = "none")=>{
+    return this.log(func.call(this,message,fg),"Raw");
+    }
+    func.ls = (message : string,fg : ConsoleColors | "none" = "none",sleep ?: number)=>{
+    return this.logSleep(func.call(this,message,fg),"Raw",sleep);
+    }
+  }
+
+} 
+  //Other Functions
   exit(){
     process.exit(0);
   }
 
+/*
+*
+*==========================
+*==========================
+*
+*/
   ServiceBar = class  {
     cursor = 0;
     inte: any;
     constructor(
-      private rdl: any,
+      public rdl: any,
       public rows: number = 0,
       public size: number = 32,
       public start: number = 2,
@@ -1656,7 +1648,8 @@ class DSLogger {
     done = false;
     cursor = 0;
     timer: any = null;
-    constructor(private rdl: any, 
+    constructor(
+      public rdl: any, 
       public row: number, 
       public size: number,
       public interval : number = 20,

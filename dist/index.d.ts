@@ -1,119 +1,67 @@
-type ConsoleCodes = |
-  "Reset" |
-  "Bright" |
-  "Dim" |
-  "Underscore" |
-  "Blink" |
-  "Reverse" |
-  "Hidden"
-type ConsoleColors = |
-  "Black" |
-  "Red" |
-  "Green" |
-  "Yellow" |
-  "Blue" |
-  "Magenta" |
-  "Cyan" |
-  "White"
-type StyleObject = {
-  fg ? : ConsoleColors | "none",
-  bg ? : ConsoleColors | "none",
-  reverse ? : boolean,
-  bright ? : boolean
-  dim ? : boolean,
-  underscore ? : boolean,
-  blink ? : boolean,
-  hidden ? : boolean
-}
-type DisplayScreens = |
-  "splash" |
-  "programInitError" |
-  "helpScreen" |
-  "crash" |
-  "done" |
-  "noInput"
-type MessageTypes = |
-  "Blink" |
-  "Error" |
-  "Title" |
-  "Info" |
-  "Good" |
-  "Warning" |
-  "Raw" |
-  "Data";
-type QuestionDisplayTypes = |
-"question-start" |
-  "question" |
-  "delimiter" |
-  "re-ask-start" |
-  "re-ask" |
-  "re-ask-delimiter"
-type QuestionsTypes = |
-  "string" |
-  "number" |
-  "digit" |
-  "email" |
-  "password" |
-  "stringall" |
-  "custom"
-type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
-type ProgramParams = {
-  flag: string;
-  name: string;
-  desc: string;
-  type: ParamTypes;
-  required ? : boolean;
-  valueNeeded ? : boolean;
-}
-type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined
-type Strings = |
-  "title" |
-  "helpText" |
-  "star" |
-  "seperator" |
-  "questionStart" |
-  "questionDelimiter" |
-  "reAskStart" |
-  "reAskText" |
-  "reAskDelimiter" 
-type StoredQuestions ={
-  varName: string,
-  varType: QuestionsTypes,
-  reAsk ?: boolean,
-  failPrompt ?: string, 
-  attempts ?: number | "all",
-  fails ?: number
-  customName ?: string
-}
-type ProgressBarStyle = {
-  base : string,
-  baseStyle : StyleObject,
-  loaded : string,
-  loadedStyle : StyleObject,
-  size : number,
-  interval : number
-}
-type ServiceBarStyle = {
-  base : string,
-  baseStyle : StyleObject,
-  loadedOne : string,
-  loadedOneStyle : StyleObject,
-  loadedTwo : string,
-  loadedTwoStyle : StyleObject,
-  cap : string,
-  capStyle : StyleObject
-  size : number,
-  interval : number
-}
-/** 
-  # DSLogger
-  ---
-  All in one CLI solution for Node.Js made by Divine Star
-  @organization Divine Star LLC
-  @author Luke Johnson
-  @since 9-19-2021
-  @version 1.0.1
-  */
+interface StyleShortCode { (string : string): string;
+  s: (message : string)=>DSLogger; 
+  ss: (message : string,sleep ?: number)=>DSLogger; 
+  sa: (message : string,row : number,col ?: number)=>DSLogger; 
+  sas: (message : string,row : number,col ?: number,sleep?:number)=>DSLogger; 
+  l: (message : string )=>DSLogger; 
+  ls: (message : string,sleep ?: number)=>DSLogger; 
+ }
+declare type ConsoleCodes = "Reset" | "Bright" | "Dim" | "Underscore" | "Blink" | "Reverse" | "Hidden";
+declare type ConsoleColors = "Black" | "Red" | "Green" | "Yellow" | "Blue" | "Magenta" | "Cyan" | "White";
+declare type StyleObject = {
+    fg?: ConsoleColors | "none";
+    bg?: ConsoleColors | "none";
+    reverse?: boolean;
+    bright?: boolean;
+    dim?: boolean;
+    underscore?: boolean;
+    blink?: boolean;
+    hidden?: boolean;
+};
+declare type DisplayScreens = "splash" | "programInitError" | "helpScreen" | "crash" | "done" | "noInput";
+declare type MessageTypes = "Blink" | "Error" | "Title" | "Info" | "Good" | "Warning" | "Raw" | "Data";
+declare type QuestionDisplayTypes = "question-start" | "question" | "delimiter" | "re-ask-start" | "re-ask" | "re-ask-delimiter";
+declare type QuestionsTypes = "string" | "number" | "digit" | "email" | "password" | "stringall" | "custom";
+declare type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
+declare type ProgramParams = {
+    flag: string;
+    name: string;
+    desc: string;
+    type: ParamTypes;
+    required?: boolean;
+    valueNeeded?: boolean;
+};
+declare type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined;
+declare type Strings = "title" | "helpText" | "star" | "seperator" | "questionStart" | "questionDelimiter" | "reAskStart" | "reAskText" | "reAskDelimiter";
+declare type StoredQuestions = {
+    varName: string;
+    varType: QuestionsTypes;
+    reAsk?: boolean;
+    failPrompt?: string;
+    attempts?: number | "all";
+    fails?: number;
+    customName?: string;
+};
+declare type ProgressBarStyle = {
+    base: string;
+    baseStyle: StyleObject;
+    loaded: string;
+    loadedStyle: StyleObject;
+    size: number;
+    interval: number;
+};
+declare type ServiceBarStyle = {
+    base: string;
+    baseStyle: StyleObject;
+    loadedOne: string;
+    loadedOneStyle: StyleObject;
+    loadedTwo: string;
+    loadedTwoStyle: StyleObject;
+    cap: string;
+    capStyle: StyleObject;
+    size: number;
+    interval: number;
+};
 declare class DSLogger {
   rdl: any;
   constructor(rdl: any);
@@ -392,87 +340,134 @@ declare class DSLogger {
    * @param id
    */
   setString(id: Strings,string : string): string;
-  //Quick Style Functions
-  red(text: string): string;
-  green(text: string) : string;
-  blue(text: string) : string;
-  white(text: string) : string;
-  black(text: string) : string;
-  cyan(text: string) : string;
-  magenta(text: string): string;
-  yellow(text: string) : string;
-  //Bright
-  brightRed(text: string) : string;
-  brightGreen(text: string) : string;
-  brightBlue(text: string): string;
-  brightWhite(text: string) : string;
-  brightBlack(text: string): string;
-  brightCyan(text: string): string;
-  brightMagenta(text: string): string;
-  brightYellow(text: string): string;
-  //Invert
-  redInvert(text: string,bg : ConsoleColors | "none" ) : string;
-  greenInvert(text: string,bg : ConsoleColors | "none") : string;
-  blueInvert(text: string,bg : ConsoleColors | "none" ) : string;
-  whiteInvert(text: string,bg : ConsoleColors | "none" ): string;
-  blackInvert(text: string,bg : ConsoleColors | "none"): string;
-  cyanInvert(text: string,bg : ConsoleColors | "none"): string;
-  magentaInvert(text: string,bg : ConsoleColors | "none") : string;
-  yellowInvert(text: string,bg : ConsoleColors | "none") : string;
-  //Invert Bright
-  brightRedInvert(text: string,bg : ConsoleColors | "none") : string;
-  brightGreenInvert(text: string,bg : ConsoleColors | "none") : string;
-  brightBlueInvert(text: string,bg : ConsoleColors | "none") : string;
-  brightWhiteInvert(text: string,bg : ConsoleColors | "none") : string;
-  brightBlackInvert(text: string,bg : ConsoleColors | "none") : string;
-  brightCyanInvert(text: string,bg : ConsoleColors | "none"): string;
-  brightMagentaInvert(text: string,bg : ConsoleColors | "none") : string;
-  brightYellowInvert(text: string,bg : ConsoleColors | "none") : string;
-  //BG
-  redBG(text: string,fg : ConsoleColors | "none" ) : string;
-  greenBG(text: string,fg : ConsoleColors | "none") : string;
-  blueBG(text: string,fg : ConsoleColors | "none" ) : string;
-  whiteBG(text: string,fg : ConsoleColors | "none" ): string;
-  blackBG(text: string,fg : ConsoleColors | "none"): string;
-  cyanBG(text: string,fg : ConsoleColors | "none"): string;
-  magentaBG(text: string,fg : ConsoleColors | "none") : string;
-  yellowBG(text: string,fg : ConsoleColors | "none") : string;
-  //Bright
-  brightRedBG(text: string,fg : ConsoleColors | "none") : string;
-  brightGreenBG(text: string,fg : ConsoleColors | "none") : string;
-  brightBlueBG(text: string,fg : ConsoleColors | "none") : string;
-  brightWhiteBG(text: string,fg : ConsoleColors | "none") : string;
-  brightBlackBG(text: string,fg : ConsoleColors | "none") : string;
-  brightCyanBG(text: string,fg : ConsoleColors | "none"): string;
-  brightMagentaBG(text: string,fg : ConsoleColors | "none") : string;
-  brightYellowBG(text: string,fg : ConsoleColors | "none") : string;
-  //Invert
-  redInvertBG(text: string,fg : ConsoleColors | "none" ) : string;
-  greenInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  blueInvertBG(text: string,fg : ConsoleColors | "none" ) : string;
-  whiteInvertBG(text: string,fg : ConsoleColors | "none" ): string;
-  WIBG : typeof this.whiteInvertBG;
-  blackInvertBG(text: string,fg : ConsoleColors | "none"): string;
-  cyanInvertBG(text: string,fg : ConsoleColors | "none"): string;
-  magentaInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  yellowInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  //Invert Bright
-  brightRedInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  brightGreenInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  brightBlueInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  brightWhiteInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  brightBlackInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  brightCyanInvertBG(text: string,fg : ConsoleColors | "none"): string;
-  brightMagentaInvertBG(text: string,fg : ConsoleColors | "none") : string;
-  brightYellowInvertBG(text: string,fg : ConsoleColors | "none") : string;
-
-  /**# Exit
-   * ---
-   * Calls process.exit
-   */
-  exit()
-
-  _addColor(type: MessageTypes, message: any): string;
-  _countLines(message: string): number;
+    red(text: string): string;
+    R: StyleShortCode;
+    green(text: string): string;
+    G: StyleShortCode;
+    blue(text: string): string;
+    B: StyleShortCode;
+    white(text: string): string;
+    W: StyleShortCode;
+    black(text: string): string;
+    BL: StyleShortCode;
+    cyan(text: string): string;
+    C: StyleShortCode;
+    magenta(text: string): string;
+    M: StyleShortCode;
+    yellow(text: string): string;
+    Y: StyleShortCode;
+    brightRed(text: string): string;
+    BR: StyleShortCode;
+    brightGreen(text: string): string;
+    BG: StyleShortCode;
+    brightBlue(text: string): string;
+    BB: StyleShortCode;
+    brightWhite(text: string): string;
+    BW: StyleShortCode;
+    brightBlack(text: string): string;
+    BBL: StyleShortCode;
+    brightCyan(text: string): string;
+    BC: StyleShortCode;
+    brightMagenta(text: string): string;
+    BM: StyleShortCode;
+    brightYellow(text: string): string;
+    BY: StyleShortCode;
+    blackInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BLI: StyleShortCode;
+    redInvert(text: string, bg?: ConsoleColors | "none"): string;
+    RI: StyleShortCode;
+    greenInvert(text: string, bg?: ConsoleColors | "none"): string;
+    GI: StyleShortCode;
+    yellowInvert(text: string, bg?: ConsoleColors | "none"): string;
+    YI: StyleShortCode;
+    blueInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BI: StyleShortCode;
+    magentaInvert(text: string, bg?: ConsoleColors | "none"): string;
+    MI: StyleShortCode;
+    cyanInvert(text: string, bg?: ConsoleColors | "none"): string;
+    CI: StyleShortCode;
+    whiteInvert(text: string, bg?: ConsoleColors | "none"): string;
+    WI: StyleShortCode;
+    brightBlackInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BBLI: StyleShortCode;
+    brightRedInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BRI: StyleShortCode;
+    brightGreenInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BGI: StyleShortCode;
+    brightYellowInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BYI: StyleShortCode;
+    brightBlueInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BBI: StyleShortCode;
+    brightMagentaInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BMI: StyleShortCode;
+    brightCyanInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BCI: StyleShortCode;
+    brightWhiteInvert(text: string, bg?: ConsoleColors | "none"): string;
+    BWI: StyleShortCode;
+    redBG(text: string, fg?: ConsoleColors | "none"): string;
+    RBG: StyleShortCode;
+    greenBG(text: string, fg?: ConsoleColors | "none"): string;
+    GBG: StyleShortCode;
+    blueBG(text: string, fg?: ConsoleColors | "none"): string;
+    BBG: StyleShortCode;
+    whiteBG(text: string, fg?: ConsoleColors | "none"): string;
+    blackBG(text: string, fg?: ConsoleColors | "none"): string;
+    BLBG: StyleShortCode;
+    cyanBG(text: string, fg?: ConsoleColors | "none"): string;
+    CBG: StyleShortCode;
+    magentaBG(text: string, fg?: ConsoleColors | "none"): string;
+    MBG: StyleShortCode;
+    yellowBG(text: string, fg?: ConsoleColors | "none"): string;
+    YBG: StyleShortCode;
+    brightRedBG(text: string, fg?: ConsoleColors | "none"): string;
+    BRBG: StyleShortCode;
+    brightGreenBG(text: string, fg?: ConsoleColors | "none"): string;
+    BGBG: StyleShortCode;
+    brightBlueBG(text: string, fg?: ConsoleColors | "none"): string;
+    BBBG: StyleShortCode;
+    brightWhiteBG(text: string, fg?: ConsoleColors | "none"): string;
+    BWBG: StyleShortCode;
+    brightBlackBG(text: string, fg?: ConsoleColors | "none"): string;
+    BBLBG: StyleShortCode;
+    brightCyanBG(text: string, fg?: ConsoleColors | "none"): string;
+    BCBG: StyleShortCode;
+    brightMagentaBG(text: string, fg?: ConsoleColors | "none"): string;
+    BMBG: StyleShortCode;
+    brightYellowBG(text: string, fg?: ConsoleColors | "none"): string;
+    BYBG: StyleShortCode;
+    blackInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BLIBG: StyleShortCode;
+    redInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    RIBG: StyleShortCode;
+    greenInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    GIBG: StyleShortCode;
+    yellowInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    YIGB: StyleShortCode;
+    blueInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BIBG: StyleShortCode;
+    magentaInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    MIBG: StyleShortCode;
+    cyanInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    CIBG: StyleShortCode;
+    whiteInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    WIBG: StyleShortCode;
+    brightBlackInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BBLIBG: StyleShortCode;
+    brightRedInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BRIBG: StyleShortCode;
+    brightGreenInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BGIBG: StyleShortCode;
+    brightYellowInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BYIBG: StyleShortCode;
+    brightBlueInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BBIBG: StyleShortCode;
+    brightMagentaInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BMIBG: StyleShortCode;
+    brightCyanInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BCIBG: StyleShortCode;
+    brightWhiteInvertBG(text: string, fg?: ConsoleColors | "none"): string;
+    BWIBG: StyleShortCode;
+    exit(): void;
 }
-
+declare const rdl: any;
+declare const DS: DSLogger;

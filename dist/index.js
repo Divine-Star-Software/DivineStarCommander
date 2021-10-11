@@ -231,6 +231,7 @@ class DSLogger {
         this.RBG = this.redBG;
         this.GBG = this.greenBG;
         this.BBG = this.blueBG;
+        this.WBG = this.whiteBG;
         this.BLBG = this.blackBG;
         this.CBG = this.cyanBG;
         this.MBG = this.magentaBG;
@@ -246,7 +247,7 @@ class DSLogger {
         this.BLIBG = this.blackInvertBG;
         this.RIBG = this.redInvertBG;
         this.GIBG = this.greenInvertBG;
-        this.YIGB = this.yellowInvertBG;
+        this.YIBG = this.yellowInvertBG;
         this.BIBG = this.blueInvertBG;
         this.MIBG = this.magentaInvertBG;
         this.CIBG = this.cyanInvertBG;
@@ -373,6 +374,7 @@ class DSLogger {
                 this.addProgress(left);
             }
         };
+        this._initShortCodes();
     }
     styleize(text, styleObj) {
         let front = "";
@@ -772,6 +774,10 @@ class DSLogger {
         this.currentRow = 0;
         return this;
     }
+    showAtSleep(message, type, row, col = 0, sleep = this.defaultSleepTime) {
+        this.showAt(message, type, row, col);
+        return this.sleep(sleep);
+    }
     showAt(message, type, row, col = 0) {
         let output = message;
         if (type != "Raw" && type != "Data") {
@@ -901,181 +907,46 @@ class DSLogger {
             fg: "Red"
         });
     }
-    sR(text) {
-        return this.show(this.R(text), "Raw");
-    }
-    ssR(text) {
-        return this.showSleep(this.R(text), "Raw");
-    }
-    saR(text, row, col = 0) {
-        return this.showAt(this.R(text), "Raw", row, col);
-    }
-    lR(text) {
-        return this.log(this.R(text), "Raw");
-    }
-    lsR(text) {
-        return this.logSleep(this.R(text), "Raw");
-    }
     green(text) {
         return this.styleize(text, {
             fg: "Green"
         });
-    }
-    sG(text) {
-        return this.show(this.G(text), "Raw");
-    }
-    ssG(text) {
-        return this.showSleep(this.G(text), "Raw");
-    }
-    saG(text, row, col = 0) {
-        return this.showAt(this.G(text), "Raw", row, col);
-    }
-    lG(text) {
-        return this.log(this.G(text), "Raw");
-    }
-    lsG(text) {
-        return this.logSleep(this.G(text), "Raw");
     }
     blue(text) {
         return this.styleize(text, {
             fg: "Green"
         });
     }
-    sB(text) {
-        return this.show(this.B(text), "Raw");
-    }
-    ssB(text) {
-        return this.showSleep(this.B(text), "Raw");
-    }
-    saB(text, row, col = 0) {
-        return this.showAt(this.B(text), "Raw", row, col);
-    }
-    lB(text) {
-        return this.log(this.B(text), "Raw");
-    }
-    lsB(text) {
-        return this.logSleep(this.B(text), "Raw");
-    }
     white(text) {
         return this.styleize(text, {
             fg: "White"
         });
-    }
-    sW(text) {
-        return this.show(this.W(text), "Raw");
-    }
-    ssW(text) {
-        return this.showSleep(this.W(text), "Raw");
-    }
-    saW(text, row, col = 0) {
-        return this.showAt(this.W(text), "Raw", row, col);
-    }
-    lW(text) {
-        return this.log(this.W(text), "Raw");
-    }
-    lsW(text) {
-        return this.logSleep(this.W(text), "Raw");
     }
     black(text) {
         return this.styleize(text, {
             fg: "Black"
         });
     }
-    sBL(text) {
-        return this.show(this.BL(text), "Raw");
-    }
-    ssBL(text) {
-        return this.showSleep(this.BL(text), "Raw");
-    }
-    saBL(text, row, col = 0) {
-        return this.showAt(this.BL(text), "Raw", row, col);
-    }
-    lBL(text) {
-        return this.log(this.BL(text), "Raw");
-    }
-    lsBL(text) {
-        return this.logSleep(this.BL(text), "Raw");
-    }
     cyan(text) {
         return this.styleize(text, {
             fg: "Cyan"
         });
-    }
-    sC(text) {
-        return this.show(this.C(text), "Raw");
-    }
-    ssC(text) {
-        return this.showSleep(this.C(text), "Raw");
-    }
-    saC(text, row, col = 0) {
-        return this.showAt(this.C(text), "Raw", row, col);
-    }
-    lC(text) {
-        return this.log(this.C(text), "Raw");
-    }
-    lsC(text) {
-        return this.logSleep(this.C(text), "Raw");
     }
     magenta(text) {
         return this.styleize(text, {
             fg: "Magenta"
         });
     }
-    sM(text) {
-        return this.show(this.M(text), "Raw");
-    }
-    ssM(text) {
-        return this.showSleep(this.M(text), "Raw");
-    }
-    saM(text, row, col = 0) {
-        return this.showAt(this.M(text), "Raw", row, col);
-    }
-    lM(text) {
-        return this.log(this.M(text), "Raw");
-    }
-    lsM(text) {
-        return this.logSleep(this.M(text), "Raw");
-    }
     yellow(text) {
         return this.styleize(text, {
             fg: "Yellow"
         });
-    }
-    sY(text) {
-        return this.show(this.Y(text), "Raw");
-    }
-    ssY(text) {
-        return this.showSleep(this.Y(text), "Raw");
-    }
-    saY(text, row, col = 0) {
-        return this.showAt(this.Y(text), "Raw", row, col);
-    }
-    lY(text) {
-        return this.log(this.Y(text), "Raw");
-    }
-    lsY(text) {
-        return this.logSleep(this.Y(text), "Raw");
     }
     brightRed(text) {
         return this.styleize(text, {
             fg: "Red",
             bright: true
         });
-    }
-    sBR(text) {
-        return this.show(this.BR(text), "Raw");
-    }
-    ssBR(text) {
-        return this.showSleep(this.BR(text), "Raw");
-    }
-    saBR(text, row, col = 0) {
-        return this.showAt(this.BR(text), "Raw", row, col);
-    }
-    lBR(text) {
-        return this.log(this.BR(text), "Raw");
-    }
-    lsBR(text) {
-        return this.logSleep(this.BR(text), "Raw");
     }
     brightGreen(text) {
         return this.styleize(text, {
@@ -1454,6 +1325,69 @@ class DSLogger {
             reverse: true,
             bright: true
         });
+    }
+    _initShortCodes() {
+        const shortCodes = ["R", "G", "B", "Y", "M", "C", "BL", "W", "BR", "BG", "BB", "BY", "BM", "BC", "BBL", "BW"];
+        for (const code of shortCodes) {
+            const func = this[code];
+            func.s = (message) => {
+                return this.show(func.call(this, message), "Raw");
+            };
+            func.ss = (message, sleep) => {
+                return this.show(func.call(this, message), "Raw");
+            };
+            func.sa = (message, row, col = 0) => {
+                return this.showAt(func.call(this, message), "Raw", row, col);
+            };
+            func.sas = (message, row, col, sleep) => {
+                return this.showAtSleep(func.call(this, message), "Raw", row, col, sleep);
+            };
+            func.l = (message) => {
+                return this.log(func.call(this, message), "Raw");
+            };
+            func.ls = (message, sleep) => {
+                return this.logSleep(func.call(this, message), "Raw", sleep);
+            };
+        }
+        const invertShortCodes = ["RI", "GI", "BI", "YI", "MI", "CI", "BLI", "WI", "BRI", "BGI", "BBI", "BYI", "BMI", "BCI", "BBLI", "BWI"];
+        for (const code of invertShortCodes) {
+            const func = this[code];
+            func.s = (message, bg = "none") => {
+                return this.show(func.call(this, message, bg), "Raw");
+            };
+            func.sa = (message, row, bg = "none", col = 0) => {
+                return this.showAt(func.call(this, message, bg), "Raw", row, col);
+            };
+            func.sas = (message, row, bg = "none", col, sleep) => {
+                return this.showAtSleep(func.call(this, message, bg), "Raw", row, col, sleep);
+            };
+            func.l = (message, bg = "none") => {
+                return this.log(func.call(this, message, bg), "Raw");
+            };
+            func.ls = (message, bg = "none", sleep) => {
+                return this.logSleep(func.call(this, message, bg), "Raw", sleep);
+            };
+        }
+        const backgroundShortCodes = ["RBG", "GBG", "BBG", "YBG", "MBG", "CBG", "BLBG", "WBG", "BRBG", "BGBG", "BBBG", "BYBG", "BMBG", "BCBG", "BBLBG", "BWBG",
+            "RIBG", "GIBG", "BIBG", "YIBG", "MIBG", "CIBG", "BLIBG", "WIBG", "BRIBG", "BGIBG", "BBIBG", "BYIBG", "BMIBG", "BCIBG", "BBLIBG", "BWIBG"];
+        for (const code of backgroundShortCodes) {
+            const func = this[code];
+            func.s = (message, fg = "none") => {
+                return this.show(func.call(this, message, fg), "Raw");
+            };
+            func.sa = (message, row, fg = "none", col = 0) => {
+                return this.showAt(func.call(this, message, fg), "Raw", row, col);
+            };
+            func.sas = (message, row, fg = "none", col, sleep) => {
+                return this.showAtSleep(func.call(this, message, fg), "Raw", row, col, sleep);
+            };
+            func.l = (message, fg = "none") => {
+                return this.log(func.call(this, message, fg), "Raw");
+            };
+            func.ls = (message, fg = "none", sleep) => {
+                return this.logSleep(func.call(this, message, fg), "Raw", sleep);
+            };
+        }
     }
     exit() {
         process.exit(0);
