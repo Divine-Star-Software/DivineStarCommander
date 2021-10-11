@@ -1,6 +1,6 @@
 {
   "name": "dslog",
-  "version": "1.1.1",
+  "version": "1.1.11",
   "description": "Easy logging script for command line tools.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

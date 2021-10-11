@@ -133,6 +133,7 @@ const dsLog = require("../../dist/index.js");
     * [Define and Get Functions](#define-and-get-functions)
     * [Row Functions](#row-functions)
     * [Sleep Functions](#row-functions)
+     * [Other Functions](#other-functions)
 
 If you use this as a node module it will auto require "readline" which is built into node.js.
 
@@ -261,9 +262,9 @@ Functions and types related to createing a service bar.
 | ------------- | --------------------------------------------------- |
 | **base**    | The base char for the service bar. Default is "X".                                         |
 | **baseStyle** | Style object for base char.                    |
-| **loadedOne**    | First char for load sequence. Default is "0"                                    |
+| **loadedOne**    | First char for load sequence. Default is "0".                                   |
 | **loadedOneStyle**     | Style object for loaded one char.                            |
-| **loadedTwo**    | Second char for load sequence. Default is "|"                                        |
+| **loadedTwo**    | Second char for load sequence. Default is "\|".                                        |
 | **loadedTwoStyle**     | Style object for loaded two char.                             |
 | **cap**    | Char to appear at the end of the service bar.                                   |
 | **capStyle**     | Style for the cap char.                           |
