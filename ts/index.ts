@@ -116,6 +116,7 @@ type ServiceBarStyle = {
   @version 1.0.1
   */
 class DSLogger {
+  defaultSleepTime = 800;
   //strings
   strings: Record < Strings, string > = {
     title: "[ Divine Star Logger ]",
@@ -793,7 +794,7 @@ class DSLogger {
     return this;
   }
 
-  showAt(message: any, type: MessageTypes, row: number) {
+  showAt(message: any, type: MessageTypes, row: number,col : number = 0) {
     let output = message;
     if (type != "Raw" && type != "Data") {
       output = this._addColor(type, message);
@@ -802,7 +803,7 @@ class DSLogger {
       output = JSON.stringify(message, null, 3);
     }
     const lines = this._countLines(`${output}`);
-    this.rdl.cursorTo(process.stdout, 0, row);
+    this.rdl.cursorTo(process.stdout, col, row);
     this.currentRow += lines;
     console.log(output);
     return this;
@@ -824,8 +825,28 @@ class DSLogger {
     return this;
   }
 
-  showSleep(message: any, type: MessageTypes, ms: number = 800) {
+  showSleep(message: any, type: MessageTypes, ms: number = this.defaultSleepTime) {
     this.show(message, type);
+    this.sleep(ms);
+    return this;
+  }
+
+  log(message : any,type : MessageTypes) {
+    let output = message;
+    if (type != "Raw" && type != "Data") {
+      output = this._addColor(type, message);
+    }
+    if (type == "Data") {
+      output = JSON.stringify(message, null, 3);
+    }
+    const lines = this._countLines(`${output}`);
+    this.currentRow += lines;
+    console.log(output);
+    return this;
+  }
+
+  logSleep(message : any,type : MessageTypes, ms: number = this.defaultSleepTime) {
+    this.log(message,type);
     this.sleep(ms);
     return this;
   }
@@ -919,45 +940,182 @@ class DSLogger {
   }
   //Quick Styles
   //FG 
+  //RED TEXT
   red(text: string) {
     return this.styleize(text, {
       fg: "Red"
     });
   }
+  R = this.red;
+  sR(text : string) {
+    return this.show(this.R(text),"Raw");
+  }
+  ssR(text : string) {
+    return this.showSleep(this.R(text),"Raw");
+  }
+  saR(text : string,row : number,col : number = 0) {
+    return this.showAt(this.R(text),"Raw",row,col);
+  }
+  lR(text : string) {
+    return this.log(this.R(text),"Raw");
+  }
+  lsR(text : string){
+    return this.logSleep(this.R(text),"Raw");
+  }
+
+//Green Text
   green(text: string) {
     return this.styleize(text, {
       fg: "Green"
     });
   }
+  G = this.green;
+  sG(text : string) {
+    return this.show(this.G(text),"Raw");
+  }
+  ssG(text : string) {
+    return this.showSleep(this.G(text),"Raw");
+  }
+  saG(text : string,row : number,col : number = 0) {
+    return this.showAt(this.G(text),"Raw",row,col);
+  }
+  lG(text : string) {
+    return this.log(this.G(text),"Raw");
+  }
+  lsG(text : string){
+    return this.logSleep(this.G(text),"Raw");
+  }
+  //Blue Text
   blue(text: string) {
     return this.styleize(text, {
       fg: "Green"
     });
   }
+  B = this.blue;
+  sB(text : string) {
+    return this.show(this.B(text),"Raw");
+  }
+  ssB(text : string) {
+    return this.showSleep(this.B(text),"Raw");
+  }
+  saB(text : string,row : number,col : number = 0) {
+    return this.showAt(this.B(text),"Raw",row,col);
+  }
+  lB(text : string) {
+    return this.log(this.B(text),"Raw");
+  }
+  lsB(text : string){
+    return this.logSleep(this.B(text),"Raw");
+  }
+  //White Text
   white(text: string) {
     return this.styleize(text, {
       fg: "White"
     });
+  }
+  W = this.white;
+  sW(text : string) {
+    return this.show(this.W(text),"Raw");
+  }
+  ssW(text : string) {
+    return this.showSleep(this.W(text),"Raw");
+  }
+  saW(text : string,row : number,col : number = 0) {
+    return this.showAt(this.W(text),"Raw",row,col);
+  }
+  lW(text : string) {
+    return this.log(this.W(text),"Raw");
+  }
+  lsW(text : string){
+    return this.logSleep(this.W(text),"Raw");
   }
   black(text: string) {
     return this.styleize(text, {
       fg: "Black"
     });
   }
+  //Black Text
+  BL = this.black;
+  sBL(text : string) {
+    return this.show(this.BL(text),"Raw");
+  }
+  ssBL(text : string) {
+    return this.showSleep(this.BL(text),"Raw");
+  }
+  saBL(text : string,row : number,col : number = 0) {
+    return this.showAt(this.BL(text),"Raw",row,col);
+  }
+  lBL(text : string) {
+    return this.log(this.BL(text),"Raw");
+  }
+  lsBL(text : string){
+    return this.logSleep(this.BL(text),"Raw");
+  }
+  //Cyan Text
   cyan(text: string) {
     return this.styleize(text, {
       fg: "Cyan"
     });
+  }
+  C = this.cyan;
+  sC(text : string) {
+    return this.show(this.C(text),"Raw");
+  }
+  ssC(text : string) {
+    return this.showSleep(this.C(text),"Raw");
+  }
+  saC(text : string,row : number,col : number = 0) {
+    return this.showAt(this.C(text),"Raw",row,col);
+  }
+  lC(text : string) {
+    return this.log(this.C(text),"Raw");
+  }
+  lsC(text : string){
+    return this.logSleep(this.C(text),"Raw");
   }
   magenta(text: string) {
     return this.styleize(text, {
       fg: "Magenta"
     });
   }
+  //Magenta Text
+  M = this.magenta;
+  sM(text : string) {
+    return this.show(this.M(text),"Raw");
+  }
+  ssM(text : string) {
+    return this.showSleep(this.M(text),"Raw");
+  }
+  saM(text : string,row : number,col : number = 0) {
+    return this.showAt(this.M(text),"Raw",row,col);
+  }
+  lM(text : string) {
+    return this.log(this.M(text),"Raw");
+  }
+  lsM(text : string){
+    return this.logSleep(this.M(text),"Raw");
+  }
+  //Yellow Text
   yellow(text: string) {
     return this.styleize(text, {
       fg: "Yellow"
     });
+  }
+  Y = this.yellow;
+  sY(text : string) {
+    return this.show(this.Y(text),"Raw");
+  }
+  ssY(text : string) {
+    return this.showSleep(this.Y(text),"Raw");
+  }
+  saY(text : string,row : number,col : number = 0) {
+    return this.showAt(this.Y(text),"Raw",row,col);
+  }
+  lY(text : string) {
+    return this.log(this.Y(text),"Raw");
+  }
+  lsY(text : string){
+    return this.logSleep(this.Y(text),"Raw");
   }
   //Bright
   brightRed(text: string) {
@@ -966,48 +1124,71 @@ class DSLogger {
       bright: true
     });
   }
+  BR = this.brightRed;
+  sBR(text : string) {
+    return this.show(this.BR(text),"Raw");
+  }
+  ssBR(text : string) {
+    return this.showSleep(this.BR(text),"Raw");
+  }
+  saBR(text : string,row : number,col : number = 0) {
+    return this.showAt(this.BR(text),"Raw",row,col);
+  }
+  lBR(text : string) {
+    return this.log(this.BR(text),"Raw");
+  }
+  lsBR(text : string){
+    return this.logSleep(this.BR(text),"Raw");
+  }
   brightGreen(text: string) {
     return this.styleize(text, {
       fg: "Green",
       bright: true
     });
   }
+  BG = this.brightGreen;
   brightBlue(text: string) {
     return this.styleize(text, {
       fg: "Green",
       bright: true
     });
   }
+  BB = this.brightBlue;
   brightWhite(text: string) {
     return this.styleize(text, {
       fg: "White",
       bright: true
     });
   }
+  BW  = this.brightWhite;
   brightBlack(text: string) {
     return this.styleize(text, {
       fg: "Black",
       bright: true
     });
   }
+  BBL = this.brightBlack;
   brightCyan(text: string) {
     return this.styleize(text, {
       fg: "Cyan",
       bright: true
     });
   }
+  BC = this.brightCyan;
   brightMagenta(text: string) {
     return this.styleize(text, {
       fg: "Magenta",
       bright: true
     });
   }
+  BM = this.brightMagenta;
   brightYellow(text: string) {
     return this.styleize(text, {
       fg: "Yellow",
       bright: true
     });
   }
+  BY = this.brightYellow;
   //Invert
   blackInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1016,6 +1197,7 @@ class DSLogger {
       reverse : true
     });
   }
+  BLI = this.blackInvert;
   redInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Red",
@@ -1023,6 +1205,7 @@ class DSLogger {
       reverse : true
     });
   }
+  RI = this.redInvert;
   greenInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Green",
@@ -1030,6 +1213,7 @@ class DSLogger {
       reverse : true
     });
   }
+  GI = this.greenInvert;
   yellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Yellow",
@@ -1037,6 +1221,7 @@ class DSLogger {
       reverse : true
     });
   }
+  YI = this.yellowInvert;
   blueInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Blue",
@@ -1044,6 +1229,7 @@ class DSLogger {
       reverse : true
     });
   }
+  BI = this.blueInvert;
   magentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Magenta",
@@ -1051,6 +1237,7 @@ class DSLogger {
       reverse : true
     });
   }
+  MI = this.magentaInvert;
   cyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Cyan",
@@ -1058,6 +1245,7 @@ class DSLogger {
       reverse : true
     });
   }
+  CI = this.cyanInvert;
   whiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "White",
@@ -1065,6 +1253,7 @@ class DSLogger {
       reverse : true
     });
   }
+  WI = this.whiteInvert;
   
   //Invert Bright
   brightBlackInvert(text: string,bg : ConsoleColors | "none" = "none") {
@@ -1075,6 +1264,7 @@ class DSLogger {
       bright : true
     });
   }
+  BBLI = this.brightBlackInvert;
   brightRedInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Red",
@@ -1083,6 +1273,7 @@ class DSLogger {
       bright : true
     });
   }
+  BRI = this.brightRedInvert;
   brightGreenInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Green",
@@ -1091,6 +1282,7 @@ class DSLogger {
       bright : true
     });
   }
+  BGI = this.brightGreenInvert;
   brightYellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Yellow",
@@ -1099,6 +1291,7 @@ class DSLogger {
       bright : true
     });
   }
+  BYI = this.brightYellowInvert;
   brightBlueInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Blue",
@@ -1107,6 +1300,7 @@ class DSLogger {
       bright : true
     });
   }
+  BBI = this.brightBlackInvert;
   brightMagentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Magenta",
@@ -1115,6 +1309,7 @@ class DSLogger {
       bright : true
     });
   }
+  BMI = this.brightBlueInvert;
   brightCyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "Cyan",
@@ -1123,6 +1318,7 @@ class DSLogger {
       bright : true
     });
   }
+  BCI = this.brightCyanInvert;
   brightWhiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       fg: "White",
@@ -1131,7 +1327,7 @@ class DSLogger {
       bright : true
     });
   }
-
+  BWI = this.brightWhiteInvert;
   //BG
   redBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1139,18 +1335,21 @@ class DSLogger {
       fg: fg
     });
   }
+  RBG = this.redBG;
   greenBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
+  GBG = this.greenBG;
   blueBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
+  BBG = this.blueBG
   whiteBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
@@ -1163,25 +1362,28 @@ class DSLogger {
       fg: fg
     });
   }
+  BLBG = this.blackBG;
   cyanBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
       fg: fg
     });
   }
+  CBG = this.cyanBG;
   magentaBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
       fg: fg
     });
   }
+  MBG = this.magentaBG;
   yellowBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
       fg: fg
     });
   }
-
+  YBG = this.yellowBG;
   //Bright
   brightRedBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1189,48 +1391,56 @@ class DSLogger {
       fg: fg
     });
   }
+  BRBG = this.brightRedBG;
   brightGreenBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
+  BGBG = this.brightGreenBG;
   brightBlueBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
       fg: fg
     });
   }
+  BBBG = this.brightBlueBG;
   brightWhiteBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
       fg: fg
     });
   }
+  BWBG = this.brightWhiteBG;
   brightBlackBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Black",
       fg: fg
     });
   }
+  BBLBG = this.brightBlackBG;
   brightCyanBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
       fg: fg
     });
   }
+  BCBG = this.brightCyanBG;
   brightMagentaBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
       fg: fg
     });
   }
+  BMBG = this.brightMagentaBG;
   brightYellowBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
       fg: fg
     });
   }
+  BYBG = this.brightYellowBG;
 
   //Invert
   blackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
@@ -1240,6 +1450,7 @@ class DSLogger {
       reverse : true
     });
   }
+  BLIBG = this.blackInvertBG;
   redInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Red",
@@ -1247,6 +1458,7 @@ class DSLogger {
       reverse : true
     });
   }
+  RIBG = this.redInvertBG;
   greenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
@@ -1254,6 +1466,7 @@ class DSLogger {
       reverse : true
     });
   }
+  GIBG = this.greenInvertBG;
   yellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
@@ -1261,6 +1474,7 @@ class DSLogger {
       reverse : true
     });
   }
+  YIGB = this.yellowInvertBG;
   blueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Blue",
@@ -1268,6 +1482,7 @@ class DSLogger {
       reverse : true
     });
   }
+  BIBG = this.blueInvertBG;
   magentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
@@ -1275,6 +1490,7 @@ class DSLogger {
       reverse : true
     });
   }
+  MIBG = this.magentaInvertBG;
   cyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
@@ -1282,6 +1498,7 @@ class DSLogger {
       reverse : true
     });
   }
+  CIBG = this.cyanInvertBG;
   whiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
@@ -1289,6 +1506,7 @@ class DSLogger {
       reverse : true
     });
   }
+  WIBG = this.whiteInvertBG;
   
   //Invert Bright
   brightBlackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
@@ -1299,6 +1517,7 @@ class DSLogger {
       bright : true
     });
   }
+  BBLIBG = this.brightBlackInvertBG;
   brightRedInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Red",
@@ -1307,6 +1526,7 @@ class DSLogger {
       bright : true
     });
   }
+  BRIBG = this.brightRedInvertBG;
   brightGreenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Green",
@@ -1315,6 +1535,7 @@ class DSLogger {
       bright : true
     });
   }
+  BGIBG = this.brightGreenInvertBG;
   brightYellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Yellow",
@@ -1323,6 +1544,7 @@ class DSLogger {
       bright : true
     });
   }
+  BYIBG = this.BG;
   brightBlueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Blue",
@@ -1331,6 +1553,7 @@ class DSLogger {
       bright : true
     });
   }
+  BBIBG = this.brightBlueInvertBG;
   brightMagentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Magenta",
@@ -1339,6 +1562,7 @@ class DSLogger {
       bright : true
     });
   }
+  BMIBG = this.brightMagentaInvertBG;
   brightCyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "Cyan",
@@ -1347,6 +1571,7 @@ class DSLogger {
       bright : true
     });
   }
+  BCIBG = this.brightCyanInvertBG;
   brightWhiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
     return this.styleize(text, {
       bg: "White",
@@ -1355,6 +1580,7 @@ class DSLogger {
       bright : true
     });
   }
+  BWIBG = this.brightWhiteInvertBG;
 
   exit(){
     process.exit(0);

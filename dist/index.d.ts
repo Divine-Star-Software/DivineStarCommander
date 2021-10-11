@@ -259,8 +259,9 @@ declare class DSLogger {
    * @param message
    * @param type
    * @param row
+   * @param col Default is 0 
    */
-  showAt(message: any, type: MessageTypes, row: number): this;
+  showAt(message: any, type: MessageTypes, row: number, col ?: number): this;
   /**# Show
    * ---
    * Shows a message
@@ -275,7 +276,22 @@ declare class DSLogger {
    * @param type
    * @param ms
    */
-  showSleep(message: any, type: MessageTypes, ms ? : number): this;
+  showSleep(message: any, type: MessageTypes, ms ?: number): this;
+/**# Log
+ * ---
+ * Log message without adjusting cursor position.
+ * @param message 
+ * @param type 
+ */
+  log(message : any,type : MessageTypes) : this;
+/** # Log Sleep
+ * ---
+ * Log message and sleep without adjusting cursor position.
+ * @param message 
+ * @param type 
+ * @param ms 
+ */
+  logSleep(message : any,type : MessageTypes, ms ?: number) : this;
   /** # Log Seperator
    * ---
    * Logs output seperator
@@ -435,6 +451,7 @@ declare class DSLogger {
   greenInvertBG(text: string,fg : ConsoleColors | "none") : string;
   blueInvertBG(text: string,fg : ConsoleColors | "none" ) : string;
   whiteInvertBG(text: string,fg : ConsoleColors | "none" ): string;
+  WIBG : typeof this.whiteInvertBG;
   blackInvertBG(text: string,fg : ConsoleColors | "none"): string;
   cyanInvertBG(text: string,fg : ConsoleColors | "none"): string;
   magentaInvertBG(text: string,fg : ConsoleColors | "none") : string;

@@ -2,6 +2,7 @@
 class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
+        this.defaultSleepTime = 800;
         this.strings = {
             title: "[ Divine Star Logger ]",
             helpText: "",
@@ -195,6 +196,69 @@ class DSLogger {
             done: (message) => {
             }
         };
+        this.R = this.red;
+        this.G = this.green;
+        this.B = this.blue;
+        this.W = this.white;
+        this.BL = this.black;
+        this.C = this.cyan;
+        this.M = this.magenta;
+        this.Y = this.yellow;
+        this.BR = this.brightRed;
+        this.BG = this.brightGreen;
+        this.BB = this.brightBlue;
+        this.BW = this.brightWhite;
+        this.BBL = this.brightBlack;
+        this.BC = this.brightCyan;
+        this.BM = this.brightMagenta;
+        this.BY = this.brightYellow;
+        this.BLI = this.blackInvert;
+        this.RI = this.redInvert;
+        this.GI = this.greenInvert;
+        this.YI = this.yellowInvert;
+        this.BI = this.blueInvert;
+        this.MI = this.magentaInvert;
+        this.CI = this.cyanInvert;
+        this.WI = this.whiteInvert;
+        this.BBLI = this.brightBlackInvert;
+        this.BRI = this.brightRedInvert;
+        this.BGI = this.brightGreenInvert;
+        this.BYI = this.brightYellowInvert;
+        this.BBI = this.brightBlackInvert;
+        this.BMI = this.brightBlueInvert;
+        this.BCI = this.brightCyanInvert;
+        this.BWI = this.brightWhiteInvert;
+        this.RBG = this.redBG;
+        this.GBG = this.greenBG;
+        this.BBG = this.blueBG;
+        this.BLBG = this.blackBG;
+        this.CBG = this.cyanBG;
+        this.MBG = this.magentaBG;
+        this.YBG = this.yellowBG;
+        this.BRBG = this.brightRedBG;
+        this.BGBG = this.brightGreenBG;
+        this.BBBG = this.brightBlueBG;
+        this.BWBG = this.brightWhiteBG;
+        this.BBLBG = this.brightBlackBG;
+        this.BCBG = this.brightCyanBG;
+        this.BMBG = this.brightMagentaBG;
+        this.BYBG = this.brightYellowBG;
+        this.BLIBG = this.blackInvertBG;
+        this.RIBG = this.redInvertBG;
+        this.GIBG = this.greenInvertBG;
+        this.YIGB = this.yellowInvertBG;
+        this.BIBG = this.blueInvertBG;
+        this.MIBG = this.magentaInvertBG;
+        this.CIBG = this.cyanInvertBG;
+        this.WIBG = this.whiteInvertBG;
+        this.BBLIBG = this.brightBlackInvertBG;
+        this.BRIBG = this.brightRedInvertBG;
+        this.BGIBG = this.brightGreenInvertBG;
+        this.BYIBG = this.BG;
+        this.BBIBG = this.brightBlueInvertBG;
+        this.BMIBG = this.brightMagentaInvertBG;
+        this.BCIBG = this.brightCyanInvertBG;
+        this.BWIBG = this.brightWhiteInvertBG;
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
                 this.rdl = rdl;
@@ -708,7 +772,7 @@ class DSLogger {
         this.currentRow = 0;
         return this;
     }
-    showAt(message, type, row) {
+    showAt(message, type, row, col = 0) {
         let output = message;
         if (type != "Raw" && type != "Data") {
             output = this._addColor(type, message);
@@ -717,7 +781,7 @@ class DSLogger {
             output = JSON.stringify(message, null, 3);
         }
         const lines = this._countLines(`${output}`);
-        this.rdl.cursorTo(process.stdout, 0, row);
+        this.rdl.cursorTo(process.stdout, col, row);
         this.currentRow += lines;
         console.log(output);
         return this;
@@ -736,8 +800,26 @@ class DSLogger {
         console.log(output);
         return this;
     }
-    showSleep(message, type, ms = 800) {
+    showSleep(message, type, ms = this.defaultSleepTime) {
         this.show(message, type);
+        this.sleep(ms);
+        return this;
+    }
+    log(message, type) {
+        let output = message;
+        if (type != "Raw" && type != "Data") {
+            output = this._addColor(type, message);
+        }
+        if (type == "Data") {
+            output = JSON.stringify(message, null, 3);
+        }
+        const lines = this._countLines(`${output}`);
+        this.currentRow += lines;
+        console.log(output);
+        return this;
+    }
+    logSleep(message, type, ms = this.defaultSleepTime) {
+        this.log(message, type);
         this.sleep(ms);
         return this;
     }
@@ -819,46 +901,181 @@ class DSLogger {
             fg: "Red"
         });
     }
+    sR(text) {
+        return this.show(this.R(text), "Raw");
+    }
+    ssR(text) {
+        return this.showSleep(this.R(text), "Raw");
+    }
+    saR(text, row, col = 0) {
+        return this.showAt(this.R(text), "Raw", row, col);
+    }
+    lR(text) {
+        return this.log(this.R(text), "Raw");
+    }
+    lsR(text) {
+        return this.logSleep(this.R(text), "Raw");
+    }
     green(text) {
         return this.styleize(text, {
             fg: "Green"
         });
+    }
+    sG(text) {
+        return this.show(this.G(text), "Raw");
+    }
+    ssG(text) {
+        return this.showSleep(this.G(text), "Raw");
+    }
+    saG(text, row, col = 0) {
+        return this.showAt(this.G(text), "Raw", row, col);
+    }
+    lG(text) {
+        return this.log(this.G(text), "Raw");
+    }
+    lsG(text) {
+        return this.logSleep(this.G(text), "Raw");
     }
     blue(text) {
         return this.styleize(text, {
             fg: "Green"
         });
     }
+    sB(text) {
+        return this.show(this.B(text), "Raw");
+    }
+    ssB(text) {
+        return this.showSleep(this.B(text), "Raw");
+    }
+    saB(text, row, col = 0) {
+        return this.showAt(this.B(text), "Raw", row, col);
+    }
+    lB(text) {
+        return this.log(this.B(text), "Raw");
+    }
+    lsB(text) {
+        return this.logSleep(this.B(text), "Raw");
+    }
     white(text) {
         return this.styleize(text, {
             fg: "White"
         });
+    }
+    sW(text) {
+        return this.show(this.W(text), "Raw");
+    }
+    ssW(text) {
+        return this.showSleep(this.W(text), "Raw");
+    }
+    saW(text, row, col = 0) {
+        return this.showAt(this.W(text), "Raw", row, col);
+    }
+    lW(text) {
+        return this.log(this.W(text), "Raw");
+    }
+    lsW(text) {
+        return this.logSleep(this.W(text), "Raw");
     }
     black(text) {
         return this.styleize(text, {
             fg: "Black"
         });
     }
+    sBL(text) {
+        return this.show(this.BL(text), "Raw");
+    }
+    ssBL(text) {
+        return this.showSleep(this.BL(text), "Raw");
+    }
+    saBL(text, row, col = 0) {
+        return this.showAt(this.BL(text), "Raw", row, col);
+    }
+    lBL(text) {
+        return this.log(this.BL(text), "Raw");
+    }
+    lsBL(text) {
+        return this.logSleep(this.BL(text), "Raw");
+    }
     cyan(text) {
         return this.styleize(text, {
             fg: "Cyan"
         });
+    }
+    sC(text) {
+        return this.show(this.C(text), "Raw");
+    }
+    ssC(text) {
+        return this.showSleep(this.C(text), "Raw");
+    }
+    saC(text, row, col = 0) {
+        return this.showAt(this.C(text), "Raw", row, col);
+    }
+    lC(text) {
+        return this.log(this.C(text), "Raw");
+    }
+    lsC(text) {
+        return this.logSleep(this.C(text), "Raw");
     }
     magenta(text) {
         return this.styleize(text, {
             fg: "Magenta"
         });
     }
+    sM(text) {
+        return this.show(this.M(text), "Raw");
+    }
+    ssM(text) {
+        return this.showSleep(this.M(text), "Raw");
+    }
+    saM(text, row, col = 0) {
+        return this.showAt(this.M(text), "Raw", row, col);
+    }
+    lM(text) {
+        return this.log(this.M(text), "Raw");
+    }
+    lsM(text) {
+        return this.logSleep(this.M(text), "Raw");
+    }
     yellow(text) {
         return this.styleize(text, {
             fg: "Yellow"
         });
+    }
+    sY(text) {
+        return this.show(this.Y(text), "Raw");
+    }
+    ssY(text) {
+        return this.showSleep(this.Y(text), "Raw");
+    }
+    saY(text, row, col = 0) {
+        return this.showAt(this.Y(text), "Raw", row, col);
+    }
+    lY(text) {
+        return this.log(this.Y(text), "Raw");
+    }
+    lsY(text) {
+        return this.logSleep(this.Y(text), "Raw");
     }
     brightRed(text) {
         return this.styleize(text, {
             fg: "Red",
             bright: true
         });
+    }
+    sBR(text) {
+        return this.show(this.BR(text), "Raw");
+    }
+    ssBR(text) {
+        return this.showSleep(this.BR(text), "Raw");
+    }
+    saBR(text, row, col = 0) {
+        return this.showAt(this.BR(text), "Raw", row, col);
+    }
+    lBR(text) {
+        return this.log(this.BR(text), "Raw");
+    }
+    lsBR(text) {
+        return this.logSleep(this.BR(text), "Raw");
     }
     brightGreen(text) {
         return this.styleize(text, {

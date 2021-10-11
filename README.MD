@@ -197,7 +197,9 @@ Functions related to logging to the console.
 | --------------------------- | -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
 | **show**                    | **message** : string, **type** : MessageType                   | self    | Logs message at current row.                                                     |
 | **showSleep**               | **message** : string, **type** : MessageType, **ms** : number  | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
-| **showAt**                  | **message** : string, **type** : MessageType, **row** : number | self    | Logs message at given row.                                                       |
+| **showAt**                  | **message** : string, **type** : MessageType, **row** : number, **col** ?: number | self    | Logs message at given row.                                                       |
+| **log**                    | **message** : string, **type** : MessageType                   | self    | Log message without adjusting cursor position.
+| **logSleep**               | **message** : string, **type** : MessageType, **ms** : number  | self    | Log message and sleep without adjusting cursor position.
 | **logProgramTitle**         | none                                                           | self    | Logs the program defined title at the current row with the given title style.    |
 | **logSeperator**            | none                                                           | self    | Logs the program defined seperator at the current row with the given info style. |
 | **displayScreen**           | (**screen**:Screens,**args**:any)                              | self    | Logs the program defined screen at the current                                   |
