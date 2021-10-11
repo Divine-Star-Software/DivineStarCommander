@@ -814,14 +814,6 @@ class DSLogger {
         this.strings[id] = string;
         return this;
     }
-    redInvert(text, bg = "none") {
-        return this.styleize(text, {
-            fg: "Red",
-            bg: bg,
-            bright: true,
-            reverse: true
-        });
-    }
     red(text) {
         return this.styleize(text, {
             fg: "Red"
@@ -907,6 +899,126 @@ class DSLogger {
     brightYellow(text) {
         return this.styleize(text, {
             fg: "Yellow",
+            bright: true
+        });
+    }
+    blackInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Black",
+            bg: bg,
+            reverse: true
+        });
+    }
+    redInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Red",
+            bg: bg,
+            reverse: true
+        });
+    }
+    greenInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Green",
+            bg: bg,
+            reverse: true
+        });
+    }
+    yellowInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Yellow",
+            bg: bg,
+            reverse: true
+        });
+    }
+    blueInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Blue",
+            bg: bg,
+            reverse: true
+        });
+    }
+    magentaInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Magenta",
+            bg: bg,
+            reverse: true
+        });
+    }
+    cyanInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Cyan",
+            bg: bg,
+            reverse: true
+        });
+    }
+    whiteInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "White",
+            bg: bg,
+            reverse: true
+        });
+    }
+    brightBlackInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Black",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightRedInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Red",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightGreenInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Green",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightYellowInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Yellow",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightBlueInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Blue",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightMagentaInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Magenta",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightCyanInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "Cyan",
+            bg: bg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightWhiteInvert(text, bg = "none") {
+        return this.styleize(text, {
+            fg: "White",
+            bg: bg,
+            reverse: true,
             bright: true
         });
     }
@@ -1004,6 +1116,126 @@ class DSLogger {
         return this.styleize(text, {
             bg: "Yellow",
             fg: fg
+        });
+    }
+    blackInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Black",
+            fg: fg,
+            reverse: true
+        });
+    }
+    redInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Red",
+            fg: fg,
+            reverse: true
+        });
+    }
+    greenInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Green",
+            fg: fg,
+            reverse: true
+        });
+    }
+    yellowInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Yellow",
+            fg: fg,
+            reverse: true
+        });
+    }
+    blueInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Blue",
+            fg: fg,
+            reverse: true
+        });
+    }
+    magentaInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Magenta",
+            fg: fg,
+            reverse: true
+        });
+    }
+    cyanInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Cyan",
+            fg: fg,
+            reverse: true
+        });
+    }
+    whiteInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "White",
+            fg: fg,
+            reverse: true
+        });
+    }
+    brightBlackInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Black",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightRedInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Red",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightGreenInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Green",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightYellowInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Yellow",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightBlueInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Blue",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightMagentaInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Magenta",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightCyanInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "Cyan",
+            fg: fg,
+            reverse: true,
+            bright: true
+        });
+    }
+    brightWhiteInvertBG(text, fg = "none") {
+        return this.styleize(text, {
+            bg: "White",
+            fg: fg,
+            reverse: true,
+            bright: true
         });
     }
     exit() {

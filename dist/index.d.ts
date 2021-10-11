@@ -394,6 +394,24 @@ declare class DSLogger {
   brightCyan(text: string): string;
   brightMagenta(text: string): string;
   brightYellow(text: string): string;
+  //Invert
+  redInvert(text: string,bg : ConsoleColors | "none" ) : string;
+  greenInvert(text: string,bg : ConsoleColors | "none") : string;
+  blueInvert(text: string,bg : ConsoleColors | "none" ) : string;
+  whiteInvert(text: string,bg : ConsoleColors | "none" ): string;
+  blackInvert(text: string,bg : ConsoleColors | "none"): string;
+  cyanInvert(text: string,bg : ConsoleColors | "none"): string;
+  magentaInvert(text: string,bg : ConsoleColors | "none") : string;
+  yellowInvert(text: string,bg : ConsoleColors | "none") : string;
+  //Invert Bright
+  brightRedInvert(text: string,bg : ConsoleColors | "none") : string;
+  brightGreenInvert(text: string,bg : ConsoleColors | "none") : string;
+  brightBlueInvert(text: string,bg : ConsoleColors | "none") : string;
+  brightWhiteInvert(text: string,bg : ConsoleColors | "none") : string;
+  brightBlackInvert(text: string,bg : ConsoleColors | "none") : string;
+  brightCyanInvert(text: string,bg : ConsoleColors | "none"): string;
+  brightMagentaInvert(text: string,bg : ConsoleColors | "none") : string;
+  brightYellowInvert(text: string,bg : ConsoleColors | "none") : string;
   //BG
   redBG(text: string,fg : ConsoleColors | "none" ) : string;
   greenBG(text: string,fg : ConsoleColors | "none") : string;
@@ -412,6 +430,24 @@ declare class DSLogger {
   brightCyanBG(text: string,fg : ConsoleColors | "none"): string;
   brightMagentaBG(text: string,fg : ConsoleColors | "none") : string;
   brightYellowBG(text: string,fg : ConsoleColors | "none") : string;
+  //Invert
+  redInvertBG(text: string,fg : ConsoleColors | "none" ) : string;
+  greenInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  blueInvertBG(text: string,fg : ConsoleColors | "none" ) : string;
+  whiteInvertBG(text: string,fg : ConsoleColors | "none" ): string;
+  blackInvertBG(text: string,fg : ConsoleColors | "none"): string;
+  cyanInvertBG(text: string,fg : ConsoleColors | "none"): string;
+  magentaInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  yellowInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  //Invert Bright
+  brightRedInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  brightGreenInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  brightBlueInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  brightWhiteInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  brightBlackInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  brightCyanInvertBG(text: string,fg : ConsoleColors | "none"): string;
+  brightMagentaInvertBG(text: string,fg : ConsoleColors | "none") : string;
+  brightYellowInvertBG(text: string,fg : ConsoleColors | "none") : string;
 
   /**# Exit
    * ---

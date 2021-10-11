@@ -919,14 +919,6 @@ class DSLogger {
   }
   //Quick Styles
   //FG 
-  redInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
-      fg: "Red",
-      bg : bg,
-      bright : true,
-      reverse : true
-    });
-  }
   red(text: string) {
     return this.styleize(text, {
       fg: "Red"
@@ -1016,6 +1008,130 @@ class DSLogger {
       bright: true
     });
   }
+  //Invert
+  blackInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Black",
+      bg : bg,
+      reverse : true
+    });
+  }
+  redInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Red",
+      bg : bg,
+      reverse : true
+    });
+  }
+  greenInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Green",
+      bg : bg,
+      reverse : true
+    });
+  }
+  yellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Yellow",
+      bg : bg,
+      reverse : true
+    });
+  }
+  blueInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Blue",
+      bg : bg,
+      reverse : true
+    });
+  }
+  magentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Magenta",
+      bg : bg,
+      reverse : true
+    });
+  }
+  cyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Cyan",
+      bg : bg,
+      reverse : true
+    });
+  }
+  whiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "White",
+      bg : bg,
+      reverse : true
+    });
+  }
+  
+  //Invert Bright
+  brightBlackInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Black",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightRedInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Red",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightGreenInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Green",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightYellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Yellow",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightBlueInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Blue",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightMagentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Magenta",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightCyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "Cyan",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightWhiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      fg: "White",
+      bg : bg,
+      reverse : true,
+      bright : true
+    });
+  }
+
   //BG
   redBG(text: string, fg: ConsoleColors | "none" = "none") {
     return this.styleize(text, {
@@ -1116,13 +1232,133 @@ class DSLogger {
     });
   }
 
-
+  //Invert
+  blackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Black",
+      fg : fg,
+      reverse : true
+    });
+  }
+  redInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Red",
+      fg : fg,
+      reverse : true
+    });
+  }
+  greenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Green",
+      fg : fg,
+      reverse : true
+    });
+  }
+  yellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Yellow",
+      fg : fg,
+      reverse : true
+    });
+  }
+  blueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Blue",
+      fg : fg,
+      reverse : true
+    });
+  }
+  magentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Magenta",
+      fg : fg,
+      reverse : true
+    });
+  }
+  cyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Cyan",
+      fg : fg,
+      reverse : true
+    });
+  }
+  whiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "White",
+      fg : fg,
+      reverse : true
+    });
+  }
+  
+  //Invert Bright
+  brightBlackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Black",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightRedInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Red",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightGreenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Green",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightYellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Yellow",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightBlueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Blue",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightMagentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Magenta",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightCyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "Cyan",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
+  brightWhiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
+    return this.styleize(text, {
+      bg: "White",
+      fg : fg,
+      reverse : true,
+      bright : true
+    });
+  }
 
   exit(){
     process.exit(0);
   }
-
-
 
   ServiceBar = class  {
     cursor = 0;
@@ -1206,11 +1442,6 @@ class DSLogger {
       }
       this.rdl.cursorTo(process.stdout, 0, this.row);
     }
-    /**Add Progress Percent
-     * ---
-     * Adds progress to the bar relative to the size.
-     * @param percent Supply an int between 1 - 100
-     */
     addProgressPerfect(percent: number): Promise < true > | Promise < unknown > {
       const num = this.size * (percent / 100);
       return this.addProgress(num);
@@ -1248,11 +1479,6 @@ class DSLogger {
     }
   }
 }
-
-
-
-
-
 const rdl = require("readline");
 const DS = new DSLogger(rdl);
 module.exports = DS;
