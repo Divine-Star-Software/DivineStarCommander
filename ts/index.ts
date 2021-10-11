@@ -364,7 +364,7 @@ class DSLogger {
 
   }
 
-  styleize(
+  stylize(
     text: string,
     styleObj: StyleObject
   ): string {
@@ -647,14 +647,14 @@ class DSLogger {
                 }
                 if(q.failPrompt){
                   question = 
-                this.styleize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                this.styleize(q.failPrompt,this.questionStyles["re-ask"]) + " " +
-                this.styleize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
+                this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
+                this.stylize(q.failPrompt,this.questionStyles["re-ask"]) + " " +
+                this.stylize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
                 } else {
                 question = 
-                this.styleize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                this.styleize(this.getString("reAskText"),this.questionStyles["re-ask"]) + " " +
-                this.styleize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
+                this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
+                this.stylize(this.getString("reAskText"),this.questionStyles["re-ask"]) + " " +
+                this.stylize(this.getString("reAskDelimiter"),this.questionStyles["re-ask-delimiter"]) + " ";
                 }
               } else {
                 passed = true;
@@ -703,9 +703,9 @@ class DSLogger {
 
 
     question =
-      this.styleize(this.getString("questionStart"), this.questionStyles["question-start"]) +
-      this.styleize(question, this.questionStyles["question"]) + " " +
-      this.styleize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) 
+      this.stylize(this.getString("questionStart"), this.questionStyles["question-start"]) +
+      this.stylize(question, this.questionStyles["question"]) + " " +
+      this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) 
       + " ";
     this.questions[question] = {
       varName: varName,
@@ -758,8 +758,8 @@ class DSLogger {
       s = this.defaultServiceBarStyle;
     }
     const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval,
-      this.styleize(s.base,s.baseStyle),this.styleize(s.loadedOne,s.loadedOneStyle),
-      this.styleize(s.loadedTwo,s.loadedTwoStyle),this.styleize(s.cap,s.capStyle));
+      this.stylize(s.base,s.baseStyle),this.stylize(s.loadedOne,s.loadedOneStyle),
+      this.stylize(s.loadedTwo,s.loadedTwoStyle),this.stylize(s.cap,s.capStyle));
     this.currentRow++;
     this.serviceBars[name] = bar;
     return this;
@@ -788,7 +788,7 @@ class DSLogger {
       d = this.defaultPrgoressBarStyle;
     }
    const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size,
-    d.interval,this.styleize(d.base,d.baseStyle),this.styleize(d.loaded,d.loadedStyle));
+    d.interval,this.stylize(d.base,d.baseStyle),this.stylize(d.loaded,d.loadedStyle));
     this.currentRow++;
     bar.start();
     this.progressBars[name] = bar;
@@ -884,7 +884,7 @@ class DSLogger {
   }
 
   _addColor(type: MessageTypes, message: any) {
-    return this.styleize(message, this.messageStyles[type]);
+    return this.stylize(message, this.messageStyles[type]);
   }
 
   _countLines(message: string) {
@@ -974,7 +974,7 @@ class DSLogger {
   //FG 
   //RED TEXT
   red(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Red"
     });
 
@@ -985,7 +985,7 @@ class DSLogger {
 
 //Green Text
   green(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Green"
     });
   }
@@ -993,7 +993,7 @@ class DSLogger {
 
   //Blue Text
   blue(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Green"
     });
   }
@@ -1001,14 +1001,14 @@ class DSLogger {
 
   //White Text
   white(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "White"
     });
   }
   W = <StyleShortCode> this.white;
 
   black(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Black"
     });
 
@@ -1018,14 +1018,14 @@ class DSLogger {
 
   //Cyan Text
   cyan(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Cyan"
     });
   }
   C = <StyleShortCode> this.cyan;
 
   magenta(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Magenta"
     });
   }
@@ -1034,7 +1034,7 @@ class DSLogger {
 
   //Yellow Text
   yellow(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Yellow"
     });
   }
@@ -1042,7 +1042,7 @@ class DSLogger {
 
   //Bright
   brightRed(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Red",
       bright: true
     });
@@ -1050,49 +1050,49 @@ class DSLogger {
   BR = <StyleShortCode> this.brightRed;
  
   brightGreen(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Green",
       bright: true
     });
   }
   BG = <StyleShortCode> this.brightGreen;
   brightBlue(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Green",
       bright: true
     });
   }
   BB = <StyleShortCode> this.brightBlue;
   brightWhite(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "White",
       bright: true
     });
   }
   BW  = <StyleShortCode> this.brightWhite;
   brightBlack(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Black",
       bright: true
     });
   }
   BBL = <StyleShortCode> this.brightBlack;
   brightCyan(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Cyan",
       bright: true
     });
   }
   BC = <StyleShortCode> this.brightCyan;
   brightMagenta(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Magenta",
       bright: true
     });
   }
   BM = <StyleShortCode> this.brightMagenta;
   brightYellow(text: string) {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Yellow",
       bright: true
     });
@@ -1100,7 +1100,7 @@ class DSLogger {
   BY = <StyleShortCode> this.brightYellow;
   //Invert
   blackInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Black",
       bg : bg,
       reverse : true
@@ -1108,7 +1108,7 @@ class DSLogger {
   }
   BLI = <StyleInvertShortCode> this.blackInvert;
   redInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Red",
       bg : bg,
       reverse : true
@@ -1116,7 +1116,7 @@ class DSLogger {
   }
   RI = <StyleInvertShortCode> this.redInvert;
   greenInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Green",
       bg : bg,
       reverse : true
@@ -1124,7 +1124,7 @@ class DSLogger {
   }
   GI = <StyleInvertShortCode> this.greenInvert;
   yellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Yellow",
       bg : bg,
       reverse : true
@@ -1132,7 +1132,7 @@ class DSLogger {
   }
   YI = <StyleInvertShortCode> this.yellowInvert;
   blueInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Blue",
       bg : bg,
       reverse : true
@@ -1140,7 +1140,7 @@ class DSLogger {
   }
   BI = <StyleInvertShortCode> this.blueInvert;
   magentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Magenta",
       bg : bg,
       reverse : true
@@ -1148,7 +1148,7 @@ class DSLogger {
   }
   MI = <StyleInvertShortCode> this.magentaInvert;
   cyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Cyan",
       bg : bg,
       reverse : true
@@ -1156,7 +1156,7 @@ class DSLogger {
   }
   CI = <StyleInvertShortCode> this.cyanInvert;
   whiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "White",
       bg : bg,
       reverse : true
@@ -1166,7 +1166,7 @@ class DSLogger {
   
   //Invert Bright
   brightBlackInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Black",
       bg : bg,
       reverse : true,
@@ -1175,7 +1175,7 @@ class DSLogger {
   }
   BBLI = <StyleInvertShortCode> this.brightBlackInvert;
   brightRedInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Red",
       bg : bg,
       reverse : true,
@@ -1185,7 +1185,7 @@ class DSLogger {
   BRI =<StyleInvertShortCode>  this.brightRedInvert;
 
   brightGreenInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Green",
       bg : bg,
       reverse : true,
@@ -1194,7 +1194,7 @@ class DSLogger {
   }
   BGI =<StyleInvertShortCode>  this.brightGreenInvert;
   brightYellowInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Yellow",
       bg : bg,
       reverse : true,
@@ -1203,7 +1203,7 @@ class DSLogger {
   }
   BYI =<StyleInvertShortCode>  this.brightYellowInvert;
   brightBlueInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Blue",
       bg : bg,
       reverse : true,
@@ -1212,7 +1212,7 @@ class DSLogger {
   }
   BBI =<StyleInvertShortCode>  this.brightBlackInvert;
   brightMagentaInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Magenta",
       bg : bg,
       reverse : true,
@@ -1221,7 +1221,7 @@ class DSLogger {
   }
   BMI =<StyleInvertShortCode>  this.brightBlueInvert;
   brightCyanInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "Cyan",
       bg : bg,
       reverse : true,
@@ -1230,7 +1230,7 @@ class DSLogger {
   }
   BCI =<StyleInvertShortCode>  this.brightCyanInvert;
   brightWhiteInvert(text: string,bg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       fg: "White",
       bg : bg,
       reverse : true,
@@ -1240,56 +1240,56 @@ class DSLogger {
   BWI =<StyleInvertShortCode>  this.brightWhiteInvert;
   //BG
   redBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Red",
       fg: fg
     });
   }
   RBG =<StyleBGShortCode>  this.redBG;
   greenBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Green",
       fg: fg
     });
   }
   GBG =<StyleBGShortCode>  this.greenBG;
   blueBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Green",
       fg: fg
     });
   }
   BBG =<StyleBGShortCode>  this.blueBG
   whiteBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "White",
       fg: fg
     });
   }
   WBG =<StyleBGShortCode> this.whiteBG;
   blackBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Black",
       fg: fg
     });
   }
   BLBG =<StyleBGShortCode>  this.blackBG;
   cyanBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Cyan",
       fg: fg
     });
   }
   CBG =<StyleBGShortCode>  this.cyanBG;
   magentaBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Magenta",
       fg: fg
     });
   }
   MBG =<StyleBGShortCode>  this.magentaBG;
   yellowBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Yellow",
       fg: fg
     });
@@ -1297,56 +1297,56 @@ class DSLogger {
   YBG =<StyleBGShortCode>  this.yellowBG;
   //Bright
   brightRedBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Red",
       fg: fg
     });
   }
   BRBG =<StyleBGShortCode>  this.brightRedBG;
   brightGreenBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Green",
       fg: fg
     });
   }
   BGBG =<StyleBGShortCode>  this.brightGreenBG;
   brightBlueBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Green",
       fg: fg
     });
   }
   BBBG =<StyleBGShortCode>  this.brightBlueBG;
   brightWhiteBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "White",
       fg: fg
     });
   }
   BWBG =<StyleBGShortCode>  this.brightWhiteBG;
   brightBlackBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Black",
       fg: fg
     });
   }
   BBLBG =<StyleBGShortCode>  this.brightBlackBG;
   brightCyanBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Cyan",
       fg: fg
     });
   }
   BCBG =<StyleBGShortCode>  this.brightCyanBG;
   brightMagentaBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Magenta",
       fg: fg
     });
   }
   BMBG =<StyleBGShortCode>  this.brightMagentaBG;
   brightYellowBG(text: string, fg: ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Yellow",
       fg: fg
     });
@@ -1355,7 +1355,7 @@ class DSLogger {
 
   //Invert
   blackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Black",
       fg : fg,
       reverse : true
@@ -1363,7 +1363,7 @@ class DSLogger {
   }
   BLIBG =<StyleBGShortCode>  this.blackInvertBG;
   redInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Red",
       fg : fg,
       reverse : true
@@ -1371,7 +1371,7 @@ class DSLogger {
   }
   RIBG =<StyleBGShortCode>  this.redInvertBG;
   greenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Green",
       fg : fg,
       reverse : true
@@ -1379,7 +1379,7 @@ class DSLogger {
   }
   GIBG =<StyleBGShortCode>  this.greenInvertBG;
   yellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Yellow",
       fg : fg,
       reverse : true
@@ -1387,7 +1387,7 @@ class DSLogger {
   }
   YIBG =<StyleBGShortCode>  this.yellowInvertBG;
   blueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Blue",
       fg : fg,
       reverse : true
@@ -1395,7 +1395,7 @@ class DSLogger {
   }
   BIBG =<StyleBGShortCode>  this.blueInvertBG;
   magentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Magenta",
       fg : fg,
       reverse : true
@@ -1403,7 +1403,7 @@ class DSLogger {
   }
   MIBG =<StyleBGShortCode>  this.magentaInvertBG;
   cyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Cyan",
       fg : fg,
       reverse : true
@@ -1411,7 +1411,7 @@ class DSLogger {
   }
   CIBG = <StyleBGShortCode> this.cyanInvertBG;
   whiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "White",
       fg : fg,
       reverse : true
@@ -1421,7 +1421,7 @@ class DSLogger {
   
   //Invert Bright
   brightBlackInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Black",
       fg : fg,
       reverse : true,
@@ -1430,7 +1430,7 @@ class DSLogger {
   }
   BBLIBG =<StyleBGShortCode>  this.brightBlackInvertBG;
   brightRedInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Red",
       fg : fg,
       reverse : true,
@@ -1439,7 +1439,7 @@ class DSLogger {
   }
   BRIBG =<StyleBGShortCode>  this.brightRedInvertBG;
   brightGreenInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Green",
       fg : fg,
       reverse : true,
@@ -1448,7 +1448,7 @@ class DSLogger {
   }
   BGIBG =<StyleBGShortCode>  this.brightGreenInvertBG;
   brightYellowInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Yellow",
       fg : fg,
       reverse : true,
@@ -1457,7 +1457,7 @@ class DSLogger {
   }
   BYIBG =<StyleBGShortCode>  this.BG;
   brightBlueInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Blue",
       fg : fg,
       reverse : true,
@@ -1466,7 +1466,7 @@ class DSLogger {
   }
   BBIBG = <StyleBGShortCode> this.brightBlueInvertBG;
   brightMagentaInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Magenta",
       fg : fg,
       reverse : true,
@@ -1475,7 +1475,7 @@ class DSLogger {
   }
   BMIBG =<StyleBGShortCode>  this.brightMagentaInvertBG;
   brightCyanInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "Cyan",
       fg : fg,
       reverse : true,
@@ -1484,7 +1484,7 @@ class DSLogger {
   }
   BCIBG =<StyleBGShortCode>  this.brightCyanInvertBG;
   brightWhiteInvertBG(text: string,fg : ConsoleColors | "none" = "none") {
-    return this.styleize(text, {
+    return this.stylize(text, {
       bg: "White",
       fg : fg,
       reverse : true,

@@ -34,12 +34,12 @@ const dsLog = require("../../dist/index.js");
 (async () => {
   dsLog
     //Defien the program
-    .defineSplashScreen(()=>{
+    .defineSplashScreen(() => {
       dsLog
-      .newScreen()
-      .show(dsLog.getString("star"), "Raw")
-      .logProgramTitle()
-      .sleep(500);
+        .newScreen()
+        .show(dsLog.getString("star"), "Raw")
+        .logProgramTitle()
+        .sleep(500);
     })
     .defineProgramTitle("[ DS TESTING ]")
     .defineHelpText("This is an easy command line tool.")
@@ -99,8 +99,8 @@ const dsLog = require("../../dist/index.js");
   await dsLog.incrementProgressBar("test", 100);
   dsLog.newServiceBar("test");
   (await dsLog.asyncSleep(3000))
-  .destroyServiceBar("test")
-  .newScreen()
+    .destroyServiceBar("test")
+    .newScreen()
     .showSleep("All good.", "Raw")
     .newScreen()
     //Get users input
@@ -108,14 +108,15 @@ const dsLog = require("../../dist/index.js");
     .ask("enter name", "name", "string")
     .ask("enter num", "num", "number");
   (await dsLog.startPrompt())
-  .showSleep(dsLog.getInput("name"), "Info")
+    .showSleep(dsLog.getInput("name"), "Info")
     .restartPrompt()
     .ask("enter email", "email", "email")
     .ask("enter password", "pass", "password")
-    .fail(true,"Password is not correct.",3,()=>{process.exit(0)})
+    .fail(true, "Password is not correct.", 3, () => {
+      process.exit(0);
+    })
     .ask("enter comment", "comment", "string");
-  (await dsLog.startPrompt())
-  .showSleep(dsLog.getInput("comment"), "Info")
+  (await dsLog.startPrompt()).showSleep(dsLog.getInput("comment"), "Info");
 })();
 ```
 
@@ -193,19 +194,19 @@ Functions related to logging to the console.
 
 > **Functions**
 
-| Function                    | Params                                                         | Returns | Description                                                                      |
-| --------------------------- | -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| **show**                    | **message** : string, **type** : MessageType                   | self    | Logs message at current row.                                                     |
-| **showSleep**               | **message** : string, **type** : MessageType, **ms** : number  | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
+| Function                    | Params                                                                            | Returns | Description                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| **show**                    | **message** : string, **type** : MessageType                                      | self    | Logs message at current row.                                                     |
+| **showSleep**               | **message** : string, **type** : MessageType, **ms** : number                     | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
 | **showAt**                  | **message** : string, **type** : MessageType, **row** : number, **col** ?: number | self    | Logs message at given row.                                                       |
-| **log**                    | **message** : string, **type** : MessageType                   | self    | Log message without adjusting cursor position.
-| **logSleep**               | **message** : string, **type** : MessageType, **ms** : number  | self    | Log message and sleep without adjusting cursor position.
-| **logProgramTitle**         | none                                                           | self    | Logs the program defined title at the current row with the given title style.    |
-| **logSeperator**            | none                                                           | self    | Logs the program defined seperator at the current row with the given info style. |
-| **displayScreen**           | (**screen**:Screens,**args**:any)                              | self    | Logs the program defined screen at the current                                   |
-| **splashScreen**            | none                                                           | self    | Logs the program defined splashscreen at the current row.                        |
-| **promgramInitErrorScreen** | **message** : string                                           | self    | Logs the program defined program init error screen at the current row.           |
-| **newScreen**               | none                                                           | self    | Clears the screen and resets the console log row.                                |
+| **log**                     | **message** : string, **type** : MessageType                                      | self    | Log message without adjusting cursor position.                                   |
+| **logSleep**                | **message** : string, **type** : MessageType, **ms** : number                     | self    | Log message and sleep without adjusting cursor position.                         |
+| **logProgramTitle**         | none                                                                              | self    | Logs the program defined title at the current row with the given title style.    |
+| **logSeperator**            | none                                                                              | self    | Logs the program defined seperator at the current row with the given info style. |
+| **displayScreen**           | (**screen**:Screens,**args**:any)                                                 | self    | Logs the program defined screen at the current                                   |
+| **splashScreen**            | none                                                                              | self    | Logs the program defined splashscreen at the current row.                        |
+| **promgramInitErrorScreen** | **message** : string                                                              | self    | Logs the program defined program init error screen at the current row.           |
+| **newScreen**               | none                                                                              | self    | Clears the screen and resets the console log row.                                |
 
 ### User Input Functions
 
@@ -315,71 +316,110 @@ All properties are optional.
 
 > **Style Functions**
 
-| Function                  | Params                                        | Returns | Description                                                        |
-| ------------------------- | --------------------------------------------- | ------- | ------------------------------------------------------------------ |
-| **styleize**              | **text** : string, **styleObj** : StyleObject | self    | Returns a string stylized with the given format.                   |
-| **black**                 | **text** : string                             | string  | Returns a string stylized to be black.                             |
-| **red**                   | **text** : string                             | string  | Returns a string stylized to be red.                               |
-| **green**                 | **text** : string                             | string  | Returns a string stylized to be green.                             |
-| **yellow**                | **text** : string                             | string  | Returns a string stylized to be yellow.                            |
-| **blue**                  | **text** : string                             | string  | Returns a string stylized to be blue.                              |
-| **magenta**               | **text** : string                             | string  | Returns a string stylized to be magenta.                           |
-| **cyan**                  | **text** : string                             | string  | Returns a string stylized to be cyan.                              |
-| **white**                 | **text** : string                             | string  | Returns a string stylized to be white.                             |
-| **brightBlack**           | **text** : string                             | string  | Returns a string stylized to be bright black.                      |
-| **brightRed**             | **text** : string                             | string  | Returns a string stylized to be bright red.                        |
-| **brightGreen**           | **text** : string                             | string  | Returns a string stylized to be bright green.                      |
-| **brightYellow**          | **text** : string                             | string  | Returns a string stylized to be bright yellow.                     |
-| **brightBlue**            | **text** : string                             | string  | Returns a string stylized to be bright blue.                       |
-| **brightMagenta**         | **text** : string                             | string  | Returns a string stylized to be bright magenta.                    |
-| **brightCyan**            | **text** : string                             | string  | Returns a string stylized to be bright cyan.                       |
-| **brightWhite**           | **text** : string                             | string  | Returns a string stylized to be bright white.                      |
-| **redInvert**             | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert red.                        |
-| **greenInvert**           | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert green.                      |
-| **yellowInvert**          | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert yellow.                     |
-| **blueInvert**            | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert blue.                       |
-| **magentaInvert**         | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert magenta.                    |
-| **cyanInvert**            | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert cyan.                       |
-| **whiteInvert**           | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert white.                      |
-| **brightBlackInvert**     | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright black.               |
-| **brightRedInvert**       | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright red.                 |
-| **brightGreenInvert**     | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright green.               |
-| **brightYellowInvert**    | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright yellow.              |
-| **brightBlueInvert**      | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright blue.                |
-| **brightMagentaInvert**   | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright magenta.             |
-| **brightCyanInvert**      | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright cyan.                |
-| **brightWhiteInvert**     | **text** : string,**bg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright white.               |
-| **blackBG**               | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be black blackground.                 |
-| **redBG**                 | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be red blackground.                   |
-| **greenBG**               | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be green blackground.                 |
-| **yellowBG**              | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be yellow blackground.                |
-| **blueBG**                | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be blue blackground.                  |
-| **magentaBG**             | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be magenta blackground.               |
-| **cyanBG**                | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be cyan blackground.                  |
-| **whiteBG**               | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be white blackground.                 |
-| **brightBlackBG**         | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright black blackground.          |
-| **brightRedBG**           | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright red blackground.            |
-| **brightGreenBG**         | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright green blackground.          |
-| **brightYellowBG**        | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright yellow blackground.         |
-| **brightBlueBG**          | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright blue blackground.           |
-| **brightMagentaBG**       | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright magenta blackground.        |
-| **brightCyanBG**          | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright cyan blackground.           |
-| **brightWhiteBG**         | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be bright white blackground.          |
-| **redInvertBG**           | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert red blackground.            |
-| **greenInvertBG**         | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert green blackground.          |
-| **yellowInvertBG**        | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert yellow blackground.         |
-| **blueInvertBG**          | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert blue blackground.           |
-| **magentaInvertBG**       | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert magenta blackground.        |
-| **cyanInvertBG**          | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert cyan blackground.           |
-| **whiteInvertBG**         | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert white blackground.          |
-| **brightBlackInvertBG**   | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright black blackground.   |
-| **brightRedInvertBG**     | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright red blackground.     |
-| **brightGreenInvertBG**   | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright green blackground.   |
-| **brightYellowInvertBG**  | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright yellow blackground.  |
-| **brightBlueInvertBG**    | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright blue blackground.    |
-| **brightMagentaInvertBG** | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright magenta blackground. |
-| **brightCyanInvertBG**    | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright cyan blackground.    |
-| **brightWhiteInvertBG**   | **text** : string,**fg** ?: ConsoleColor      | string  | Returns a string stylized to be invert bright white blackground.   |
+| Function    | Params                                        | Returns | Description                                      |
+| ----------- | --------------------------------------------- | ------- | ------------------------------------------------ |
+| **stylize** | **text** : string, **styleObj** : StyleObject | self    | Returns a string stylized with the given format. |
+
+> **Style Short Codes**
+
+You can use the below functions to stylize text. Each style function has an alias with special properities. The each have a function to log that specific style of text. Here a list of those functions for each alias.
+
+> Normal Color Functions
+
+| Function | Params               | Returns  | Description                                      |
+| -------- | -------------------- | -------- | ------------------------------------------------ |
+| **s**    | **message** : string | DSLOGGER | Show text at current row. |
+| **ss**   | **message** : string,**sleep** ?: number | DSLOGGER | Show and sleep. |
+| **sa**   | **message** : string,**sleep** ?: number | DSLOGGER | Show text at given row. Can also supply a collumn. | 
+| **sas**  | **message** : string,**row** : number,**col** ?: number,**sleep** ?: number  | DSLOGGER | Returns a string stylized with the given format. |
+| **l**    | **message** : string | DSLOGGER | Normal logs the text. |
+| **ls**   | **message** : string,**sleep** ?: number  | DSLOGGER | Normal logs the text and then sleeps. |
+
+> Background And Intervted Functions
+
+| Function | Params               | Returns  | Description                                      |
+| -------- | -------------------- | -------- | ------------------------------------------------ |
+| **s**    | **message** : string,**otherColor** ?: ConsoleColors  | DSLOGGER | Show text at current row. |
+| **ss**   | **message** : string,**otherColor** ?: ConsoleColors ,**sleep** ?: number | DSLOGGER | Show and sleep. |
+| **sa**   | **message** : string,**otherColor** ?: ConsoleColors ,**sleep** ?: number | DSLOGGER | Show text at given row. Can also supply a collumn. |
+| **sas**  | **message** : string,**row** : number,**otherColor** ?: ConsoleColors ,**col** ?: number,**sleep** ?: number  | DSLOGGER | Returns a string stylized with the given format. |
+| **l**    | **message** : string,**otherColor** ?: ConsoleColors  | DSLOGGER | Normal logs the text. |
+| **ls**   | **message** : string,**otherColor** ?: ConsoleColors ,**sleep** ?: number  | DSLOGGER | Normal logs the text and then sleeps. |
+
+These functions can be called like this: 
+
+```typescript
+
+dsLog.R.ls("Hello this is red text.").B.ls("Hello this is blue text.").BMIBG.ls("This is sweet.","White");
+
+```
+
+> List of All Functions
+
+| Function                  | Alias | Params                                   | Returns | Description                                                        |
+| ------------------------- | ----- | ---------------------------------------- | ------- | ------------------------------------------------------------------ |
+| **black**                 | BL    | **text** : string                        | string  | Returns a string stylized to be black.                             |
+| **red**                   | R     | **text** : string                        | string  | Returns a string stylized to be red.                               |
+| **green**                 | G     | **text** : string                        | string  | Returns a string stylized to be green.                             |
+| **yellow**                | Y     | **text** : string                        | string  | Returns a string stylized to be yellow.                            |
+| **blue**                  | B     | **text** : string                        | string  | Returns a string stylized to be blue.                              |
+| **magenta**               | M     | **text** : string                        | string  | Returns a string stylized to be magenta.                           |
+| **cyan**                  | C     | **text** : string                        | string  | Returns a string stylized to be cyan.                              |
+| **white**                 | W     | **text** : string                        | string  | Returns a string stylized to be white.                             |
+| **brightBlack**           | BBL   | **text** : string                        | string  | Returns a string stylized to be bright black.                      |
+| **brightRed**             | BR    | **text** : string                        | string  | Returns a string stylized to be bright red.                        |
+| **brightGreen**           | BG    | **text** : string                        | string  | Returns a string stylized to be bright green.                      |
+| **brightYellow**          | BY    | **text** : string                        | string  | Returns a string stylized to be bright yellow.                     |
+| **brightBlue**            | BB    | **text** : string                        | string  | Returns a string stylized to be bright blue.                       |
+| **brightMagenta**         | BM    | **text** : string                        | string  | Returns a string stylized to be bright magenta.                    |
+| **brightCyan**            | BC    | **text** : string                        | string  | Returns a string stylized to be bright cyan.                       |
+| **brightWhite**           | BW    | **text** : string                        | string  | Returns a string stylized to be bright white.                      |
+| **redInvert**             | RI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert red.                        |
+| **greenInvert**           | GI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert green.                      |
+| **yellowInvert**          | YI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert yellow.                     |
+| **blueInvert**            | BI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert blue.                       |
+| **magentaInvert**         | MI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert magenta.                    |
+| **cyanInvert**            | CI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert cyan.                       |
+| **whiteInvert**           | WI    | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert white.                      |
+| **brightBlackInvert**     | BBLI  | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright black.               |
+| **brightRedInvert**       | BRI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright red.                 |
+| **brightGreenInvert**     | BGI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright green.               |
+| **brightYellowInvert**    | BYI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright yellow.              |
+| **brightBlueInvert**      | BBI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright blue.                |
+| **brightMagentaInvert**   | BMI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright magenta.             |
+| **brightCyanInvert**      | BCI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright cyan.                |
+| **brightWhiteInvert**     | BWI   | **text** : string,**bg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright white.               |
+| **blackBG**               | BLBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be black blackground.                 |
+| **redBG**                 | RBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be red blackground.                   |
+| **greenBG**               | GBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be green blackground.                 |
+| **yellowBG**              | YBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be yellow blackground.                |
+| **blueBG**                | BBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be blue blackground.                  |
+| **magentaBG**             | MBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be magenta blackground.               |
+| **cyanBG**                | CBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be cyan blackground.                  |
+| **whiteBG**               | WBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be white blackground.                 |
+| **brightBlackBG**         | BBLBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright black blackground.          |
+| **brightRedBG**           | BRBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright red blackground.            |
+| **brightGreenBG**         | BGBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright green blackground.          |
+| **brightYellowBG**        | BYBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright yellow blackground.         |
+| **brightBlueBG**          | BBBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright blue blackground.           |
+| **brightMagentaBG**       | BMBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright magenta blackground.        |
+| **brightCyanBG**          | BCBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright cyan blackground.           |
+| **brightWhiteBG**         | BWBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be bright white blackground.          |
+| **redInvertBG**           | RIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert red blackground.            |
+| **greenInvertBG**         | GIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert green blackground.          |
+| **yellowInvertBG**        | YIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert yellow blackground.         |
+| **blueInvertBG**          | BIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert blue blackground.           |
+| **magentaInvertBG**       | MIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert magenta blackground.        |
+| **cyanInvertBG**          | CIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert cyan blackground.           |
+| **whiteInvertBG**         | WIBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert white blackground.          |
+| **brightBlackInvertBG**   | BBIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright black blackground.   |
+| **brightRedInvertBG**     | BRIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright red blackground.     |
+| **brightGreenInvertBG**   | BGIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright green blackground.   |
+| **brightYellowInvertBG**  | BYIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright yellow blackground.  |
+| **brightBlueInvertBG**    | BBIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright blue blackground.    |
+| **brightMagentaInvertBG** | BMIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright magenta blackground. |
+| **brightCyanInvertBG**    | BCIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright cyan blackground.    |
+| **brightWhiteInvertBG**   | BWIBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be invert bright white blackground.   |
 
 ### Define and Get Functions
 
