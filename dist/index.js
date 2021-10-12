@@ -525,9 +525,11 @@ class DSLogger {
                 }
                 else {
                     asked = true;
+                    let stdin;
+                    let listener;
                     if (varType == "password") {
-                        const stdin = process.openStdin();
-                        const listener = (char) => {
+                        stdin = process.openStdin();
+                        listener = (char) => {
                             char = char + "";
                             switch (char) {
                                 case "\n":
@@ -546,10 +548,13 @@ class DSLogger {
                         };
                         process.stdin.on("data", listener);
                     }
+                    else {
+                        process.stdin.on("data", () => { });
+                    }
                     this.rli.question(question, (input) => {
                         this.rli.history.slice(1);
-                        this.currentRow += this._countLines(question);
                         this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+                        this.currentRow += this._countLines(question);
                         (async () => {
                             asked = true;
                             gotinput = true;
@@ -564,6 +569,9 @@ class DSLogger {
                                 passed = false;
                                 gotinput = false;
                                 asked = false;
+                                if (q.varType == "password") {
+                                    stdin.removeListener("data", listener);
+                                }
                                 if (q.attempts && q.attempts != "all") {
                                     q.fails++;
                                     if (q.fails == q.attempts || !q.reAsk) {
@@ -588,6 +596,9 @@ class DSLogger {
                                 }
                             }
                             else {
+                                if (varType == "password") {
+                                    stdin.removeListener("data", listener);
+                                }
                                 passed = true;
                             }
                             if (passed) {
@@ -601,7 +612,7 @@ class DSLogger {
             go();
             inte = setInterval(() => {
                 go();
-            }, 100);
+            }, 10);
         });
         return prom;
     }
