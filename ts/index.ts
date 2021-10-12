@@ -576,32 +576,7 @@ class DSLogger {
     const q = this.questions[question];
     const qID = question;
     const prom = new Promise((resolve) => {
-      if (varType == "password") {
-        const stdin = process.openStdin();
-
-        const listener = (char: string) => {
-          char = char + "";
-          switch (char) {
-            case "\n":
-            case "\r":
-            case "\u0004":
-              stdin.removeListener("data", listener);
-            default:
-              process.stdout.clearLine(1);
-              this.rdl.cursorTo(process.stdout, 0);
-              process.stdout.write(
-                question +
-                  this.consoleCodes["Hidden"] +
-                  Array(this.rli.line.length + 1).join("*") +
-                  this.consoleCodes["Reset"]
-              );
-              break;
-          }
-        };
-        process.stdin.on("data", listener);
-      } else {
-        process.stdin.on("data", (char: string) => {});
-      }
+    
 
       let inte: any;
       const go = () => {
@@ -611,6 +586,30 @@ class DSLogger {
         } else if (asked) {
         } else {
           asked = true;
+          if (varType == "password") {
+            const stdin = process.openStdin();
+    
+            const listener = (char: string) => {
+              char = char + "";
+              switch (char) {
+                case "\n":
+                case "\r":
+                case "\u0004":
+                  stdin.removeListener("data", listener);
+                default:
+                  process.stdout.clearLine(1);
+                  this.rdl.cursorTo(process.stdout, 0);
+                  process.stdout.write(
+                    question +
+                      this.consoleCodes["Hidden"] +
+                      Array(this.rli.line.length + 1).join("*") +
+                      this.consoleCodes["Reset"]
+                  );
+                  break;
+              }
+            };
+            process.stdin.on("data", listener);
+          } 
           this.rli.question(question, (input: QuestionsTypes) => {
             this.rli.history.slice(1);
             this.currentRow += this._countLines(question);

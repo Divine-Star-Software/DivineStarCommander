@@ -125,7 +125,7 @@ declare class DSLogger {
     logSeperator(): this;
     logProgramTitle(): this;
     defineSleepTime(sleep: number): this;
-    defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name?: string): this;
+    defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name?: string): this | undefined;
     defineQuestionStyle(type: QuestionDisplayTypes, styleObj: StyleObject): this;
     defineMessageStyle(type: MessageTypes, styleObj: StyleObject): this;
     defineProgressBarStyle(progressBarStyle: ProgressBarStyle): this;
