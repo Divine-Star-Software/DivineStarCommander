@@ -1,31 +1,3 @@
-interface StyleShortCode {
-  (string: string): string;
-  s: (message: string) => StyleShortCode;
-  ss: (message: string, sleep ? : number) => StyleShortCode;
-  sa: (message: string, row: number, col ? : number) => StyleShortCode;
-  sas: (message: string, row: number, col ? : number, sleep ? : number) => StyleShortCode;
-  l: (message: string) => StyleShortCode;
-  ls: (message: string, sleep ? : number) => StyleShortCode;
-  DS: DSLogger;
-}
-interface StyleInvertShortCode {
-  (string: string, bg ? : ConsoleColors | "none"): string;
-  s: (message: string, bg ? : ConsoleColors | "none") => DSLogger;
-  ss: (message: string, bg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
-  sa: (message: string, row: number, bg ? : ConsoleColors | "none", col ? : number) => DSLogger;
-  sas: (message: string, row: number, bg ? : ConsoleColors | "none", sleep ? : number, col ? : number) => DSLogger;
-  l: (message: string, bg ? : ConsoleColors | "none") => DSLogger;
-  ls: (message: string, bg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
-}
-interface StyleBGShortCode {
-  (string: string, fg ? : ConsoleColors | "none"): string;
-  s: (message: string, fg ? : ConsoleColors | "none") => DSLogger;
-  ss: (message: string, fg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
-  sa: (message: string, row: number, fg ? : ConsoleColors | "none", col ? : number) => DSLogger;
-  sas: (message: string, row: number, fg ? : ConsoleColors | "none", sleep ? : number, col ? : number) => DSLogger;
-  l: (message: string, fg ? : ConsoleColors | "none") => DSLogger;
-  ls: (message: string, fg ? : ConsoleColors | "none", sleep ? : number) => DSLogger;
-}
 type ConsoleCodes = |
   "Reset" |
   "Bright" |
@@ -856,12 +828,12 @@ class DSLogger {
   }
 
 
-  showAtSleep(message: any, type: MessageTypes | "none" = "none", row: number, col: number = 0, sleep: number = this.defaultSleepTime) {
-    this.showAt(message, type, row, col);
+  showAtSleep(message: any,  row: number,type: MessageTypes | "none" = "none",  sleep: number = this.defaultSleepTime,col: number = 0) {
+    this.showAt(message,row, type, col);
     return this.sleep(sleep);
   }
 
-  showAt(message: any, type: MessageTypes | "none" = "none", row: number, col: number = 0) {
+  showAt(message: any, row: number, type: MessageTypes | "none" = "none",  col: number = 0) {
     let output = this._processMessage(message, type);
     const lines = this._countLines(`${output}`);
     this.rdl.cursorTo(process.stdout, col, row);
@@ -935,6 +907,12 @@ class DSLogger {
   }
 
 
+  defineSleepTime(sleep : number ) {
+    this.defaultSleepTime = sleep;
+    return this;
+  }
+
+
   defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name ? : string) {
 
     if (type === "custom") {
@@ -996,6 +974,7 @@ class DSLogger {
     return this;
   }
 
+
   getString(id: Strings) {
     return this.strings[id];
   }
@@ -1008,21 +987,36 @@ class DSLogger {
     return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
   }
   //Quick Styles
+  clear() {
+    this.styleDelimiter = this._copyDefaultStyle();
+    return this;
+  }
+  get CL() {
+    this.styleDelimiter = this._copyDefaultStyle();
+    return this;
+  }
+
+  get CLEAR() {
+    this.styleDelimiter = this._copyDefaultStyle();
+    return this;
+  }
+
+
   blink(text: string) {
 
-    this.styleDelimiter.hidden = true;
+    this.styleDelimiter.blink = true;
     const string = this.stylize(text, this.styleDelimiter)
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
 
   }
   get BI() {
-    this.styleDelimiter.hidden = true;
+    this.styleDelimiter.blink = true;
     return this;
   }
 
   get BLINK() {
-    this.styleDelimiter.hidden = true;
+    this.styleDelimiter.blink = true;
     return this;
   }
 

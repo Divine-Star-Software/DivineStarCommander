@@ -194,22 +194,22 @@ Functions related to logging to the console.
 
 > **Functions**
 
-| Function                    | Params                                                                                                | Returns | Description                                                                      |
-| --------------------------- | ----------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| **show**                    | **message** : string, **type** : MessageType                                                          | self    | Logs message at current row.                                                     |
-| **showSleep**               | **message** : string, **type** : MessageType, **ms** : number                                         | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
-| **showAt**                  | **message** : string, **type** : MessageType, **row** : number, **col** ?: number                     | self    | Logs message at given row.                                                       |
-| **showAtSleep**             | **message** : string, **type** : MessageType, **row** : number, **col** ?: number,**sleep** ?: number | self    | Logs message at given row and sleeps.                                            |
-| **log**                     | **message** : string, **type** : MessageType                                                          | self    | Log message without adjusting cursor position.                                   |
-| **logSleep**                | **message** : string, **type** : MessageType, **ms** : number                                         | self    | Log message and sleep without adjusting cursor position.                         |
-| **showTable**               | **data** : object, **collumens** ?: string[]                                                          | self    | Moves cursor to current row and runs console.table.                              |
-| **logTable**                | **data** : string, **collumens** ?: string[]                                                          | self    | Runs console.table.                                                              |
-| **logProgramTitle**         | none                                                                                                  | self    | Logs the program defined title at the current row with the given title style.    |
-| **logSeperator**            | none                                                                                                  | self    | Logs the program defined seperator at the current row with the given info style. |
-| **displayScreen**           | (**screen**:Screens,**args**:any)                                                                     | self    | Logs the program defined screen at the current                                   |
-| **splashScreen**            | none                                                                                                  | self    | Logs the program defined splashscreen at the current row.                        |
-| **promgramInitErrorScreen** | **message** : string                                                                                  | self    | Logs the program defined program init error screen at the current row.           |
-| **newScreen**               | none                                                                                                  | self    | Clears the screen and resets the console log row.                                |
+| Function                    | Params                                                                                                          | Returns | Description                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| **show**                    | **message** : string, **type** ?: MessageType or "none"                                                         | self    | Logs message at current row.                                                     |
+| **showSleep**               | **message** : string, **type** ?: MessageType or "none" , **ms** ?: number                                      | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
+| **showAt**                  | **message** : string, **row** : number,**type** : MessageType or "none", , **col** ?: number                    | self    | Logs message at given row.                                                       |
+| **showAtSleep**             | **message** : string,**row** : number, **type** ?: MessageType or "none",**sleep** ?: number, **col** ?: number | self    | Logs message at given row and sleeps.                                            |
+| **log**                     | **message** : string, **type** ?: MessageType or "none"                                                         | self    | Log message without adjusting cursor position.                                   |
+| **logSleep**                | **message** : string, **type** ?: MessageType or "none", **ms** : number                                        | self    | Log message and sleep without adjusting cursor position.                         |
+| **showTable**               | **data** : object, **collumens** ?: string[]                                                                    | self    | Moves cursor to current row and runs console.table.                              |
+| **logTable**                | **data** : string, **collumens** ?: string[]                                                                    | self    | Runs console.table.                                                              |
+| **logProgramTitle**         | none                                                                                                            | self    | Logs the program defined title at the current row with the given title style.    |
+| **logSeperator**            | none                                                                                                            | self    | Logs the program defined seperator at the current row with the given info style. |
+| **displayScreen**           | (**screen**:Screens,**args**:any)                                                                               | self    | Logs the program defined screen at the current                                   |
+| **splashScreen**            | none                                                                                                            | self    | Logs the program defined splashscreen at the current row.                        |
+| **promgramInitErrorScreen** | **message** : string                                                                                            | self    | Logs the program defined program init error screen at the current row.           |
+| **newScreen**               | none                                                                                                            | self    | Clears the screen and resets the console log row.                                |
 
 ### User Input Functions
 
@@ -325,31 +325,44 @@ All properties are optional.
 
 > **Style Short Codes**
 
+The functions themsevles will just return stylized text made from the chain. If you use the style alias it will set the style for the next set of outputs.
+
+The example bellow will show a message with a bright red background and white text and then a bright blue background and white text. Notice that the
+style must be cleared in-between the messages. This is so you can just re-use the same style if you want.
 
 ```typescript
-dsLog.BR.R.I.show("this is red text");
+dsLog
+  .newScreen()
+  .BR.W.RBG.showSleep("Error Message")
+  .CLEAR.BR.W.BBG.showSleep("Info Message");
 ```
 
 > List of All Functions
 
-| Function      | Alias | Params                                   | Returns | Description                                          |
-| ------------- | ----- | ---------------------------------------- | ------- | ---------------------------------------------------- |
-| **black**     | BL    | **text** : string                        | string  | Returns a string stylized to be black.               |
-| **red**       | R     | **text** : string                        | string  | Returns a string stylized to be red.                 |
-| **green**     | G     | **text** : string                        | string  | Returns a string stylized to be green.               |
-| **yellow**    | Y     | **text** : string                        | string  | Returns a string stylized to be yellow.              |
-| **blue**      | B     | **text** : string                        | string  | Returns a string stylized to be blue.                |
-| **magenta**   | M     | **text** : string                        | string  | Returns a string stylized to be magenta.             |
-| **cyan**      | C     | **text** : string                        | string  | Returns a string stylized to be cyan.                |
-| **white**     | W     | **text** : string                        | string  | Returns a string stylized to be white.               |
-| **blackBG**   | BLBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be black blackground.   |
-| **redBG**     | RBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be red blackground.     |
-| **greenBG**   | GBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be green blackground.   |
-| **yellowBG**  | YBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be yellow blackground.  |
-| **blueBG**    | BBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be blue blackground.    |
-| **magentaBG** | MBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be magenta blackground. |
-| **cyanBG**    | CBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be cyan blackground.    |
-| **whiteBG**   | WBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be white blackground.   |
+| Function       | Alias         | Params                                   | Returns | Description                                                               |
+| -------------- | ------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| **clear**      | CLEAR CL      | none                                     | self    | Returns a string stylized to be bright.                                   |
+| **bright**     | BRIGHT BR     | **text** : string                        | string  | Returns a string stylized to be bright.                                   |
+| **dim**        | DIM D         | **text** : string                        | string  | Returns a string stylized to be dim.                                      |
+| **invert**     | INVERT I      | **text** : string                        | string  | Returns a string stylized to invert the background and foreground colors. |
+| **underscore** | UNDERSCORE U  | **text** : string                        | string  | Returns a string stylized to be underscored.                              |
+| **hidden**     | HIDDEN H      | **text** : string                        | string  | Returns a string stylized to be hidden.                                   |
+| **black**      | BLACK BL      | **text** : string                        | string  | Returns a string stylized to be black.                                    |
+| **red**        | RED R         | **text** : string                        | string  | Returns a string stylized to be red.                                      |
+| **green**      | GREEN G       | **text** : string                        | string  | Returns a string stylized to be green.                                    |
+| **yellow**     | YELLOW Y      | **text** : string                        | string  | Returns a string stylized to be yellow.                                   |
+| **blue**       | BLUE B        | **text** : string                        | string  | Returns a string stylized to be blue.                                     |
+| **magenta**    | MAGENTA M     | **text** : string                        | string  | Returns a string stylized to be magenta.                                  |
+| **cyan**       | CYAN C        | **text** : string                        | string  | Returns a string stylized to be cyan.                                     |
+| **white**      | WHITE W       | **text** : string                        | string  | Returns a string stylized to be white.                                    |
+| **blackBG**    | BLACKBG BLBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be black blackground.                        |
+| **redBG**      | REDBG RBG     | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be red blackground.                          |
+| **greenBG**    | GREENBG GBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be green blackground.                        |
+| **yellowBG**   | YELLOWBG YBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be yellow blackground.                       |
+| **blueBG**     | BLUEBG BBG    | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be blue blackground.                         |
+| **magentaBG**  | MAGENTABG MBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be magenta blackground.                      |
+| **cyanBG**     | CYANBG CBG    | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be cyan blackground.                         |
+| **whiteBG**    | WHITEBG WBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be white blackground.                        |
 
 ### Define and Get Functions
 
@@ -399,7 +412,8 @@ Built in screens.
 | Function                   | Params                                                                                | Returns | Description                                                                                                                                 |
 | -------------------------- | ------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **defineValidator**        | type : QuestionTypes, **func** : (**input**:string)=>boolean, **customName** : string | self    | Define the function to be called to validate input.                                                                                         |
-| **defineScreen**           | screen : Screens, **func** : Function                                                 | self    | Define the function to be called for a screen.                                                                                              |
+| **defineSleepTime**        | **sleep** : number,                                                                   | self    | Define the default sleep time in ms.                                                                                                        |
+| **defineScreen**           | **screen** : Screens, **func** : Function                                             | self    | Define the function to be called for a screen.                                                                                              |
 | **defineSplashScreen**     | **func** : Function                                                                   | self    | Define the function to be called for the splash screen. This function is just to make it easy cause it is the most common screen to adjust. |
 | **defineProgramTitle**     | **title** : string, **styleObj**: StyleObject                                         | self    | Defines the programs title and optionally the style                                                                                         |
 | **defineHelpText**         | **text** : string                                                                     | self    | Defines the programs help text.                                                                                                             |

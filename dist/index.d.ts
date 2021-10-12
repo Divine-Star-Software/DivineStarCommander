@@ -1,11 +1,3 @@
-interface StyleShortCode { (string : string): string;
-  s: (message : string)=>DSLogger; 
-  ss: (message : string,sleep ?: number)=>DSLogger; 
-  sa: (message : string,row : number,col ?: number)=>DSLogger; 
-  sas: (message : string,row : number,col ?: number,sleep?:number)=>DSLogger; 
-  l: (message : string )=>DSLogger; 
-  ls: (message : string,sleep ?: number)=>DSLogger; 
- }
 declare type ConsoleCodes = "Reset" | "Bright" | "Dim" | "Underscore" | "Blink" | "Reverse" | "Hidden";
 declare type ConsoleColors = "Black" | "Red" | "Green" | "Yellow" | "Blue" | "Magenta" | "Cyan" | "White";
 declare type StyleObject = {
@@ -63,411 +55,199 @@ declare type ServiceBarStyle = {
     interval: number;
 };
 declare class DSLogger {
-  rdl: any;
-  constructor(rdl: any);
-  /** # If Param Isset
-   * ---
-   * If the param is set run a function. 
-   * @param param Either the name or the flag of the param. 
-   * @param func The function to be run. Will be passed the value of the param and the args given. 
-   * @param args Args to be passed to the function. 
-   */
-  ifParamIsset(
-    param: string,
-    func: (value: ProgramParamsDataTypes, args: any) => {},
-    args: any 
-  )
-  /**# Get Param
-   * ---
-   * Adds a command line arg to the program.
-   * @param name Either the flag or the name of the param.  
-   */
-  getParam(name: string): ProgramParamsDataTypes;
-  /**# Add Param
-   * ---
-   * Adds a command line arg to the program.
-   * @param param An object to specify the param. 
-   */
-  addParam(param: ProgramParams): this;
-  /**# Init Program Input
-   * ---
-   * Parses the arguments sent to the program and stores the values. 
-   * Must run before you can access the values.
-   */
-  initProgramInput(): this;
-  /**# Start Prompt
-   * ---
-   * Starts user input prompt.
-   */
-  startPrompt(): Promise < this > ;
-  /**# Restart Prompt
-   * ---
-   * Restarat user input prompt.
-   */
-  restartPrompt(): Promise < this > ;
-
-  /**# Ask
-   * ---
-   * Define a question to be asked by the pormpt
-   * @param question 
-   * @param varName 
-   * @param varType 
-   * @param customType The name used for the custom question type. 
-   */
-  ask(question: string, varName: string, varType: QuestionsTypes,customName?:string);
-   /**# fail
-   * --
-   * Adds a fail case to the last asked question. 
-   * @param reAsk 
-   * @param reAskMessage 
-   * @param onFail 
-   * @param args 
-   */
-     fail(reAsk : boolean, reAskMessage : string,attempts : number |"all",onFail ?: Function,arg ?: any);
-  /**# Get Input
-   * ---
-   * Get input from question
-   * @param varName 
-   */
-  getInput(varName: string): string | number | undefined
-  /**# Clear Rows
-   * ---
-   * Clears console output for a given row range.
-   * @param rowStart
-   * @param rowEnd
-   */
-  clearRows(rowStart: number, rowEnd: number): this;
-  /**# Get Row
-   * ---
-   * Gets the current row number that the output is on.
-   */
-  getRow(): number;
-  /*# Set Row
-   *---
-   * Sets the console cursor to a row.
-   * @param num
-   */
-  setRow(num: number): this;
-  /**# Add Row
-   * ---
-   * Add one row to the current console cursor.
-   */
-  addRow(): this;
-  /**# New Service Bar
-   * ---
-   * Makes a continuous loading bar.
-   * @param name
-   */
-  newServiceBar(name: string): this;
-  /**# Re Init Service Bar
-   * ---
-   * Restart a service bar.
-   * @param name
-   */
-  reInitServiceBar(name: string): this;
-    /**# Destroy Service Bar
-   * ---
-   * Destroy a service bar.
-   * @param name
-   */
-  destroyServiceBar(name: string) : this;
-  /**# New Progress Bar
-   * ---
-   * Makes a new progress loading bar.
-   * @param name of bar to be used as an id
-   */
-  newProgressBar(name: string): this;
-  /**# New Progress Bar
-   * ---
-   * Makes a new progress loading bar.
-   * @param name name of bar to increase
-   * @param amount amount to increase by
-   */
-  incrementProgressBar(name: string, amount: number): Promise < this > ;
-  /**# Sleep
-   * ---
-   * Makes the program sleep via a loop.
-   * @param ms miliseconds to sleep
-   */
-  sleep(ms: number): this;
-  /**# Async Sleep
-   * ---
-   * Makes the program sleep via a promsie.
-   * @param ms miliseconds to sleep
-   */
-  asyncSleep(ms: number): Promise < this > ;
-  /** # New Screen
-   * ---
-   * Clears the screen and resets the row.
-   */
-  newScreen(): this;
-  /**# Show At
-   * ---
-   * Shows a message at a specific row
-   * @param message
-   * @param type
-   * @param row
-   * @param col Default is 0 
-   */
-  showAt(message: any, type: MessageTypes, row: number, col ?: number): this;
-  /**# Show
-   * ---
-   * Shows a message
-   * @param message
-   * @param type
-   */
-  show(message: any, type: MessageTypes): this;
-  /**# Show Sleep
-   * Shows a message and then sleeps
-   *
-   * @param message
-   * @param type
-   * @param ms
-   */
-  showSleep(message: any, type: MessageTypes, ms ?: number): this;
-/**# Log
- * ---
- * Log message without adjusting cursor position.
- * @param message 
- * @param type 
- */
-  log(message : any,type : MessageTypes) : this;
-/** # Log Sleep
- * ---
- * Log message and sleep without adjusting cursor position.
- * @param message 
- * @param type 
- * @param ms 
- */
-  logSleep(message : any,type : MessageTypes, ms ?: number) : this;
-  /** # Log Seperator
-   * ---
-   * Logs output seperator
-   */
-  logSeperator(): this;
-  /** # Log Program Title
-   * ---
-   * Logs program title
-   */
-  logProgramTitle(): this;
-
-  /** # Define Validator
-   * ---
-   * Define a validate function for a question type.
-   * @param type 
-   * @param func 
-   * @param name 
-   */
-  defineValidator(type : QuestionsTypes,func : (input:any)=>boolean,name?:string)
-    /**# Define Question Style
-   * ---
-   * Use a style object to define a questions style. 
-   * @param type "question" | "re-ask" | "delimiter"
-   * @param styleString
-   */
-   defineQustionStyle(type: QuestionDisplayTypes, styleObj ?: StyleObject): this;
-  /**# Define Message Style
-   * ---
-   * Use a style object to define a messages style. 
-   * @param type
-   * @param styleString
-   */
-  defineMessageStyle(type: MessageTypes, styleObj ?: StyleObject): this;
-/**# Define Progress Bar Style
- * ---
- * Define the default progress bar style.
- * @param progressBarStyle 
- */
-  defineProgressBarStyle(progressBarStyle : ProgressBarStyle) : this;
-/**# Service Bar Style
- * ---
- * Define the default service bar style. 
- * @param serviceBarStyle 
- */
-  defineServiceBarStyle(serviceBarStyle : ServiceBarStyle) : this;
-  /** # Define Help Text
-   * ---
-   * Defines the help text for the program. 
-   * @param text 
-   */
-  defineHelpText(text : string ): this;
-  /**# Define Program Title
-   * ---
-   * Define the programs title.
-   * @param title
-   */
-  defineProgramTitle(title: string,styleObj ?: StyleObject): this;
-  /**# Define Splash Screen
-   * ---
-   * Define a function to be called for the splash screen.
-   * @param func
-   */
-  defineSplashScreen(func: Function): this;
-    /**# Define Screen 
-   * ---
-   * Define a function to be called for a screen.
-   * @param screen 
-   * @param func
-   */
-  defineScreen(screen : DisplayScreens, func: Function): this;
-  /**# Display Screen
-   * ---
-   * Display a built in screen. 
-   * @param screen 
-   * @param args Args to be pased to screen. Default is an enpty object. 
-   */
-  displayScreen(screen : DisplayScreens, args ?: any )
-  /**# Splash Screen
-   * ---
-   * Meant to show the programs title/splash screen.
-   */
-  splashScreen(): this;
-  /**# Program Init Error Screen
-   * ---
-   * Error screen for when the program fails to init. 
-   * @param message 
-   */
-  promgramInitErrorScreen(message : string) : this;
-  /**# Get String
-   * ---
-   * Get a built in string.
-   * @param id
-   */
-  getString(id: Strings): string;
-    /**# Set String
-   * ---
-   * Set a built in string. 
-   * @param id
-   */
-  setString(id: Strings,string : string): string;
+    rdl: any;
+    defaultStyleDelimiter: StyleObject;
+    styleDelimiter: StyleObject;
+    defaultSleepTime: number;
+    strings: Record<Strings, string>;
+    defaultPrgoressBarStyle: ProgressBarStyle;
+    defaultServiceBarStyle: ServiceBarStyle;
+    consoleCodes: Record<ConsoleCodes, string>;
+    consoleFGColors: Record<ConsoleColors, string>;
+    consoleBGColors: Record<ConsoleColors, string>;
+    questionStyles: Record<QuestionDisplayTypes, StyleObject>;
+    messageStyles: Record<MessageTypes, StyleObject>;
+    params: Map<string, ProgramParams>;
+    paramValues: Map<string, ProgramParamsDataTypes>;
+    requiredParams: Map<string, boolean>;
+    inputs: Map<string, string | number | undefined>;
+    lastQuestion: string;
+    askedQuestions: number;
+    questions: Record<string, StoredQuestions>;
+    questionsFails: Record<string, {
+        args: any;
+        func: Function;
+    }>;
+    currentRow: number;
+    rli: any;
+    progressBars: Record<string, any>;
+    serviceBars: Record<string, any>;
+    validators: Record<QuestionsTypes, (input: string, type?: string) => boolean>;
+    customValidators: Record<string, (input: any) => boolean>;
+    screens: Record<DisplayScreens, Function>;
+    constructor(rdl: any);
+    stylize(text: string, styleObj: StyleObject): string;
+    getParam(name: string): ProgramParamsDataTypes;
+    ifParamIsset(param: string, func: (value: ProgramParamsDataTypes, args: any) => {}, args?: any): this;
+    _isProgramArg(arg: string): boolean;
+    promgramInitErrorScreen(message: string): void;
+    initProgramInput(): this | undefined;
+    addParam(param: ProgramParams): this;
+    restartPrompt(): this;
+    startPrompt(): Promise<this>;
+    _prompt(question: string, varName: string, varType: QuestionsTypes, custonName?: string): Promise<unknown>;
+    fail(reAsk: boolean, reAskMessage: string, attempts?: number | "all", onFail?: Function, arg?: any): this;
+    ask(question: string, varName: string, varType: QuestionsTypes, customName?: string): this;
+    getInput(varName: string): string | number | undefined;
+    clearRows(rowStart: number, rowEnd: number): this;
+    getRow(): number;
+    setRow(num: number): this;
+    addRow(): this;
+    newServiceBar(name: string, serviceBarStyle: ServiceBarStyle): this;
+    reInitServiceBar(name: string): this;
+    destroyServiceBar(name: string): this;
+    newProgressBar(name: string, progressBarStyle?: ProgressBarStyle): this;
+    incrementProgressBar(name: string, amount: number): Promise<this>;
+    sleep(ms: number): this;
+    asyncSleep(ms: number): Promise<this>;
+    newScreen(): this;
+    _processMessage(message: string, type?: MessageTypes | "none"): string;
+    showAtSleep(message: any, row: number, type?: MessageTypes | "none", sleep?: number, col?: number): this;
+    showAt(message: any, row: number, type?: MessageTypes | "none", col?: number): this;
+    show(message: any, type?: MessageTypes | "none"): this;
+    showSleep(message: any, type?: MessageTypes | "none", ms?: number): this;
+    log(message: any, type?: MessageTypes | "none"): this;
+    logSleep(message: any, type?: MessageTypes | "none", ms?: number): this;
+    logTable(data: object, collumns?: string[]): this;
+    showTable(data: any, collumns?: string[]): this;
+    _addColor(type: MessageTypes, message: any): string;
+    _countLines(message: string): number;
+    logSeperator(): this;
+    logProgramTitle(): this;
+    defineSleepTime(sleep: number): this;
+    defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name?: string): void;
+    defineQuestionStyle(type: QuestionDisplayTypes, styleObj: StyleObject): this;
+    defineMessageStyle(type: MessageTypes, styleObj: StyleObject): this;
+    defineProgressBarStyle(progressBarStyle: ProgressBarStyle): this;
+    defineServiceBarStyle(serviceBarStyle: ServiceBarStyle): this;
+    defineProgramTitle(title: string, styleObj?: StyleObject): this;
+    defineHelpText(text: string): this;
+    defineScreen(screen: DisplayScreens, func: Function): this;
+    displayScreen(screen: DisplayScreens, args?: any): void;
+    defineSplashScreen(func: Function): this;
+    splashScreen(): this;
+    getString(id: Strings): string;
+    setString(id: Strings, string: string): this;
+    _copyDefaultStyle(): StyleObject;
+    clear(): this;
+    get CL(): this;
+    get CLEAR(): this;
+    blink(text: string): string;
+    get BI(): this;
+    get BLINK(): this;
+    hidden(text: string): string;
+    get H(): this;
+    get HIDDEN(): this;
+    underscore(text: string): string;
+    get U(): this;
+    get UNDERSCORE(): this;
+    dim(text: string): string;
+    get D(): this;
+    get DIM(): this;
+    bright(text: string): string;
+    get BR(): this;
+    get BRIGHT(): this;
+    invert(text: string): string;
+    get I(): this;
+    get INVERT(): this;
     red(text: string): string;
-    R: StyleShortCode;
+    get R(): this;
+    get RED(): this;
     green(text: string): string;
-    G: StyleShortCode;
+    get G(): this;
+    get GREEN(): this;
     blue(text: string): string;
-    B: StyleShortCode;
+    get B(): this;
+    get BLUE(): this;
     white(text: string): string;
-    W: StyleShortCode;
+    get W(): this;
+    get WHITE(): this;
     black(text: string): string;
-    BL: StyleShortCode;
+    get BL(): this;
+    get BLACK(): this;
     cyan(text: string): string;
-    C: StyleShortCode;
+    get C(): this;
+    get CYAN(): this;
     magenta(text: string): string;
-    M: StyleShortCode;
+    get M(): this;
+    get MAGENTA(): this;
     yellow(text: string): string;
-    Y: StyleShortCode;
-    brightRed(text: string): string;
-    BR: StyleShortCode;
-    brightGreen(text: string): string;
-    BG: StyleShortCode;
-    brightBlue(text: string): string;
-    BB: StyleShortCode;
-    brightWhite(text: string): string;
-    BW: StyleShortCode;
-    brightBlack(text: string): string;
-    BBL: StyleShortCode;
-    brightCyan(text: string): string;
-    BC: StyleShortCode;
-    brightMagenta(text: string): string;
-    BM: StyleShortCode;
-    brightYellow(text: string): string;
-    BY: StyleShortCode;
-    blackInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BLI: StyleShortCode;
-    redInvert(text: string, bg?: ConsoleColors | "none"): string;
-    RI: StyleShortCode;
-    greenInvert(text: string, bg?: ConsoleColors | "none"): string;
-    GI: StyleShortCode;
-    yellowInvert(text: string, bg?: ConsoleColors | "none"): string;
-    YI: StyleShortCode;
-    blueInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BI: StyleShortCode;
-    magentaInvert(text: string, bg?: ConsoleColors | "none"): string;
-    MI: StyleShortCode;
-    cyanInvert(text: string, bg?: ConsoleColors | "none"): string;
-    CI: StyleShortCode;
-    whiteInvert(text: string, bg?: ConsoleColors | "none"): string;
-    WI: StyleShortCode;
-    brightBlackInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BBLI: StyleShortCode;
-    brightRedInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BRI: StyleShortCode;
-    brightGreenInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BGI: StyleShortCode;
-    brightYellowInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BYI: StyleShortCode;
-    brightBlueInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BBI: StyleShortCode;
-    brightMagentaInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BMI: StyleShortCode;
-    brightCyanInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BCI: StyleShortCode;
-    brightWhiteInvert(text: string, bg?: ConsoleColors | "none"): string;
-    BWI: StyleShortCode;
-    redBG(text: string, fg?: ConsoleColors | "none"): string;
-    RBG: StyleShortCode;
-    greenBG(text: string, fg?: ConsoleColors | "none"): string;
-    GBG: StyleShortCode;
-    blueBG(text: string, fg?: ConsoleColors | "none"): string;
-    BBG: StyleShortCode;
-    whiteBG(text: string, fg?: ConsoleColors | "none"): string;
-    blackBG(text: string, fg?: ConsoleColors | "none"): string;
-    BLBG: StyleShortCode;
-    cyanBG(text: string, fg?: ConsoleColors | "none"): string;
-    CBG: StyleShortCode;
-    magentaBG(text: string, fg?: ConsoleColors | "none"): string;
-    MBG: StyleShortCode;
-    yellowBG(text: string, fg?: ConsoleColors | "none"): string;
-    YBG: StyleShortCode;
-    brightRedBG(text: string, fg?: ConsoleColors | "none"): string;
-    BRBG: StyleShortCode;
-    brightGreenBG(text: string, fg?: ConsoleColors | "none"): string;
-    BGBG: StyleShortCode;
-    brightBlueBG(text: string, fg?: ConsoleColors | "none"): string;
-    BBBG: StyleShortCode;
-    brightWhiteBG(text: string, fg?: ConsoleColors | "none"): string;
-    BWBG: StyleShortCode;
-    brightBlackBG(text: string, fg?: ConsoleColors | "none"): string;
-    BBLBG: StyleShortCode;
-    brightCyanBG(text: string, fg?: ConsoleColors | "none"): string;
-    BCBG: StyleShortCode;
-    brightMagentaBG(text: string, fg?: ConsoleColors | "none"): string;
-    BMBG: StyleShortCode;
-    brightYellowBG(text: string, fg?: ConsoleColors | "none"): string;
-    BYBG: StyleShortCode;
-    blackInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BLIBG: StyleShortCode;
-    redInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    RIBG: StyleShortCode;
-    greenInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    GIBG: StyleShortCode;
-    yellowInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    YIGB: StyleShortCode;
-    blueInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BIBG: StyleShortCode;
-    magentaInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    MIBG: StyleShortCode;
-    cyanInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    CIBG: StyleShortCode;
-    whiteInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    WIBG: StyleShortCode;
-    brightBlackInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BBLIBG: StyleShortCode;
-    brightRedInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BRIBG: StyleShortCode;
-    brightGreenInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BGIBG: StyleShortCode;
-    brightYellowInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BYIBG: StyleShortCode;
-    brightBlueInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BBIBG: StyleShortCode;
-    brightMagentaInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BMIBG: StyleShortCode;
-    brightCyanInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BCIBG: StyleShortCode;
-    brightWhiteInvertBG(text: string, fg?: ConsoleColors | "none"): string;
-    BWIBG: StyleShortCode;
+    get Y(): this;
+    get YELLOW(): this;
+    redBG(text: string): string;
+    get RBG(): this;
+    get REDBG(): this;
+    greenBG(text: string): string;
+    get GBG(): this;
+    get GREENBG(): this;
+    blueBG(text: string): string;
+    get BBG(): this;
+    get BLUEBG(): this;
+    whiteBG(text: string): string;
+    get WBG(): this;
+    get WHITEBG(): this;
+    blackBG(text: string): string;
+    get BLBG(): this;
+    get BLACKBG(): this;
+    cyanBG(text: string): string;
+    get CBG(): this;
+    get CYANBG(): this;
+    magentaBG(text: string): string;
+    get MBG(): this;
+    get MAGENTABG(): this;
+    yellowBG(text: string): string;
+    get YBG(): this;
+    get YELLOWBG(): this;
     exit(): void;
+    ServiceBar: {
+        new (rdl: any, rows?: number, size?: number, start?: number, interval?: number, base?: string, loadedOne?: string, loadedTwo?: string, cap?: string): {
+            cursor: number;
+            inte: any;
+            rdl: any;
+            rows: number;
+            size: number;
+            start: number;
+            interval: number;
+            base: string;
+            loadedOne: string;
+            loadedTwo: string;
+            cap: string;
+            clear(): void;
+            reInit(): void;
+            _init(): void;
+            _X(): void;
+            _O(): void;
+            _Bar(): void;
+            _Cap(): void;
+        };
+    };
+    ProgressBar: {
+        new (rdl: any, row: number, size: number, interval?: number, base?: string, loaded?: string): {
+            done: boolean;
+            cursor: number;
+            timer: any;
+            rdl: any;
+            row: number;
+            size: number;
+            interval: number;
+            base: string;
+            loaded: string;
+            start(): void;
+            addProgressPerfect(percent: number): Promise<true> | Promise<unknown>;
+            addProgress(amount: number): Promise<true> | Promise<unknown>;
+            finish(): void;
+        };
+    };
 }
 declare const rdl: any;
 declare const DS: DSLogger;

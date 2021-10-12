@@ -738,11 +738,11 @@ class DSLogger {
         }
         return output;
     }
-    showAtSleep(message, type = "none", row, col = 0, sleep = this.defaultSleepTime) {
-        this.showAt(message, type, row, col);
+    showAtSleep(message, row, type = "none", sleep = this.defaultSleepTime, col = 0) {
+        this.showAt(message, row, type, col);
         return this.sleep(sleep);
     }
-    showAt(message, type = "none", row, col = 0) {
+    showAt(message, row, type = "none", col = 0) {
         let output = this._processMessage(message, type);
         const lines = this._countLines(`${output}`);
         this.rdl.cursorTo(process.stdout, col, row);
@@ -800,6 +800,10 @@ class DSLogger {
     }
     logProgramTitle() {
         this.show(this.getString("title"), "Title");
+        return this;
+    }
+    defineSleepTime(sleep) {
+        this.defaultSleepTime = sleep;
         return this;
     }
     defineValidator(type, func, name) {
@@ -864,18 +868,30 @@ class DSLogger {
     _copyDefaultStyle() {
         return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
     }
+    clear() {
+        this.styleDelimiter = this._copyDefaultStyle();
+        return this;
+    }
+    get CL() {
+        this.styleDelimiter = this._copyDefaultStyle();
+        return this;
+    }
+    get CLEAR() {
+        this.styleDelimiter = this._copyDefaultStyle();
+        return this;
+    }
     blink(text) {
-        this.styleDelimiter.hidden = true;
+        this.styleDelimiter.blink = true;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     get BI() {
-        this.styleDelimiter.hidden = true;
+        this.styleDelimiter.blink = true;
         return this;
     }
     get BLINK() {
-        this.styleDelimiter.hidden = true;
+        this.styleDelimiter.blink = true;
         return this;
     }
     hidden(text) {
