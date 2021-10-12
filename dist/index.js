@@ -804,8 +804,9 @@ class DSLogger {
     }
     defineValidator(type, func, name) {
         if (type === "custom") {
-            if (!name)
-                return;
+            if (!name) {
+                throw new Error("Must define name for custom question type.");
+            }
             this.customValidators[name] = func;
         }
         else {
