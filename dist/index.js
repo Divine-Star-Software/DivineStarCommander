@@ -22,7 +22,7 @@ class DSLogger {
             questionDelimiter: ":",
             reAskStart: "X->",
             reAskText: "The input was not correct please re-enter",
-            reAskDelimiter: ":"
+            reAskDelimiter: ":",
         };
         this.defaultPrgoressBarStyle = {
             base: "-",
@@ -30,31 +30,31 @@ class DSLogger {
             loaded: "=",
             loadedStyle: {},
             size: 30,
-            interval: 15
+            interval: 15,
         };
         this.defaultServiceBarStyle = {
             base: "X",
             baseStyle: {
                 bg: "Blue",
-                fg: "White"
+                fg: "White",
             },
             loadedOne: "|",
             loadedOneStyle: {
                 bg: "Blue",
-                fg: "White"
+                fg: "White",
             },
             loadedTwo: "0",
             loadedTwoStyle: {
                 bg: "Magenta",
-                fg: "White"
+                fg: "White",
             },
             cap: "}",
             capStyle: {
                 bg: "Yellow",
-                fg: "White"
+                fg: "White",
             },
             size: 30,
-            interval: 80
+            interval: 80,
         };
         this.consoleCodes = {
             Reset: "\x1b[0m",
@@ -86,53 +86,53 @@ class DSLogger {
             White: "\x1b[47m",
         };
         this.questionStyles = {
-            "delimiter": {
+            delimiter: {
                 fg: "Cyan",
-                bright: true
+                bright: true,
             },
             "question-start": {},
-            "question": {},
+            question: {},
             "re-ask-start": {
                 fg: "Red",
-                bright: true
+                bright: true,
             },
             "re-ask": {},
             "re-ask-delimiter": {
                 fg: "White",
-                bright: true
-            }
+                bright: true,
+            },
         };
         this.messageStyles = {
-            "Blink": {
-                blink: true
+            Blink: {
+                blink: true,
             },
-            "Data": {},
-            "Error": {
+            Data: {},
+            Error: {
                 fg: "White",
                 bg: "Red",
-                bright: true
+                bright: true,
             },
-            "Good": {
+            Good: {
                 fg: "White",
                 bg: "Green",
-                bright: true
+                bright: true,
             },
-            "Info": {
+            Info: {
                 fg: "White",
                 bg: "Cyan",
-                bright: true
+                bright: true,
             },
-            "Raw": {},
-            "Title": {
+            Raw: {},
+            Title: {
                 fg: "White",
                 bg: "Magenta",
-                bright: true
+                bright: true,
             },
-            "Warning": {
+            Warning: {
                 fg: "White",
                 bg: "Yellow",
-                bright: true
-            }
+                bright: true,
+            },
         };
         this.params = new Map();
         this.paramValues = new Map();
@@ -173,12 +173,11 @@ class DSLogger {
                     return false;
                 }
                 return this.customValidators[type](input);
-            }
+            },
         };
         this.customValidators = {};
         this.screens = {
-            splash: () => {
-            },
+            splash: () => { },
             helpScreen: () => {
                 console.log(this._addColor("Title", this.getString("title")) + "\n");
                 console.log(this.getString("helpText") + "\n");
@@ -203,12 +202,9 @@ class DSLogger {
                     .show("Run --help for more info.", "Raw");
                 process.exit(0);
             },
-            crash: (message) => {
-            },
-            noInput: (message) => {
-            },
-            done: (message) => {
-            }
+            crash: (message) => { },
+            noInput: (message) => { },
+            done: (message) => { },
         };
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
@@ -531,7 +527,10 @@ class DSLogger {
                         default:
                             process.stdout.clearLine(1);
                             this.rdl.cursorTo(process.stdout, 0);
-                            process.stdout.write(question + this.consoleCodes['Hidden'] + Array(this.rli.line.length + 1).join("*") + this.consoleCodes["Reset"]);
+                            process.stdout.write(question +
+                                this.consoleCodes["Hidden"] +
+                                Array(this.rli.line.length + 1).join("*") +
+                                this.consoleCodes["Reset"]);
                             break;
                     }
                 };
@@ -546,7 +545,8 @@ class DSLogger {
                     resolve(true);
                     clearInterval(inte);
                 }
-                else if (asked) { }
+                else if (asked) {
+                }
                 else {
                     asked = true;
                     this.rli.question(question, (input) => {
@@ -576,14 +576,18 @@ class DSLogger {
                                 if (q.failPrompt) {
                                     question =
                                         this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                                            this.stylize(q.failPrompt, this.questionStyles["re-ask"]) + " " +
-                                            this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) + " ";
+                                            this.stylize(q.failPrompt, this.questionStyles["re-ask"]) +
+                                            " " +
+                                            this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) +
+                                            " ";
                                 }
                                 else {
                                     question =
                                         this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                                            this.stylize(this.getString("reAskText"), this.questionStyles["re-ask"]) + " " +
-                                            this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) + " ";
+                                            this.stylize(this.getString("reAskText"), this.questionStyles["re-ask"]) +
+                                            " " +
+                                            this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) +
+                                            " ";
                                 }
                             }
                             else {
@@ -609,7 +613,7 @@ class DSLogger {
         if (onFail) {
             this.questionsFails[this.lastQuestion] = {
                 func: onFail,
-                args: arg
+                args: arg,
             };
         }
         this.questions[this.lastQuestion].failPrompt = reAskMessage;
@@ -624,7 +628,8 @@ class DSLogger {
         this.inputs.set(varName, undefined);
         question =
             this.stylize(this.getString("questionStart"), this.questionStyles["question-start"]) +
-                this.stylize(question, this.questionStyles["question"]) + " " +
+                this.stylize(question, this.questionStyles["question"]) +
+                " " +
                 this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
                 " ";
         this.questions[question] = {
@@ -809,6 +814,7 @@ class DSLogger {
         else {
             this.validators[type] = func;
         }
+        return this;
     }
     defineQuestionStyle(type, styleObj) {
         this.questionStyles[type] = styleObj;
@@ -861,6 +867,26 @@ class DSLogger {
     }
     _copyDefaultStyle() {
         return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
+    }
+    get NS() {
+        this.newScreen();
+        return this;
+    }
+    get NEWSCREEN() {
+        this.newScreen();
+        return this;
+    }
+    newLine() {
+        console.log("\n");
+        this.currentRow++;
+    }
+    get NL() {
+        this.newLine();
+        return this;
+    }
+    get NEWLINE() {
+        this.newLine();
+        return this;
     }
     clear() {
         this.styleDelimiter = this._copyDefaultStyle();

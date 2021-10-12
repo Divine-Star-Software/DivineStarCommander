@@ -125,7 +125,7 @@ declare class DSLogger {
     logSeperator(): this;
     logProgramTitle(): this;
     defineSleepTime(sleep: number): this;
-    defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name?: string): void;
+    defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name?: string): this | undefined;
     defineQuestionStyle(type: QuestionDisplayTypes, styleObj: StyleObject): this;
     defineMessageStyle(type: MessageTypes, styleObj: StyleObject): this;
     defineProgressBarStyle(progressBarStyle: ProgressBarStyle): this;
@@ -139,6 +139,11 @@ declare class DSLogger {
     getString(id: Strings): string;
     setString(id: Strings, string: string): this;
     _copyDefaultStyle(): StyleObject;
+    get NS(): this;
+    get NEWSCREEN(): this;
+    newLine(): void;
+    get NL(): this;
+    get NEWLINE(): this;
     clear(): this;
     get CL(): this;
     get CLEAR(): this;

@@ -1,110 +1,123 @@
-type ConsoleCodes = |
-  "Reset" |
-  "Bright" |
-  "Dim" |
-  "Underscore" |
-  "Blink" |
-  "Reverse" |
-  "Hidden"
-type ConsoleColors = |
-  "Black" |
-  "Red" |
-  "Green" |
-  "Yellow" |
-  "Blue" |
-  "Magenta" |
-  "Cyan" |
-  "White"
+type ConsoleCodes =
+  | "Reset"
+  | "Bright"
+  | "Dim"
+  | "Underscore"
+  | "Blink"
+  | "Reverse"
+  | "Hidden";
+type ConsoleColors =
+  | "Black"
+  | "Red"
+  | "Green"
+  | "Yellow"
+  | "Blue"
+  | "Magenta"
+  | "Cyan"
+  | "White";
 type StyleObject = {
-  fg ? : ConsoleColors | "none",
-  bg ? : ConsoleColors | "none",
-  reverse ? : boolean,
-  bright ? : boolean
-  dim ? : boolean,
-  underscore ? : boolean,
-  blink ? : boolean,
-  hidden ? : boolean
-}
-type DisplayScreens = |
-  "splash" |
-  "programInitError" |
-  "helpScreen" |
-  "crash" |
-  "done" |
-  "noInput"
-type MessageTypes = |
-  "Blink" |
-  "Error" |
-  "Title" |
-  "Info" |
-  "Good" |
-  "Warning" |
-  "Raw" |
-  "Data";
-type QuestionDisplayTypes = |
-  "question-start" |
-  "question" |
-  "delimiter" |
-  "re-ask-start" |
-  "re-ask" |
-  "re-ask-delimiter"
-type QuestionsTypes = |
-  "string" |
-  "number" |
-  "digit" |
-  "email" |
-  "password" |
-  "stringall" |
-  "custom"
-type ParamTypes = "boolean" | "string" | "number" | "stringall" | "string[]" | "stringAll[]" | "number[]";
+  fg?: ConsoleColors | "none";
+  bg?: ConsoleColors | "none";
+  reverse?: boolean;
+  bright?: boolean;
+  dim?: boolean;
+  underscore?: boolean;
+  blink?: boolean;
+  hidden?: boolean;
+};
+type DisplayScreens =
+  | "splash"
+  | "programInitError"
+  | "helpScreen"
+  | "crash"
+  | "done"
+  | "noInput";
+type MessageTypes =
+  | "Blink"
+  | "Error"
+  | "Title"
+  | "Info"
+  | "Good"
+  | "Warning"
+  | "Raw"
+  | "Data";
+type QuestionDisplayTypes =
+  | "question-start"
+  | "question"
+  | "delimiter"
+  | "re-ask-start"
+  | "re-ask"
+  | "re-ask-delimiter";
+type QuestionsTypes =
+  | "string"
+  | "number"
+  | "digit"
+  | "email"
+  | "password"
+  | "stringall"
+  | "custom";
+type ParamTypes =
+  | "boolean"
+  | "string"
+  | "number"
+  | "stringall"
+  | "string[]"
+  | "stringAll[]"
+  | "number[]";
 type ProgramParams = {
   flag: string;
   name: string;
   desc: string;
   type: ParamTypes;
-  required ? : boolean;
-  valueNeeded ? : boolean;
-}
-type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined
-type Strings = |
-  "title" |
-  "helpText" |
-  "star" |
-  "seperator" |
-  "questionStart" |
-  "questionDelimiter" |
-  "reAskStart" |
-  "reAskText" |
-  "reAskDelimiter"
+  required?: boolean;
+  valueNeeded?: boolean;
+};
+type ProgramParamsDataTypes =
+  | number
+  | boolean
+  | string
+  | string[]
+  | number[]
+  | undefined;
+type Strings =
+  | "title"
+  | "helpText"
+  | "star"
+  | "seperator"
+  | "questionStart"
+  | "questionDelimiter"
+  | "reAskStart"
+  | "reAskText"
+  | "reAskDelimiter";
 type StoredQuestions = {
-  varName: string,
-  varType: QuestionsTypes,
-  reAsk ? : boolean,
-  failPrompt ? : string,
-  attempts ? : number | "all",
-  fails ? : number
-  customName ? : string
-}
+  varName: string;
+  varType: QuestionsTypes;
+  reAsk?: boolean;
+  failPrompt?: string;
+  attempts?: number | "all";
+  fails?: number;
+  customName?: string;
+};
 type ProgressBarStyle = {
-  base: string,
-  baseStyle: StyleObject,
-  loaded: string,
-  loadedStyle: StyleObject,
-  size: number,
-  interval: number
-}
+  base: string;
+  baseStyle: StyleObject;
+  loaded: string;
+  loadedStyle: StyleObject;
+  size: number;
+  interval: number;
+};
 type ServiceBarStyle = {
-  base: string,
-  baseStyle: StyleObject,
-  loadedOne: string,
-  loadedOneStyle: StyleObject,
-  loadedTwo: string,
-  loadedTwoStyle: StyleObject,
-  cap: string,
-  capStyle: StyleObject
-  size: number,
-  interval: number
-}
+  base: string;
+  baseStyle: StyleObject;
+  loadedOne: string;
+  loadedOneStyle: StyleObject;
+  loadedTwo: string;
+  loadedTwoStyle: StyleObject;
+  cap: string;
+  capStyle: StyleObject;
+  size: number;
+  interval: number;
+};
 
 /** 
   # DSLogger
@@ -116,13 +129,12 @@ type ServiceBarStyle = {
   @version 1.0.1
   */
 class DSLogger {
-
-  //Used for chaining styles 
+  //Used for chaining styles
   defaultStyleDelimiter: StyleObject = {};
   styleDelimiter: StyleObject = {};
   defaultSleepTime = 800;
   //strings
-  strings: Record < Strings, string > = {
+  strings: Record<Strings, string> = {
     title: "[ Divine Star Logger ]",
     helpText: "",
     star: `            [1m[35m.[0m
@@ -139,8 +151,7 @@ class DSLogger {
     questionDelimiter: ":",
     reAskStart: "X->",
     reAskText: "The input was not correct please re-enter",
-    reAskDelimiter: ":"
-
+    reAskDelimiter: ":",
   };
 
   defaultPrgoressBarStyle: ProgressBarStyle = {
@@ -149,33 +160,33 @@ class DSLogger {
     loaded: "=",
     loadedStyle: {},
     size: 30,
-    interval: 15
-  }
+    interval: 15,
+  };
   defaultServiceBarStyle: ServiceBarStyle = {
     base: "X",
     baseStyle: {
       bg: "Blue",
-      fg: "White"
+      fg: "White",
     },
     loadedOne: "|",
     loadedOneStyle: {
       bg: "Blue",
-      fg: "White"
+      fg: "White",
     },
     loadedTwo: "0",
     loadedTwoStyle: {
       bg: "Magenta",
-      fg: "White"
+      fg: "White",
     },
     cap: "}",
     capStyle: {
       bg: "Yellow",
-      fg: "White"
+      fg: "White",
     },
     size: 30,
-    interval: 80
-  }
-  consoleCodes: Record < ConsoleCodes, string > = {
+    interval: 80,
+  };
+  consoleCodes: Record<ConsoleCodes, string> = {
     Reset: "\x1b[0m",
     Bright: "\x1b[1m",
     Dim: "\x1b[2m",
@@ -184,7 +195,7 @@ class DSLogger {
     Reverse: "\x1b[7m",
     Hidden: "\x1b[8m",
   };
-  consoleFGColors: Record < ConsoleColors, string > = {
+  consoleFGColors: Record<ConsoleColors, string> = {
     Black: "\x1b[30m",
     Red: "\x1b[31m",
     Green: "\x1b[32m",
@@ -193,8 +204,8 @@ class DSLogger {
     Magenta: "\x1b[35m",
     Cyan: "\x1b[36m",
     White: "\x1b[37m",
-  }
-  consoleBGColors: Record < ConsoleColors, string > = {
+  };
+  consoleBGColors: Record<ConsoleColors, string> = {
     Black: "\x1b[40m",
     Red: "\x1b[41m",
     Green: "\x1b[42m",
@@ -203,83 +214,82 @@ class DSLogger {
     Magenta: "\x1b[45m",
     Cyan: "\x1b[46m",
     White: "\x1b[47m",
-  }
-  questionStyles: Record < QuestionDisplayTypes, StyleObject > = {
-    "delimiter": {
+  };
+  questionStyles: Record<QuestionDisplayTypes, StyleObject> = {
+    delimiter: {
       fg: "Cyan",
-      bright: true
+      bright: true,
     },
     "question-start": {},
-    "question": {},
+    question: {},
     "re-ask-start": {
       fg: "Red",
-      bright: true
+      bright: true,
     },
     "re-ask": {},
     "re-ask-delimiter": {
       fg: "White",
-      bright: true
-    }
-  };
-  messageStyles: Record < MessageTypes, StyleObject > = {
-    "Blink": {
-      blink: true
+      bright: true,
     },
-    "Data": {},
-    "Error": {
+  };
+  messageStyles: Record<MessageTypes, StyleObject> = {
+    Blink: {
+      blink: true,
+    },
+    Data: {},
+    Error: {
       fg: "White",
       bg: "Red",
-      bright: true
+      bright: true,
     },
-    "Good": {
+    Good: {
       fg: "White",
       bg: "Green",
-      bright: true
+      bright: true,
     },
-    "Info": {
+    Info: {
       fg: "White",
       bg: "Cyan",
-      bright: true
+      bright: true,
     },
-    "Raw": {},
-    "Title": {
+    Raw: {},
+    Title: {
       fg: "White",
       bg: "Magenta",
-      bright: true
+      bright: true,
     },
-    "Warning": {
+    Warning: {
       fg: "White",
       bg: "Yellow",
-      bright: true
-    }
+      bright: true,
+    },
+  };
 
-  }
-
-
-
-
-
-  params: Map < string, ProgramParams > = new Map();
-  paramValues: Map <
-    string,
-    ProgramParamsDataTypes > = new Map();
-  requiredParams: Map < string, boolean > = new Map();
-  inputs: Map < string, string | number | undefined > = new Map();
+  params: Map<string, ProgramParams> = new Map();
+  paramValues: Map<string, ProgramParamsDataTypes> = new Map();
+  requiredParams: Map<string, boolean> = new Map();
+  inputs: Map<string, string | number | undefined> = new Map();
 
   lastQuestion: string = "";
   askedQuestions = 0;
-  questions: Record < string, StoredQuestions > = {};
-  questionsFails: Record < string, {
-    args: any,
-    func: Function
-  } > = {};
+  questions: Record<string, StoredQuestions> = {};
+  questionsFails: Record<
+    string,
+    {
+      args: any;
+      func: Function;
+    }
+  > = {};
   currentRow = 0;
   rli: any;
 
-  progressBars: Record < string, any > = {};
-  serviceBars: Record < string, any > = {};
+  progressBars: Record<string, any> = {};
+  serviceBars: Record<string, any> = {};
 
-  validators: Record < QuestionsTypes, (input: string, type ? : string) => boolean > = {
+  validators: Record<
+    QuestionsTypes,
+    (input: string, type?: string) => boolean
+  > = {
     number: (input: string) => {
       const reg = /^\d+$/;
       return reg.test(input);
@@ -303,20 +313,18 @@ class DSLogger {
     stringall: (input: string) => {
       return true;
     },
-    custom: (input: string, type ? : string) => {
+    custom: (input: string, type?: string) => {
       if (!type) {
         return false;
       }
       return this.customValidators[type](input);
-    }
+    },
   };
 
-  customValidators: Record < string, (input: any) => boolean >= {};
+  customValidators: Record<string, (input: any) => boolean> = {};
 
-  screens: Record < DisplayScreens, Function > = {
-    splash: () => {
-
-    },
+  screens: Record<DisplayScreens, Function> = {
+    splash: () => {},
     helpScreen: () => {
       console.log(this._addColor("Title", this.getString("title")) + "\n");
       console.log(this.getString("helpText") + "\n");
@@ -340,26 +348,14 @@ class DSLogger {
         .show("Run --help for more info.", "Raw");
       process.exit(0);
     },
-    crash: (message: string) => {
-
-    },
-    noInput: (message: string) => {
-
-    },
-    done: (message: string) => {
-
-    }
+    crash: (message: string) => {},
+    noInput: (message: string) => {},
+    done: (message: string) => {},
   };
 
-  constructor(public rdl: any) {
+  constructor(public rdl: any) {}
 
-
-  }
-
-  stylize(
-    text: string,
-    styleObj: StyleObject
-  ): string {
+  stylize(text: string, styleObj: StyleObject): string {
     let front = "";
     if (styleObj.reverse) {
       front += this.consoleCodes["Reverse"];
@@ -533,8 +529,6 @@ class DSLogger {
     return this;
   }
 
-
-
   addParam(param: ProgramParams) {
     if (this.params.get(param.flag)) {
       throw new Error("Duplicate param.");
@@ -570,7 +564,12 @@ class DSLogger {
     return this;
   }
 
-  _prompt(question: string, varName: string, varType: QuestionsTypes, custonName ? : string) {
+  _prompt(
+    question: string,
+    varName: string,
+    varType: QuestionsTypes,
+    custonName?: string
+  ) {
     let passed = true;
     let gotinput = false;
     let asked = false;
@@ -591,7 +590,10 @@ class DSLogger {
               process.stdout.clearLine(1);
               this.rdl.cursorTo(process.stdout, 0);
               process.stdout.write(
-                question + this.consoleCodes['Hidden'] + Array(this.rli.line.length + 1).join("*") + this.consoleCodes["Reset"]
+                question +
+                  this.consoleCodes["Hidden"] +
+                  Array(this.rli.line.length + 1).join("*") +
+                  this.consoleCodes["Reset"]
               );
               break;
           }
@@ -606,7 +608,8 @@ class DSLogger {
         if (passed && gotinput) {
           resolve(true);
           clearInterval(inte);
-        } else if (asked) {} else {
+        } else if (asked) {
+        } else {
           asked = true;
           this.rli.question(question, (input: QuestionsTypes) => {
             this.rli.history.slice(1);
@@ -629,24 +632,43 @@ class DSLogger {
                 gotinput = false;
                 asked = false;
 
-
                 if (q.attempts && q.attempts != "all") {
                   (q as any).fails++;
                   if (q.fails == q.attempts || !q.reAsk) {
-                    this.questionsFails[qID].func(this.questionsFails[qID].args)
+                    this.questionsFails[qID].func(
+                      this.questionsFails[qID].args
+                    );
                   }
-
                 }
                 if (q.failPrompt) {
                   question =
-                    this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                    this.stylize(q.failPrompt, this.questionStyles["re-ask"]) + " " +
-                    this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) + " ";
+                    this.stylize(
+                      this.getString("reAskStart"),
+                      this.questionStyles["re-ask-start"]
+                    ) +
+                    this.stylize(q.failPrompt, this.questionStyles["re-ask"]) +
+                    " " +
+                    this.stylize(
+                      this.getString("reAskDelimiter"),
+                      this.questionStyles["re-ask-delimiter"]
+                    ) +
+                    " ";
                 } else {
                   question =
-                    this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                    this.stylize(this.getString("reAskText"), this.questionStyles["re-ask"]) + " " +
-                    this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) + " ";
+                    this.stylize(
+                      this.getString("reAskStart"),
+                      this.questionStyles["re-ask-start"]
+                    ) +
+                    this.stylize(
+                      this.getString("reAskText"),
+                      this.questionStyles["re-ask"]
+                    ) +
+                    " " +
+                    this.stylize(
+                      this.getString("reAskDelimiter"),
+                      this.questionStyles["re-ask-delimiter"]
+                    ) +
+                    " ";
                 }
               } else {
                 passed = true;
@@ -669,16 +691,19 @@ class DSLogger {
     return prom;
   }
 
-
-
-  fail(reAsk: boolean, reAskMessage: string, attempts: number | "all" = "all", onFail ? : Function, arg: any = {}) {
+  fail(
+    reAsk: boolean,
+    reAskMessage: string,
+    attempts: number | "all" = "all",
+    onFail?: Function,
+    arg: any = {}
+  ) {
     this.questions[this.lastQuestion].reAsk = reAsk;
     if (onFail) {
       this.questionsFails[this.lastQuestion] = {
         func: onFail,
-        args: arg
-      }
-
+        args: arg,
+      };
     }
     this.questions[this.lastQuestion].failPrompt = reAskMessage;
     if (attempts != "all") {
@@ -686,18 +711,28 @@ class DSLogger {
       this.questions[this.lastQuestion].fails = 0;
     }
     return this;
-
   }
 
-  ask(question: string, varName: string, varType: QuestionsTypes, customName ? : string) {
+  ask(
+    question: string,
+    varName: string,
+    varType: QuestionsTypes,
+    customName?: string
+  ) {
     this.askedQuestions++;
     this.inputs.set(varName, undefined);
 
-
     question =
-      this.stylize(this.getString("questionStart"), this.questionStyles["question-start"]) +
-      this.stylize(question, this.questionStyles["question"]) + " " +
-      this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
+      this.stylize(
+        this.getString("questionStart"),
+        this.questionStyles["question-start"]
+      ) +
+      this.stylize(question, this.questionStyles["question"]) +
+      " " +
+      this.stylize(
+        this.getString("questionDelimiter"),
+        this.questionStyles["delimiter"]
+      ) +
       " ";
     this.questions[question] = {
       varName: varName,
@@ -741,12 +776,22 @@ class DSLogger {
     return this;
   }
 
-
-  newServiceBar(name: string, serviceBarStyle : ServiceBarStyle = this.defaultServiceBarStyle) {
+  newServiceBar(
+    name: string,
+    serviceBarStyle: ServiceBarStyle = this.defaultServiceBarStyle
+  ) {
     const s = serviceBarStyle;
-    const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval,
-      this.stylize(s.base, s.baseStyle), this.stylize(s.loadedOne, s.loadedOneStyle),
-      this.stylize(s.loadedTwo, s.loadedTwoStyle), this.stylize(s.cap, s.capStyle));
+    const bar = new this.ServiceBar(
+      this.rdl,
+      this.currentRow,
+      s.size,
+      0,
+      s.interval,
+      this.stylize(s.base, s.baseStyle),
+      this.stylize(s.loadedOne, s.loadedOneStyle),
+      this.stylize(s.loadedTwo, s.loadedTwoStyle),
+      this.stylize(s.cap, s.capStyle)
+    );
     this.currentRow++;
     this.serviceBars[name] = bar;
     return this;
@@ -765,17 +810,21 @@ class DSLogger {
     return this;
   }
 
-
-  newProgressBar(name: string, progressBarStyle ? : ProgressBarStyle) {
-
+  newProgressBar(name: string, progressBarStyle?: ProgressBarStyle) {
     let d;
     if (progressBarStyle) {
       d = progressBarStyle;
     } else {
       d = this.defaultPrgoressBarStyle;
     }
-    const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size,
-      d.interval, this.stylize(d.base, d.baseStyle), this.stylize(d.loaded, d.loadedStyle));
+    const bar = new this.ProgressBar(
+      this.rdl,
+      this.currentRow,
+      d.size,
+      d.interval,
+      this.stylize(d.base, d.baseStyle),
+      this.stylize(d.loaded, d.loadedStyle)
+    );
     this.currentRow++;
     bar.start();
     this.progressBars[name] = bar;
@@ -792,7 +841,7 @@ class DSLogger {
     while (waitTill > new Date()) {}
     return this;
   }
-  asyncSleep(ms: number): Promise < this > {
+  asyncSleep(ms: number): Promise<this> {
     let self = this;
     return new Promise((resolve) =>
       setTimeout(() => {
@@ -819,16 +868,26 @@ class DSLogger {
     if (type == "Data") {
       output = JSON.stringify(message, null, 3);
     }
-    return output
+    return output;
   }
 
-
-  showAtSleep(message: any,  row: number,type: MessageTypes | "none" = "none",  sleep: number = this.defaultSleepTime,col: number = 0) {
-    this.showAt(message,row, type, col);
+  showAtSleep(
+    message: any,
+    row: number,
+    type: MessageTypes | "none" = "none",
+    sleep: number = this.defaultSleepTime,
+    col: number = 0
+  ) {
+    this.showAt(message, row, type, col);
     return this.sleep(sleep);
   }
 
-  showAt(message: any, row: number, type: MessageTypes | "none" = "none",  col: number = 0) {
+  showAt(
+    message: any,
+    row: number,
+    type: MessageTypes | "none" = "none",
+    col: number = 0
+  ) {
     let output = this._processMessage(message, type);
     const lines = this._countLines(`${output}`);
     this.rdl.cursorTo(process.stdout, col, row);
@@ -847,7 +906,11 @@ class DSLogger {
     return this;
   }
 
-  showSleep(message: any, type: MessageTypes | "none" = "none", ms: number = this.defaultSleepTime) {
+  showSleep(
+    message: any,
+    type: MessageTypes | "none" = "none",
+    ms: number = this.defaultSleepTime
+  ) {
     this.show(message, type);
     this.sleep(ms);
     return this;
@@ -861,21 +924,24 @@ class DSLogger {
     return this;
   }
 
-  logSleep(message: any, type: MessageTypes | "none" = "none", ms: number = this.defaultSleepTime) {
+  logSleep(
+    message: any,
+    type: MessageTypes | "none" = "none",
+    ms: number = this.defaultSleepTime
+  ) {
     this.log(message, type);
     this.sleep(ms);
     return this;
   }
 
-
-  logTable(data: object, collumns ? : string[]) {
+  logTable(data: object, collumns?: string[]) {
     const lines = Object.keys(data).length + 2;
     this.currentRow += lines;
     console.table(data, collumns);
     return this;
   }
 
-  showTable(data: any, collumns ? : string[]) {
+  showTable(data: any, collumns?: string[]) {
     const lines = Object.keys(data).length + 2;
     this.rdl.cursorTo(process.stdout, 0, this.currentRow);
     console.table(data, collumns);
@@ -901,22 +967,23 @@ class DSLogger {
     return this;
   }
 
-
-  defineSleepTime(sleep : number ) {
+  defineSleepTime(sleep: number) {
     this.defaultSleepTime = sleep;
     return this;
   }
 
-
-  defineValidator(type: QuestionsTypes, func: (input: any) => boolean, name ? : string) {
-
+  defineValidator(
+    type: QuestionsTypes,
+    func: (input: any) => boolean,
+    name?: string
+  ) {
     if (type === "custom") {
       if (!name) return;
       this.customValidators[name] = func;
     } else {
       this.validators[type] = func;
     }
-
+    return this;
   }
 
   defineQuestionStyle(type: QuestionDisplayTypes, styleObj: StyleObject) {
@@ -938,7 +1005,7 @@ class DSLogger {
     return this;
   }
 
-  defineProgramTitle(title: string, styleObj ? : StyleObject) {
+  defineProgramTitle(title: string, styleObj?: StyleObject) {
     this.strings["title"] = title;
     if (styleObj) {
       this.messageStyles["Title"] = styleObj;
@@ -969,7 +1036,6 @@ class DSLogger {
     return this;
   }
 
-
   getString(id: Strings) {
     return this.strings[id];
   }
@@ -982,6 +1048,29 @@ class DSLogger {
     return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
   }
   //Quick Styles
+
+  get NS() {
+    this.newScreen();
+    return this;
+  }
+  get NEWSCREEN() {
+    this.newScreen();
+    return this;
+  }
+
+  newLine() {
+    console.log("\n");
+    this.currentRow++;
+  }
+  get NL() {
+    this.newLine();
+    return this;
+  }
+  get NEWLINE() {
+    this.newLine();
+    return this;
+  }
+
   clear() {
     this.styleDelimiter = this._copyDefaultStyle();
     return this;
@@ -996,14 +1085,11 @@ class DSLogger {
     return this;
   }
 
-
   blink(text: string) {
-
     this.styleDelimiter.blink = true;
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
-
   }
   get BI() {
     this.styleDelimiter.blink = true;
@@ -1016,12 +1102,10 @@ class DSLogger {
   }
 
   hidden(text: string) {
-
     this.styleDelimiter.hidden = true;
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
-
   }
   get H() {
     this.styleDelimiter.hidden = true;
@@ -1034,12 +1118,10 @@ class DSLogger {
   }
 
   underscore(text: string) {
-
     this.styleDelimiter.underscore = true;
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
-
   }
   get U() {
     this.styleDelimiter.underscore = true;
@@ -1052,12 +1134,10 @@ class DSLogger {
   }
 
   dim(text: string) {
-
     this.styleDelimiter.dim = true;
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
-
   }
   get D() {
     this.styleDelimiter.dim = true;
@@ -1070,12 +1150,10 @@ class DSLogger {
   }
 
   bright(text: string) {
-
     this.styleDelimiter.bright = true;
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
-
   }
   get BR() {
     this.styleDelimiter.bright = true;
@@ -1089,7 +1167,7 @@ class DSLogger {
 
   invert(text: string) {
     this.styleDelimiter.reverse = true;
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1103,12 +1181,11 @@ class DSLogger {
     return this;
   }
 
-
-  //FG 
+  //FG
   //RED TEXT
   red(text: string) {
     this.styleDelimiter.fg = "Red";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1124,7 +1201,7 @@ class DSLogger {
   //Green Text
   green(text: string) {
     this.styleDelimiter.fg = "Green";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1140,7 +1217,7 @@ class DSLogger {
   //Blue Text
   blue(text: string) {
     this.styleDelimiter.fg = "Blue";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1157,7 +1234,7 @@ class DSLogger {
 
   white(text: string) {
     this.styleDelimiter.fg = "White";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1170,10 +1247,9 @@ class DSLogger {
     return this;
   }
 
-
   black(text: string) {
     this.styleDelimiter.fg = "Black";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1189,7 +1265,7 @@ class DSLogger {
   //Cyan Text
   cyan(text: string) {
     this.styleDelimiter.fg = "Cyan";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1204,7 +1280,7 @@ class DSLogger {
   //Magenta text
   magenta(text: string) {
     this.styleDelimiter.fg = "Magenta";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1220,7 +1296,7 @@ class DSLogger {
   //Yellow Text
   yellow(text: string) {
     this.styleDelimiter.fg = "Yellow";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1236,7 +1312,7 @@ class DSLogger {
   //RED TEXT
   redBG(text: string) {
     this.styleDelimiter.bg = "Red";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1252,7 +1328,7 @@ class DSLogger {
   //Green Text
   greenBG(text: string) {
     this.styleDelimiter.bg = "Green";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1268,7 +1344,7 @@ class DSLogger {
   //Blue Text
   blueBG(text: string) {
     this.styleDelimiter.bg = "Blue";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1285,7 +1361,7 @@ class DSLogger {
 
   whiteBG(text: string) {
     this.styleDelimiter.bg = "White";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1298,10 +1374,9 @@ class DSLogger {
     return this;
   }
 
-
   blackBG(text: string) {
     this.styleDelimiter.bg = "Black";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1317,7 +1392,7 @@ class DSLogger {
   //Cyan Text
   cyanBG(text: string) {
     this.styleDelimiter.bg = "Cyan";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1332,7 +1407,7 @@ class DSLogger {
   //Magenta text
   magentaBG(text: string) {
     this.styleDelimiter.bg = "Magenta";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1348,7 +1423,7 @@ class DSLogger {
   //Yellow Text
   yellowBG(text: string) {
     this.styleDelimiter.bg = "Yellow";
-    const string = this.stylize(text, this.styleDelimiter)
+    const string = this.stylize(text, this.styleDelimiter);
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
@@ -1361,13 +1436,10 @@ class DSLogger {
     return this;
   }
 
-
-
   //Other Functions
   exit() {
     process.exit(0);
   }
-
 
   ServiceBar = class {
     cursor = 0;
@@ -1432,8 +1504,7 @@ class DSLogger {
     _Cap() {
       process.stdout.write(`\x1b[37m\x1b[43m${this.cap}\x1b[0m`);
     }
-
-  }
+  };
 
   ProgressBar = class {
     done = false;
@@ -1445,18 +1516,19 @@ class DSLogger {
       public size: number,
       public interval: number = 20,
       public base = "-",
-      public loaded = "=") {}
+      public loaded = "="
+    ) {}
     start() {
       for (let i = 0; i < this.size; i++) {
         process.stdout.write(this.base);
       }
       this.rdl.cursorTo(process.stdout, 0, this.row);
     }
-    addProgressPerfect(percent: number): Promise < true > | Promise < unknown > {
+    addProgressPerfect(percent: number): Promise<true> | Promise<unknown> {
       const num = this.size * (percent / 100);
       return this.addProgress(num);
     }
-    addProgress(amount: number): Promise < true > | Promise < unknown > {
+    addProgress(amount: number): Promise<true> | Promise<unknown> {
       this.rdl.cursorTo(process.stdout, this.cursor, this.row);
       let doneLocal = false;
       const prom = new Promise((resolve) => {
@@ -1487,7 +1559,7 @@ class DSLogger {
       const left = this.size - this.cursor;
       this.addProgress(left);
     }
-  }
+  };
 }
 const rdl = require("readline");
 const DS = new DSLogger(rdl);
