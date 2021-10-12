@@ -194,22 +194,24 @@ Functions related to logging to the console.
 
 > **Functions**
 
-| Function                    | Params                                                                                                          | Returns | Description                                                                      |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
-| **show**                    | **message** : string, **type** ?: MessageType or "none"                                                         | self    | Logs message at current row.                                                     |
-| **showSleep**               | **message** : string, **type** ?: MessageType or "none" , **ms** ?: number                                      | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
-| **showAt**                  | **message** : string, **row** : number,**type** : MessageType or "none", , **col** ?: number                    | self    | Logs message at given row.                                                       |
-| **showAtSleep**             | **message** : string,**row** : number, **type** ?: MessageType or "none",**sleep** ?: number, **col** ?: number | self    | Logs message at given row and sleeps.                                            |
-| **log**                     | **message** : string, **type** ?: MessageType or "none"                                                         | self    | Log message without adjusting cursor position.                                   |
-| **logSleep**                | **message** : string, **type** ?: MessageType or "none", **ms** : number                                        | self    | Log message and sleep without adjusting cursor position.                         |
-| **showTable**               | **data** : object, **collumens** ?: string[]                                                                    | self    | Moves cursor to current row and runs console.table.                              |
-| **logTable**                | **data** : string, **collumens** ?: string[]                                                                    | self    | Runs console.table.                                                              |
-| **logProgramTitle**         | none                                                                                                            | self    | Logs the program defined title at the current row with the given title style.    |
-| **logSeperator**            | none                                                                                                            | self    | Logs the program defined seperator at the current row with the given info style. |
-| **displayScreen**           | (**screen**:Screens,**args**:any)                                                                               | self    | Logs the program defined screen at the current                                   |
-| **splashScreen**            | none                                                                                                            | self    | Logs the program defined splashscreen at the current row.                        |
-| **promgramInitErrorScreen** | **message** : string                                                                                            | self    | Logs the program defined program init error screen at the current row.           |
-| **newScreen**               | none                                                                                                            | self    | Clears the screen and resets the console log row.                                |
+| Function                    | Params                                                                                                                            | Returns | Description                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
+| **newScreen**               | none                                                                                                                              | self    | Clears the screen and resets the console log row.                                |
+| **show**                    | **message** : string, **type** ?: MessageType or "none"                                                                           | self    | Logs message at current row.                                                     |
+| **showSleep**               | **message** : string, **type** ?: MessageType or "none" , **ms** ?: number                                                        | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
+| **showAt**                  | **message** : string, **params** : {**row** ?: number,**type** : MessageType or "none", , **col** ?: number }                     | self    | Logs message at given row.                                                       |
+| **showAtSleep**             | **message** : string, **params** : {**row** ?: number, **type** ?: MessageType or "none",**sleep** ?: number, **col** ?: number } | self    | Logs message at given row and sleeps.                                            |
+| **log**                     | **message** : string, **type** ?: MessageType or "none"                                                                           | self    | Log message without adjusting cursor position.                                   |
+| **logSleep**                | **message** : string, **type** ?: MessageType or "none", **ms** : number                                                          | self    | Log message and sleep without adjusting cursor position.                         |
+| **showTable**               | **data** : object, **collumens** ?: string[]                                                                                      | self    | Moves cursor to current row and runs console.table.                              |
+| **logTable**                | **data** : string, **collumens** ?: string[]                                                                                      | self    | Runs console.table.                                                              |
+| **logProgramTitle**         | none                                                                                                                              | self    | Logs the program defined title at the current row with the given title style.    |
+| **logSeperator**            | none                                                                                                                              | self    | Logs the program defined seperator at the current row with the given info style. |
+| **displayScreen**           | (**screen**:Screens,**args**:any)                                                                                                 | self    | Logs the program defined screen at the current                                   |
+| **splashScreen**            | none                                                                                                                              | self    | Logs the program defined splashscreen at the current row.                        |
+| **errorScreen**             | **message** : string                                                                                                              | self    | Logs the program defined error screen at the current row.     
+| **crashScreen**             | **message** : string                                                                                                              | self    | Logs the program defined crash screen at the current row.                        |
+| **promgramInitErrorScreen** | **message** : string                                                                                                              | self    | Logs the program defined program init error screen at the current row.           |
 
 ### User Input Functions
 
@@ -448,6 +450,8 @@ Functions used to make the program sleep.
 
 Other usefull functions.
 
-| Function | Params          | Returns | Description           |
-| -------- | --------------- | ------- | --------------------- |
-| **exit** | **ms** : number | none    | Runs process.exit(0). |
+| Function       | Params        | Returns | Description                             |
+| -------------- | ------------- | ------- | --------------------------------------- |
+| **exit**       | none          | none    | Runs process.exit(0).                   |
+| **done**       | none          | none    | Shows the done screen and then exits.   |
+| **countLines** | text : string | none    | Count the numbers of lines in a string. |

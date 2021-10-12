@@ -179,7 +179,7 @@ class DSLogger {
         this.screens = {
             splash: () => { },
             helpScreen: () => {
-                console.log(this._addColor("Title", this.getString("title")) + "\n");
+                console.log(this.getMessageStyled("Title", this.getString("title")) + "\n");
                 console.log(this.getString("helpText") + "\n");
                 const ii = " ";
                 for (let pk of this.paramValues.keys()) {
@@ -202,9 +202,26 @@ class DSLogger {
                     .show("Run --help for more info.", "Raw");
                 process.exit(0);
             },
-            crash: (message) => { },
-            noInput: (message) => { },
-            done: (message) => { },
+            crash: (message) => {
+                this.newScreen()
+                    .show("The program crashed.", "Raw")
+                    .show(message, "Error");
+            },
+            error: (message) => {
+                this.newScreen()
+                    .show("The program had an error.", "Raw")
+                    .show(message, "Error");
+            },
+            noInput: () => {
+                this
+                    .log("Please run --help to learn how to use this program.", "Info");
+            },
+            done: (message) => {
+                this
+                    .log("The program is done running.", "Info")
+                    .log(message);
+                process.exit(0);
+            },
         };
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
@@ -358,6 +375,18 @@ class DSLogger {
         }
         return undefined;
     }
+    addParam(param) {
+        if (this.params.get(param.flag)) {
+            throw new Error("Duplicate param.");
+        }
+        this.params.set(param.flag, param);
+        this.params.set(param.name, param);
+        this.paramValues.set(param.flag, undefined);
+        if (param.required) {
+            this.requiredParams.set(param.flag, false);
+        }
+        return this;
+    }
     ifParamIsset(param, func, args = {}) {
         let p;
         if ((p = this.params.get(param))) {
@@ -372,9 +401,6 @@ class DSLogger {
         const reg1 = /^-/;
         const reg2 = /^--/;
         return reg1.test(arg) || reg2.test(arg);
-    }
-    promgramInitErrorScreen(message) {
-        this.screens["programInitError"](message);
     }
     initProgramInput() {
         const args = process.argv;
@@ -480,18 +506,6 @@ class DSLogger {
         }
         return this;
     }
-    addParam(param) {
-        if (this.params.get(param.flag)) {
-            throw new Error("Duplicate param.");
-        }
-        this.params.set(param.flag, param);
-        this.params.set(param.name, param);
-        this.paramValues.set(param.flag, undefined);
-        if (param.required) {
-            this.requiredParams.set(param.flag, false);
-        }
-        return this;
-    }
     restartPrompt() {
         this.questions = {};
         this.inputs = new Map();
@@ -553,8 +567,8 @@ class DSLogger {
                     }
                     this.rli.question(question, (input) => {
                         this.rli.history.slice(1);
+                        this.currentRow += this.countLines(question);
                         this.rdl.cursorTo(process.stdout, 0, this.currentRow);
-                        this.currentRow += this._countLines(question);
                         (async () => {
                             asked = true;
                             gotinput = true;
@@ -745,21 +759,34 @@ class DSLogger {
         }
         return output;
     }
-    showAtSleep(message, row, type = "none", sleep = this.defaultSleepTime, col = 0) {
-        this.showAt(message, row, type, col);
-        return this.sleep(sleep);
+    showAtSleep(message, params = {
+        row: this.currentRow,
+        col: 0,
+        type: "none",
+        sleep: this.defaultSleepTime,
+    }) {
+        this.showAt(message, {
+            row: params.row,
+            type: params.type,
+            col: params.col,
+        });
+        return this.sleep(params.sleep);
     }
-    showAt(message, row, type = "none", col = 0) {
-        let output = this._processMessage(message, type);
-        const lines = this._countLines(`${output}`);
-        this.rdl.cursorTo(process.stdout, col, row);
+    showAt(message, params = {
+        row: this.currentRow,
+        col: 0,
+        type: "none",
+    }) {
+        let output = this._processMessage(message, params.type);
+        const lines = this.countLines(`${output}`);
+        this.rdl.cursorTo(process.stdout, params.col, params.row);
         this.currentRow += lines;
         console.log(output);
         return this;
     }
     show(message, type = "none") {
         let output = this._processMessage(message, type);
-        const lines = this._countLines(`${output}`);
+        const lines = this.countLines(`${output}`);
         this.rdl.cursorTo(process.stdout, 0, this.currentRow);
         this.currentRow += lines;
         console.log(output);
@@ -772,7 +799,7 @@ class DSLogger {
     }
     log(message, type = "none") {
         let output = this._processMessage(message, type);
-        const lines = this._countLines(`${output}`);
+        const lines = this.countLines(`${output}`);
         this.currentRow += lines;
         console.log(output);
         return this;
@@ -795,10 +822,10 @@ class DSLogger {
         this.currentRow += lines;
         return this;
     }
-    _addColor(type, message) {
+    getMessageStyled(type, message) {
         return this.stylize(message, this.messageStyles[type]);
     }
-    _countLines(message) {
+    countLines(message) {
         return message.split(/\r\n|\r|\n/).length;
     }
     logSeperator() {
@@ -866,6 +893,15 @@ class DSLogger {
     splashScreen() {
         this.screens["splash"]();
         return this;
+    }
+    promgramInitErrorScreen(message) {
+        this.screens["programInitError"](message);
+    }
+    errorScreen(message) {
+        this.screens["error"](message);
+    }
+    crashScreen(message) {
+        this.screens["crash"](message);
     }
     getString(id) {
         return this.strings[id];
@@ -1219,6 +1255,10 @@ class DSLogger {
     }
     exit() {
         process.exit(0);
+    }
+    done() {
+        this.screens["done"]();
+        this.exit();
     }
 }
 const rdl = require("readline");
