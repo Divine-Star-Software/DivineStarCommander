@@ -840,19 +840,29 @@ class DSLogger {
     return this;
   }
 
-  showAtSleep(message: any, type: MessageTypes, row: number, col: number = 0, sleep: number = this.defaultSleepTime) {
-    this.showAt(message, type, row, col);
-    return this.sleep(sleep);
-  }
-
-  showAt(message: any, type: MessageTypes, row: number, col: number = 0) {
+  _processMessage(message: string, type: MessageTypes | "none" = "none") {
     let output = message;
     if (type != "Raw" && type != "Data") {
-      output = this._addColor(type, message);
+      if (type != "none") {
+        output = this.stylize(message, this.messageStyles[type]);
+      } else {
+        output = this.stylize(message, this.styleDelimiter);
+      }
     }
     if (type == "Data") {
       output = JSON.stringify(message, null, 3);
     }
+    return output
+  }
+
+
+  showAtSleep(message: any, type: MessageTypes | "none" = "none", row: number, col: number = 0, sleep: number = this.defaultSleepTime) {
+    this.showAt(message, type, row, col);
+    return this.sleep(sleep);
+  }
+
+  showAt(message: any, type: MessageTypes | "none" = "none", row: number, col: number = 0) {
+    let output = this._processMessage(message, type);
     const lines = this._countLines(`${output}`);
     this.rdl.cursorTo(process.stdout, col, row);
     this.currentRow += lines;
@@ -860,20 +870,8 @@ class DSLogger {
     return this;
   }
 
-  show(message: any, type : MessageTypes | "none" = "none") {
-    let output = message;
-    if (type != "Raw" && type != "Data") {
-              
-      if(type != "none"){
-      output = this.stylize(message,this.messageStyles[type]);
-      } else {
-      output = this.stylize(message,this.styleDelimiter); 
-      }
-  }
-    
-    if (type == "Data") {
-      output = JSON.stringify(message, null, 3);
-    }
+  show(message: any, type: MessageTypes | "none" = "none") {
+    let output = this._processMessage(message, type);
     const lines = this._countLines(`${output}`);
     this.rdl.cursorTo(process.stdout, 0, this.currentRow);
     this.currentRow += lines;
@@ -882,28 +880,21 @@ class DSLogger {
     return this;
   }
 
-  showSleep(message: any, type: MessageTypes, ms: number = this.defaultSleepTime) {
+  showSleep(message: any, type: MessageTypes | "none" = "none", ms: number = this.defaultSleepTime) {
     this.show(message, type);
     this.sleep(ms);
     return this;
   }
 
-  log(message: any, type: MessageTypes) {
-    let output = message;
-    if (type != "Raw" && type != "Data") {
-      output = this._addColor(type, message);
-    }
-    if (type == "Data") {
-      output = JSON.stringify(message, null, 3);
-    }
+  log(message: any, type: MessageTypes | "none" = "none") {
+    let output = this._processMessage(message, type);
     const lines = this._countLines(`${output}`);
     this.currentRow += lines;
     console.log(output);
     return this;
   }
 
-  logSleep(message: any, type: MessageTypes, ms: number = this.defaultSleepTime) {
-
+  logSleep(message: any, type: MessageTypes | "none" = "none", ms: number = this.defaultSleepTime) {
     this.log(message, type);
     this.sleep(ms);
     return this;
@@ -1034,7 +1025,7 @@ class DSLogger {
     this.styleDelimiter.hidden = true;
     return this;
   }
-  
+
   hidden(text: string) {
 
     this.styleDelimiter.hidden = true;
@@ -1107,13 +1098,11 @@ class DSLogger {
     return this;
   }
 
-
   invert(text: string) {
     this.styleDelimiter.reverse = true;
     const string = this.stylize(text, this.styleDelimiter)
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
-
   }
   get I() {
     this.styleDelimiter.reverse = true;
@@ -1183,7 +1172,7 @@ class DSLogger {
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
-  get W()  {
+  get W() {
     this.styleDelimiter.fg = "White";
     return this;
   }
@@ -1199,7 +1188,7 @@ class DSLogger {
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
-  get BL()  {
+  get BL() {
     this.styleDelimiter.fg = "Black";
     return this;
   }
@@ -1215,7 +1204,7 @@ class DSLogger {
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
-  get C()  {
+  get C() {
     this.styleDelimiter.fg = "Cyan";
     return this;
   }
@@ -1223,14 +1212,14 @@ class DSLogger {
     this.styleDelimiter.fg = "Cyan";
     return this;
   }
-//Magenta text
+  //Magenta text
   magenta(text: string) {
     this.styleDelimiter.fg = "Magenta";
     const string = this.stylize(text, this.styleDelimiter)
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
-  get M()  {
+  get M() {
     this.styleDelimiter.fg = "Magenta";
     return this;
   }
@@ -1246,7 +1235,7 @@ class DSLogger {
     this.styleDelimiter = this._copyDefaultStyle();
     return string;
   }
-  get Y()  {
+  get Y() {
     this.styleDelimiter.fg = "Yellow";
     return this;
   }
@@ -1255,133 +1244,133 @@ class DSLogger {
     return this;
   }
 
-//RED TEXT
-redBG(text: string) {
-  this.styleDelimiter.bg = "Red";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get RBG() {
-  this.styleDelimiter.bg = "Red";
-  return this;
-}
-get REDBG() {
-  this.styleDelimiter.bg = "Red";
-  return this;
-}
+  //RED TEXT
+  redBG(text: string) {
+    this.styleDelimiter.bg = "Red";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get RBG() {
+    this.styleDelimiter.bg = "Red";
+    return this;
+  }
+  get REDBG() {
+    this.styleDelimiter.bg = "Red";
+    return this;
+  }
 
-//Green Text
-greenBG(text: string) {
-  this.styleDelimiter.bg = "Green";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get GBG() {
-  this.styleDelimiter.bg = "Green";
-  return this;
-}
-get GREENBG() {
-  this.styleDelimiter.bg = "Green";
-  return this;
-}
+  //Green Text
+  greenBG(text: string) {
+    this.styleDelimiter.bg = "Green";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get GBG() {
+    this.styleDelimiter.bg = "Green";
+    return this;
+  }
+  get GREENBG() {
+    this.styleDelimiter.bg = "Green";
+    return this;
+  }
 
-//Blue Text
-blueBG(text: string) {
-  this.styleDelimiter.bg = "Blue";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get BBG() {
-  this.styleDelimiter.bg = "Blue";
-  return this;
-}
-get BLUEBG() {
-  this.styleDelimiter.bg = "Blue";
-  return this;
-}
+  //Blue Text
+  blueBG(text: string) {
+    this.styleDelimiter.bg = "Blue";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get BBG() {
+    this.styleDelimiter.bg = "Blue";
+    return this;
+  }
+  get BLUEBG() {
+    this.styleDelimiter.bg = "Blue";
+    return this;
+  }
 
-//White Text
+  //White Text
 
-whiteBG(text: string) {
-  this.styleDelimiter.bg = "White";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get WBG()  {
-  this.styleDelimiter.bg = "White";
-  return this;
-}
-get WHITEBG() {
-  this.styleDelimiter.bg = "White";
-  return this;
-}
+  whiteBG(text: string) {
+    this.styleDelimiter.bg = "White";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get WBG() {
+    this.styleDelimiter.bg = "White";
+    return this;
+  }
+  get WHITEBG() {
+    this.styleDelimiter.bg = "White";
+    return this;
+  }
 
 
-blackBG(text: string) {
-  this.styleDelimiter.bg = "Black";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get BLBG()  {
-  this.styleDelimiter.bg = "Black";
-  return this;
-}
-get BLACKBG() {
-  this.styleDelimiter.bg = "Black";
-  return this;
-}
+  blackBG(text: string) {
+    this.styleDelimiter.bg = "Black";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get BLBG() {
+    this.styleDelimiter.bg = "Black";
+    return this;
+  }
+  get BLACKBG() {
+    this.styleDelimiter.bg = "Black";
+    return this;
+  }
 
-//Cyan Text
-cyanBG(text: string) {
-  this.styleDelimiter.bg = "Cyan";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get CBG()  {
-  this.styleDelimiter.bg = "Cyan";
-  return this;
-}
-get CYANBG() {
-  this.styleDelimiter.bg = "Cyan";
-  return this;
-}
-//Magenta text
-magentaBG(text: string) {
-  this.styleDelimiter.bg = "Magenta";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get MBG()  {
-  this.styleDelimiter.bg = "Magenta";
-  return this;
-}
-get MAGENTABG() {
-  this.styleDelimiter.bg = "Magenta";
-  return this;
-}
+  //Cyan Text
+  cyanBG(text: string) {
+    this.styleDelimiter.bg = "Cyan";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get CBG() {
+    this.styleDelimiter.bg = "Cyan";
+    return this;
+  }
+  get CYANBG() {
+    this.styleDelimiter.bg = "Cyan";
+    return this;
+  }
+  //Magenta text
+  magentaBG(text: string) {
+    this.styleDelimiter.bg = "Magenta";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get MBG() {
+    this.styleDelimiter.bg = "Magenta";
+    return this;
+  }
+  get MAGENTABG() {
+    this.styleDelimiter.bg = "Magenta";
+    return this;
+  }
 
-//Yellow Text
-yellowBG(text: string) {
-  this.styleDelimiter.bg = "Yellow";
-  const string = this.stylize(text, this.styleDelimiter)
-  this.styleDelimiter = this._copyDefaultStyle();
-  return string;
-}
-get YBG()  {
-  this.styleDelimiter.bg = "Yellow";
-  return this;
-}
-get YELLOWBG() {
-  this.styleDelimiter.bg = "Yellow";
-  return this;
-}
+  //Yellow Text
+  yellowBG(text: string) {
+    this.styleDelimiter.bg = "Yellow";
+    const string = this.stylize(text, this.styleDelimiter)
+    this.styleDelimiter = this._copyDefaultStyle();
+    return string;
+  }
+  get YBG() {
+    this.styleDelimiter.bg = "Yellow";
+    return this;
+  }
+  get YELLOWBG() {
+    this.styleDelimiter.bg = "Yellow";
+    return this;
+  }
 
 
 

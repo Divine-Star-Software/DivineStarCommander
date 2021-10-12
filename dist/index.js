@@ -723,25 +723,7 @@ class DSLogger {
         this.currentRow = 0;
         return this;
     }
-    showAtSleep(message, type, row, col = 0, sleep = this.defaultSleepTime) {
-        this.showAt(message, type, row, col);
-        return this.sleep(sleep);
-    }
-    showAt(message, type, row, col = 0) {
-        let output = message;
-        if (type != "Raw" && type != "Data") {
-            output = this._addColor(type, message);
-        }
-        if (type == "Data") {
-            output = JSON.stringify(message, null, 3);
-        }
-        const lines = this._countLines(`${output}`);
-        this.rdl.cursorTo(process.stdout, col, row);
-        this.currentRow += lines;
-        console.log(output);
-        return this;
-    }
-    show(message, type = "none") {
+    _processMessage(message, type = "none") {
         let output = message;
         if (type != "Raw" && type != "Data") {
             if (type != "none") {
@@ -754,31 +736,41 @@ class DSLogger {
         if (type == "Data") {
             output = JSON.stringify(message, null, 3);
         }
+        return output;
+    }
+    showAtSleep(message, type = "none", row, col = 0, sleep = this.defaultSleepTime) {
+        this.showAt(message, type, row, col);
+        return this.sleep(sleep);
+    }
+    showAt(message, type = "none", row, col = 0) {
+        let output = this._processMessage(message, type);
+        const lines = this._countLines(`${output}`);
+        this.rdl.cursorTo(process.stdout, col, row);
+        this.currentRow += lines;
+        console.log(output);
+        return this;
+    }
+    show(message, type = "none") {
+        let output = this._processMessage(message, type);
         const lines = this._countLines(`${output}`);
         this.rdl.cursorTo(process.stdout, 0, this.currentRow);
         this.currentRow += lines;
         console.log(output);
         return this;
     }
-    showSleep(message, type, ms = this.defaultSleepTime) {
+    showSleep(message, type = "none", ms = this.defaultSleepTime) {
         this.show(message, type);
         this.sleep(ms);
         return this;
     }
-    log(message, type) {
-        let output = message;
-        if (type != "Raw" && type != "Data") {
-            output = this._addColor(type, message);
-        }
-        if (type == "Data") {
-            output = JSON.stringify(message, null, 3);
-        }
+    log(message, type = "none") {
+        let output = this._processMessage(message, type);
         const lines = this._countLines(`${output}`);
         this.currentRow += lines;
         console.log(output);
         return this;
     }
-    logSleep(message, type, ms = this.defaultSleepTime) {
+    logSleep(message, type = "none", ms = this.defaultSleepTime) {
         this.log(message, type);
         this.sleep(ms);
         return this;
