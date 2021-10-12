@@ -742,13 +742,8 @@ class DSLogger {
   }
 
 
-  newServiceBar(name: string, serviceBarStyle: ServiceBarStyle) {
-    let s;
-    if (serviceBarStyle) {
-      s = serviceBarStyle
-    } else {
-      s = this.defaultServiceBarStyle;
-    }
+  newServiceBar(name: string, serviceBarStyle : ServiceBarStyle = this.defaultServiceBarStyle) {
+    const s = serviceBarStyle;
     const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval,
       this.stylize(s.base, s.baseStyle), this.stylize(s.loadedOne, s.loadedOneStyle),
       this.stylize(s.loadedTwo, s.loadedTwoStyle), this.stylize(s.cap, s.capStyle));

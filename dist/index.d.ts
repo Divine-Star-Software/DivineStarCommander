@@ -103,7 +103,7 @@ declare class DSLogger {
     getRow(): number;
     setRow(num: number): this;
     addRow(): this;
-    newServiceBar(name: string, serviceBarStyle: ServiceBarStyle): this;
+    newServiceBar(name: string, serviceBarStyle?: ServiceBarStyle): this;
     reInitServiceBar(name: string): this;
     destroyServiceBar(name: string): this;
     newProgressBar(name: string, progressBarStyle?: ProgressBarStyle): this;
