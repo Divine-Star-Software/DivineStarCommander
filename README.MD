@@ -82,17 +82,18 @@ const dsLog = require("../../dist/index.js");
       dsLog.showSleep(value, "Info");
     })
     .newScreen()
-    .show(dsLog.getParam("a"), "Raw")
-    .show(dsLog.getParam("b"), "Raw")
-    .show(dsLog.getParam("c"), "Raw")
+    .RAW
+    .show(dsLog.getParam("a"))
+    .show(dsLog.getParam("b"))
+    .show(dsLog.getParam("c"))
     .sleep(1000)
     //Start a new screen
     .splashScreen()
-    .showSleep("BLINK", "Blink")
-    .showSleep("Some Info", "Info")
-    .showSleep("Everything is fine", "Good")
-    .showSleep("Everything is not fine.", "Error")
-    .showSleep("Something may be wrong", "Warning")
+    .BLINK.showSleep("BLINK")
+    .INFO.showSleep("Some Info.")
+    .GOOD.showSleep("Everything is fine.")
+    .ERROR.showSleep("Everything is not fine.")
+    .WARNING.showSleep("Something may be wrong.").CLEAR
     .newScreen()
     //Add a progress and service bar
     .newProgressBar("test");
@@ -209,7 +210,7 @@ Functions related to logging to the console.
 | **logSeperator**            | none                                                                                                                              | self    | Logs the program defined seperator at the current row with the given info style. |
 | **displayScreen**           | (**screen**:Screens,**args**:any)                                                                                                 | self    | Logs the program defined screen at the current                                   |
 | **splashScreen**            | none                                                                                                                              | self    | Logs the program defined splashscreen at the current row.                        |
-| **errorScreen**             | **message** : string                                                                                                              | self    | Logs the program defined error screen at the current row.     
+| **errorScreen**             | **message** : string                                                                                                              | self    | Logs the program defined error screen at the current row.                        |
 | **crashScreen**             | **message** : string                                                                                                              | self    | Logs the program defined crash screen at the current row.                        |
 | **promgramInitErrorScreen** | **message** : string                                                                                                              | self    | Logs the program defined program init error screen at the current row.           |
 
@@ -344,6 +345,12 @@ dsLog
 | Function       | Alias         | Params                                   | Returns | Description                                                               |
 | -------------- | ------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------- |
 | **clear**      | CLEAR CL      | none                                     | self    | Returns a string stylized to be bright.                                   |
+| **info**       | INFO          | **text** : string                        | string   | Returns a string stylized to be the "info" message type.                                   |
+| **good**       | GOOD          | **text** : string                        | string  | Returns a string stylized to be the "good" message type.                                      |
+| **error**      | ERROR         | **text** : string                        | string  | Returns a string stylized to be the "error" message type|
+| **warning**    | WARNING       | **text** : string                        | string  | Returns a string stylized to be the "warning" message type                         |
+| **title**      | TITLE         | **text** : string                        | string  | Returns a string stylized to be the "title" message type.                                   |
+| **raw**        | RAW           | **text** : string                        | string  | Returns a string stylized to be the "raw" message type.                                    |
 | **bright**     | BRIGHT BR     | **text** : string                        | string  | Returns a string stylized to be bright.                                   |
 | **dim**        | DIM D         | **text** : string                        | string  | Returns a string stylized to be dim.                                      |
 | **invert**     | INVERT I      | **text** : string                        | string  | Returns a string stylized to invert the background and foreground colors. |
@@ -411,20 +418,20 @@ Built in screens.
 
 > **Functions**
 
-| Function                   | Params                                                                                | Returns | Description                                                                                                                                 |
-| -------------------------- | ------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **defineValidator**        | type : QuestionTypes, **func** : (**input**:string)=>boolean, **customName** : string | self    | Define the function to be called to validate input.                                                                                         |
-| **defineSleepTime**        | **sleep** : number,                                                                   | self    | Define the default sleep time in ms.                                                                                                        |
-| **defineScreen**           | **screen** : Screens, **func** : Function                                             | self    | Define the function to be called for a screen.                                                                                              |
-| **defineSplashScreen**     | **func** : Function                                                                   | self    | Define the function to be called for the splash screen. This function is just to make it easy cause it is the most common screen to adjust. |
-| **defineProgramTitle**     | **title** : string, **styleObj**: StyleObject                                         | self    | Defines the programs title and optionally the style                                                                                         |
-| **defineHelpText**         | **text** : string                                                                     | self    | Defines the programs help text.                                                                                                             |
-| **defineQuestionStyle**    | **type**: QuestionDisplayTypes, **styleObj**: StyleObject                             | self    | Use a style object to define a questions style.                                                                                             |
-| **defineMessageStyle**     | **type**: MessageTypes, **styleObj**: StyleObject                                     | self    | Set a style object to define a message style.                                                                                               |
-| **defineProgressBarStyle** | **style**: ProgressBarStyle                                                           | self    | Define the default progress bar style.                                                                                                      |
-| **defineServiceBarStyle**  | **style**: ServiceBarStyle                                                            | self    | Define the default service bar style.                                                                                                       |
-| **getString**              | **name** : String                                                                     | self    | Get a built in string.                                                                                                                      |
-| **setString**              | **name** : String, **string** : string                                                | self    | Set a built in string.                                                                                                                      |
+| Function                   | Params                                                                                          | Returns | Description                                                                                                                                 |
+| -------------------------- | ----------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **defineValidator**        | type : QuestionTypes, **func** : (**input**:string)=Promise\<boolean\>, **customName** : string | self    | Define the function to be called to validate input.                                                                                         |
+| **defineSleepTime**        | **sleep** : number,                                                                             | self    | Define the default sleep time in ms.                                                                                                        |
+| **defineScreen**           | **screen** : Screens, **func** : Function                                                       | self    | Define the function to be called for a screen.                                                                                              |
+| **defineSplashScreen**     | **func** : Function                                                                             | self    | Define the function to be called for the splash screen. This function is just to make it easy cause it is the most common screen to adjust. |
+| **defineProgramTitle**     | **title** : string, **styleObj**: StyleObject                                                   | self    | Defines the programs title and optionally the style                                                                                         |
+| **defineHelpText**         | **text** : string                                                                               | self    | Defines the programs help text.                                                                                                             |
+| **defineQuestionStyle**    | **type**: QuestionDisplayTypes, **styleObj**: StyleObject                                       | self    | Use a style object to define a questions style.                                                                                             |
+| **defineMessageStyle**     | **type**: MessageTypes, **styleObj**: StyleObject                                               | self    | Set a style object to define a message style.                                                                                               |
+| **defineProgressBarStyle** | **style**: ProgressBarStyle                                                                     | self    | Define the default progress bar style.                                                                                                      |
+| **defineServiceBarStyle**  | **style**: ServiceBarStyle                                                                      | self    | Define the default service bar style.                                                                                                       |
+| **getString**              | **name** : String                                                                               | self    | Get a built in string.                                                                                                                      |
+| **setString**              | **name** : String, **string** : string                                                          | self    | Set a built in string.                                                                                                                      |
 
 ### Row Functions
 
@@ -450,8 +457,9 @@ Functions used to make the program sleep.
 
 Other usefull functions.
 
-| Function       | Params        | Returns | Description                             |
-| -------------- | ------------- | ------- | --------------------------------------- |
-| **exit**       | none          | none    | Runs process.exit(0).                   |
-| **done**       | none          | none    | Shows the done screen and then exits.   |
-| **countLines** | text : string | none    | Count the numbers of lines in a string. |
+| Function       | Params                                   | Returns | Description                             |
+| -------------- | ---------------------------------------- | ------- | --------------------------------------- |
+| **do**         | **func** : (arg:any)=>any,**arg** ?: any | none    | Run a function in the chain.            |
+| **exit**       | none                                     | none    | Runs process.exit(0).                   |
+| **done**       | none                                     | none    | Shows the done screen and then exits.   |
+| **countLines** | text : string                            | none    | Count the numbers of lines in a string. |

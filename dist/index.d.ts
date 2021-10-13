@@ -151,7 +151,7 @@ declare class DSLogger {
     setString(id: Strings, string: string): this;
     _copyDefaultStyle(): StyleObject;
     _copyMessageStyle(type: MessageTypes): StyleObject;
-    info(text?: string): string | this;
+    info(text?: string): this | string;
     get INFO(): this;
     good(text?: string): string | this;
     get GOOD(): this;

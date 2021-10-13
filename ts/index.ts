@@ -1316,6 +1316,7 @@ class DSLogger {
    */
   crashScreen(message: string) {
     this.screens["crash"](message);
+    
   }
   /**# Get String
    * ---
@@ -1346,7 +1347,7 @@ class DSLogger {
    * Styles the text to be the "info" message style.
    * @returns string | this
    */
-  info(text?: string): string | this {
+  info(text?: string): this  | string {
     this.styleDelimiter = this._copyMessageStyle("Info");
     if (!text) return this;
     const string = this.stylize(text, this.styleDelimiter);
