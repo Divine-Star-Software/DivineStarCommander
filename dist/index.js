@@ -146,29 +146,29 @@ class DSLogger {
         this.progressBars = {};
         this.serviceBars = {};
         this.validators = {
-            number: (input) => {
+            number: async (input) => {
                 const reg = /^\d+$/;
                 return reg.test(input);
             },
-            digit: (input) => {
+            digit: async (input) => {
                 const reg = /^[0-9]$/;
                 return reg.test(input);
             },
-            string: (input) => {
+            string: async (input) => {
                 const reg = /^[a-zA-Z]+$/;
                 return reg.test(input);
             },
-            email: (input) => {
+            email: async (input) => {
                 const reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 return reg.test(input);
             },
-            password: (input) => {
+            password: async (input) => {
                 return true;
             },
-            stringall: (input) => {
+            stringall: async (input) => {
                 return true;
             },
-            custom: (input, type) => {
+            custom: async (input, type) => {
                 if (!type) {
                     return false;
                 }
@@ -213,13 +213,10 @@ class DSLogger {
                     .show(message, "Error");
             },
             noInput: () => {
-                this
-                    .log("Please run --help to learn how to use this program.", "Info");
+                this.log("Please run --help to learn how to use this program.", "Info");
             },
             done: (message) => {
-                this
-                    .log("The program is done running.", "Info")
-                    .log(message);
+                this.log("The program is done running.", "Info").log(message);
                 process.exit(0);
             },
         };
@@ -574,10 +571,10 @@ class DSLogger {
                             gotinput = true;
                             let valid = false;
                             if (varType != "custom") {
-                                valid = this.validators[varType](input);
+                                valid = await this.validators[varType](input);
                             }
                             else {
-                                valid = this.validators[varType](input, custonName);
+                                valid = await this.validators[varType](input, custonName);
                             }
                             if (!valid) {
                                 passed = false;
@@ -913,6 +910,81 @@ class DSLogger {
     _copyDefaultStyle() {
         return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
     }
+    _copyMessageStyle(type) {
+        return JSON.parse(JSON.stringify(this.messageStyles[type]));
+    }
+    info(text) {
+        this.styleDelimiter = this._copyMessageStyle("Info");
+        if (!text)
+            return this;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get INFO() {
+        this.styleDelimiter = this._copyMessageStyle("Info");
+        return this;
+    }
+    good(text) {
+        this.styleDelimiter = this._copyMessageStyle("Good");
+        if (!text)
+            return this;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get GOOD() {
+        this.styleDelimiter = this._copyMessageStyle("Good");
+        return this;
+    }
+    warning(text) {
+        this.styleDelimiter = this._copyMessageStyle("Warning");
+        if (!text)
+            return this;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get WARNING() {
+        this.styleDelimiter = this._copyMessageStyle("Warning");
+        return this;
+    }
+    raw(text) {
+        this.styleDelimiter = this._copyMessageStyle("Raw");
+        if (!text)
+            return this;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get RAW() {
+        this.styleDelimiter = this._copyMessageStyle("Raw");
+        return this;
+    }
+    title(text) {
+        this.styleDelimiter = this._copyMessageStyle("Title");
+        if (!text)
+            return this;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get TITLE() {
+        this.styleDelimiter = this._copyMessageStyle("Title");
+        return this;
+    }
+    error(text) {
+        this.styleDelimiter = this._copyMessageStyle("Error");
+        if (!text)
+            return this;
+        const string = this.stylize(text, this.styleDelimiter);
+        this.styleDelimiter = this._copyDefaultStyle();
+        return string;
+    }
+    get ERROR() {
+        this.styleDelimiter = this._copyMessageStyle("Error");
+        return this;
+    }
     get NS() {
         this.newScreen();
         return this;
@@ -947,6 +1019,8 @@ class DSLogger {
     }
     blink(text) {
         this.styleDelimiter.blink = true;
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -961,6 +1035,8 @@ class DSLogger {
     }
     hidden(text) {
         this.styleDelimiter.hidden = true;
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -975,6 +1051,8 @@ class DSLogger {
     }
     underscore(text) {
         this.styleDelimiter.underscore = true;
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -989,6 +1067,8 @@ class DSLogger {
     }
     dim(text) {
         this.styleDelimiter.dim = true;
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1003,6 +1083,8 @@ class DSLogger {
     }
     bright(text) {
         this.styleDelimiter.bright = true;
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1017,6 +1099,8 @@ class DSLogger {
     }
     invert(text) {
         this.styleDelimiter.reverse = true;
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1031,6 +1115,8 @@ class DSLogger {
     }
     red(text) {
         this.styleDelimiter.fg = "Red";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1045,6 +1131,8 @@ class DSLogger {
     }
     green(text) {
         this.styleDelimiter.fg = "Green";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1059,6 +1147,8 @@ class DSLogger {
     }
     blue(text) {
         this.styleDelimiter.fg = "Blue";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1073,6 +1163,8 @@ class DSLogger {
     }
     white(text) {
         this.styleDelimiter.fg = "White";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1087,6 +1179,8 @@ class DSLogger {
     }
     black(text) {
         this.styleDelimiter.fg = "Black";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1101,6 +1195,8 @@ class DSLogger {
     }
     cyan(text) {
         this.styleDelimiter.fg = "Cyan";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1115,6 +1211,8 @@ class DSLogger {
     }
     magenta(text) {
         this.styleDelimiter.fg = "Magenta";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1129,6 +1227,8 @@ class DSLogger {
     }
     yellow(text) {
         this.styleDelimiter.fg = "Yellow";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1143,6 +1243,8 @@ class DSLogger {
     }
     redBG(text) {
         this.styleDelimiter.bg = "Red";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1157,6 +1259,8 @@ class DSLogger {
     }
     greenBG(text) {
         this.styleDelimiter.bg = "Green";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1171,6 +1275,8 @@ class DSLogger {
     }
     blueBG(text) {
         this.styleDelimiter.bg = "Blue";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1185,6 +1291,8 @@ class DSLogger {
     }
     whiteBG(text) {
         this.styleDelimiter.bg = "White";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1199,6 +1307,8 @@ class DSLogger {
     }
     blackBG(text) {
         this.styleDelimiter.bg = "Black";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1213,6 +1323,8 @@ class DSLogger {
     }
     cyanBG(text) {
         this.styleDelimiter.bg = "Cyan";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1227,6 +1339,8 @@ class DSLogger {
     }
     magentaBG(text) {
         this.styleDelimiter.bg = "Magenta";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1241,6 +1355,8 @@ class DSLogger {
     }
     yellowBG(text) {
         this.styleDelimiter.bg = "Yellow";
+        if (!text)
+            return this;
         const string = this.stylize(text, this.styleDelimiter);
         this.styleDelimiter = this._copyDefaultStyle();
         return string;
@@ -1251,6 +1367,10 @@ class DSLogger {
     }
     get YELLOWBG() {
         this.styleDelimiter.bg = "Yellow";
+        return this;
+    }
+    do(func, arg) {
+        func(arg);
         return this;
     }
     exit() {
