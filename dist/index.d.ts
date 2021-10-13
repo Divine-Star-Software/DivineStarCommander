@@ -24,7 +24,7 @@ declare type ProgramParams = {
     valueNeeded?: boolean;
 };
 declare type ProgramParamsDataTypes = number | boolean | string | string[] | number[] | undefined;
-declare type Strings = "title" | "helpText" | "star" | "seperator" | "questionStart" | "questionDelimiter" | "reAskStart" | "reAskText" | "reAskDelimiter";
+declare type Strings = "title" | "helpText" | "star" | "separator" | "questionStart" | "questionDelimiter" | "reAskStart" | "reAskText" | "reAskDelimiter";
 declare type StoredQuestions = {
     varName: string;
     varType: QuestionsTypes;
@@ -130,7 +130,7 @@ declare class DSLogger {
     showTable(data: any, collumns?: string[]): this;
     getMessageStyled(type: MessageTypes, message: any): string;
     countLines(message: string): number;
-    logSeperator(): this;
+    logSeparator(): this;
     logProgramTitle(): this;
     defineSleepTime(sleep: number): this;
     defineValidator(type: QuestionsTypes, func: (input: any) => Promise<boolean>, name?: string): this;

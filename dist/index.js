@@ -17,7 +17,7 @@ class DSLogger {
         [1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
-            seperator: "{-----------------------------}",
+            separator: "{-----------------------------}",
             questionStart: "-->",
             questionDelimiter: ":",
             reAskStart: "X->",
@@ -825,8 +825,8 @@ class DSLogger {
     countLines(message) {
         return message.split(/\r\n|\r|\n/).length;
     }
-    logSeperator() {
-        this.show(this.getString("seperator"), "Info");
+    logSeparator() {
+        this.show(this.getString("separator"), "Info");
         return this;
     }
     logProgramTitle() {

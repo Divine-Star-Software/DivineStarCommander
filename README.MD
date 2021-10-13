@@ -1,13 +1,13 @@
 <h1 align="center">
  &#9733; Divine Star Logger &#9733;
 </h1>
-
+ 
 <p align="center">
 <img src="https://divinestarapparel.com/wp-content/uploads/2021/02/logo-small.png"/>
 </p>
-
+ 
 ---
-
+ 
 ![GitHub top language](https://img.shields.io/github/languages/top/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
 ![GitHub repo size](https://img.shields.io/github/repo-size/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
 ![GitHub latest release](https://img.shields.io/github/v/release/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
@@ -17,23 +17,23 @@
 ![GitHub followers](https://img.shields.io/github/followers/lucasdamianjohnson?color=purple&style=plastic)
 ![GitHub stars](https://img.shields.io/github/stars/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
 ![GitHub watchers](https://img.shields.io/github/watchers/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
-
+ 
 ## What Is It?
-
-A tool for making command lines tools with TypeScript or Javascript using Node.Js. It handles command line args, user input, help screen,
+ 
+A tool for making command line tools with TypeScript or Javascript using Node.Js. It handles command line args, user input, help screen,
 colored messages, progress bars, and so on.
-
+ 
 ## Why?
-
+ 
 To make an easy chainable way to create a CLI fast. This provides a complete package for basic command line tools.
-
+ 
 ### Example
-
+ 
 ```typescript
 const dsLog = require("../../dist/index.js");
 (async () => {
   dsLog
-    //Defien the program
+    //Define the program
     .defineSplashScreen(() => {
       dsLog
         .newScreen()
@@ -120,11 +120,11 @@ const dsLog = require("../../dist/index.js");
   (await dsLog.startPrompt()).showSleep(dsLog.getInput("comment"), "Info");
 })();
 ```
-
+ 
 # Documentation
-
-## Table Of Conents
-
+ 
+## Table Of Contents
+ 
 - [Functions And Types](#functions-and-types)
   - [Program Params](#program-params)
   - [Show and Log Functions](#show-and-log-functions)
@@ -136,52 +136,52 @@ const dsLog = require("../../dist/index.js");
   - [Row Functions](#row-functions)
   - [Sleep Functions](#row-functions)
   - [Other Functions](#other-functions)
-
+ 
 If you use this as a node module it will auto require "readline" which is built into node.js.
-
+ 
 If you need to access readline later you can grab it from the dslog object.
-
+ 
 ## Functions And Types
-
+ 
 ### Program Params
-
+ 
 Functions related to getting command line input for the program.
-
+ 
 > **Param Types**
-
+ 
 | Type          | Description                                                 |
 | ------------- | ----------------------------------------------------------- |
 | **string**    | Just chars.                                                 |
 | **stringall** | A string of chars and numbers.                              |
 | **string**    | Just numbers.                                               |
 | **boolean**   | Can be left blank for true or user can input "true"/"false" |
-
+ 
 > **Param Object**
-
+ 
 | Type            | Description                                                                                                                                                                                                                  |
 | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **flag**        | Flag for cli to look for. Must be a single char. It look for your flag with "-" appended.                                                                                                                                    |
-| **name**        | Name for cli to look for. Must be a single char. It look for your flag with "--" appended.                                                                                                                                   |
+| **flag**        | Flag for cli to look for. Must be a single char. It looks for your flag with "-" appended.                                                                                                                                    |
+| **name**        | Name for cli to look for. Must be a single char. It looks for your flag with "--" appended.                                                                                                                                   |
 | **desc**        | Description used for help screen.                                                                                                                                                                                            |
 | **type**        | The type of param. Must be ParamType.                                                                                                                                                                                        |
-| **required**    | Default is false. If set to true the prgram will show an error if this param is not set.                                                                                                                                     |
+| **required**    | Default is false. If set to true the program will show an error if this param is not set.                                                                                                                                     |
 | **valueNeeded** | Default is false. If set to true the user must enter a value for a flag if used. Otherwise the param is set to a blank string for numbers. For boolean it is auto set to true. And finally for numbers it will default to 0. |
-
+ 
 > **Functions**
-
+ 
 | Function             | Params                                                                          | Returns | Description                                                                                             |
 | -------------------- | ------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
 | **addParam**         | param : ParamObject                                                             | self    | Adds a param to the program.                                                                            |
-| **getParam**         | getParam : string                                                               | self    | Get a users input for a param.                                                                          |
-| **ifParamIsset**     | **param** : string, **func** : (**value**:any,**args**:any)=>{} ,**args** : any | self    | If a param is set run a function that will be passed the value and any args you give as the arg object. |
-| **initProgramInput** | none                                                                            | self    | Parse the users input. Must be called in order for the param functions to work.                         |
-
+| **getParam**         | getParam : string                                                               | self    | Get a user's input for a param.                                                                          |
+| **ifParamIsset**     | **param** : string, **func** : (**value**:any,**args**:any)=>{} ,**args** : any | self    | If a param is set, run a function that will be passed the value and any args you give as the arg object. |
+| **initProgramInput** | none                                                                            | self    | Parse the user's input. Must be called in order for the param functions to work.                         |
+ 
 ### Show and Log Functions
-
+ 
 Functions related to logging to the console.
-
+ 
 > **Message Types**
-
+ 
 | Type        | Description                                                                          |
 | ----------- | ------------------------------------------------------------------------------------ |
 | **Info**    | Message with blue background and white text.                                         |
@@ -190,11 +190,11 @@ Functions related to logging to the console.
 | **Error**   | Message with red background and white text.                                          |
 | **Title**   | Message with purple background.                                                      |
 | **Raw**     | Message with no styling.                                                             |
-| **Data**    | Message sent as JSON object. Will be convereted to string and shown without styling. |
+| **Data**    | Message sent as JSON object. Will be converted to string and shown without styling. |
 | **Blink**   | Message with blink style.                                                            |
-
+ 
 > **Functions**
-
+ 
 | Function                    | Params                                                                                                                            | Returns | Description                                                                      |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
 | **newScreen**               | none                                                                                                                              | self    | Clears the screen and resets the console log row.                                |
@@ -207,19 +207,19 @@ Functions related to logging to the console.
 | **showTable**               | **data** : object, **collumens** ?: string[]                                                                                      | self    | Moves cursor to current row and runs console.table.                              |
 | **logTable**                | **data** : string, **collumens** ?: string[]                                                                                      | self    | Runs console.table.                                                              |
 | **logProgramTitle**         | none                                                                                                                              | self    | Logs the program defined title at the current row with the given title style.    |
-| **logSeperator**            | none                                                                                                                              | self    | Logs the program defined seperator at the current row with the given info style. |
+| **logSeparator**            | none                                                                                                                              | self    | Logs the program defined separator at the current row with the given info style. |
 | **displayScreen**           | (**screen**:Screens,**args**:any)                                                                                                 | self    | Logs the program defined screen at the current                                   |
 | **splashScreen**            | none                                                                                                                              | self    | Logs the program defined splashscreen at the current row.                        |
 | **errorScreen**             | **message** : string                                                                                                              | self    | Logs the program defined error screen at the current row.                        |
 | **crashScreen**             | **message** : string                                                                                                              | self    | Logs the program defined crash screen at the current row.                        |
 | **promgramInitErrorScreen** | **message** : string                                                                                                              | self    | Logs the program defined program init error screen at the current row.           |
-
+ 
 ### User Input Functions
-
-Functions related to getting the users input.
-
+ 
+Functions related to getting the user's input.
+ 
 > **Question Types**
-
+ 
 | Type          | Description                                                  |
 | ------------- | ------------------------------------------------------------ |
 | **string**    | Just chars.                                                  |
@@ -229,9 +229,9 @@ Functions related to getting the users input.
 | **email**     | An email.                                                    |
 | **password**  | String of chars and numbers. Output will be hidden.          |
 | **custom**    | Allow for a custom input type. Must define validation later. |
-
+ 
 > **Functions**
-
+ 
 | Function          | Params                                                                                                                    | Returns                       | Description                                                                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | **startPrompt**   | none                                                                                                                      | Promise of self               | Starts the user input prompt.                                                                                                         |
@@ -239,35 +239,35 @@ Functions related to getting the users input.
 | **ask**           | **question** : string, **varName** : string ,**varType** : QuestionTypes,**customName** ?: string                         | self                          | Add a question to the prompt. If using a custom question type you must supply the name of the custom type.                            |
 | **fail**          | **reAsk** : boolean, **reAskMessage** : string,**attempts** ?: number or "all",**onFail** ?: Function,**arg** ?: any = {} | self                          | And a fail case to the last asked question. If reAsk is set to false it will run the function supplied and pass it the args supplied. |
 | **getInput**      | none                                                                                                                      | string or number or undefined | Get input from question                                                                                                               |
-
+ 
 ### Progress Bar
-
+ 
 Functions and types related to making a progress bar.
-
-> **Progres Bar Style**
-
+ 
+> **Progress Bar Style**
+ 
 | Type            | Description                                           |
 | --------------- | ----------------------------------------------------- |
 | **base**        | The base char. Default is "-".                        |
 | **baseStyle**   | A style object for the base char.                     |
 | **loaded**      | A loaded part for the bar. Default is "=".            |
-| **loadedStyle** | A style objet for the loaded char.                    |
+| **loadedStyle** | A style object for the loaded char.                    |
 | **size**        | The size of the progress bar.                         |
 | **interval**    | The interval at which the bar fills. Default is 20ms. |
-
+ 
 > **Functions**
-
+ 
 | Function                 | Params                                          | Returns         | Description                                                                  |
 | ------------------------ | ----------------------------------------------- | --------------- | ---------------------------------------------------------------------------- |
 | **newProgressBar**       | **name** : string,**style** ?: ProgressBarStyle | self            | Creates a new progress bar at the current row with the given name as its id. |
 | **incrementProgressBar** | **name**: string, **amount**: number            | Promise of self | Increase the given progress bars progress.                                   |
-
+ 
 ### Service Bar
-
-Functions and types related to createing a service bar.
-
+ 
+Functions and types related to creating a service bar.
+ 
 > **Progres Bar Style**
-
+ 
 | Type               | Description                                        |
 | ------------------ | -------------------------------------------------- |
 | **base**           | The base char for the service bar. Default is "X". |
@@ -280,21 +280,21 @@ Functions and types related to createing a service bar.
 | **capStyle**       | Style for the cap char.                            |
 | **size**           | Size of the service bar.                           |
 | **interval**       | Interval at which the bar loads. Default is 80ms.  |
-
+ 
 > **Functions**
-
+ 
 | Function              | Params                                         | Returns | Description                                      |
 | --------------------- | ---------------------------------------------- | ------- | ------------------------------------------------ |
 | **newServiceBar**     | **name** : string,**style** ?: ServiceBarStyle | self    | Makes a continuous loading bar at the given row. |
 | **reInitServiceBar**  | **name** : string                              | self    | Resets a service bar.                            |
 | **destroyServiceBar** | **name** : string                              | self    | Destroys a service bar.                          |
-
+ 
 ### Stylize Functions
-
+ 
 Functions and types related to stylizing text.
-
+ 
 > **Console Colors**
-
+ 
 | Color Name  |
 | ----------- |
 | **Black**   |
@@ -305,9 +305,9 @@ Functions and types related to stylizing text.
 | **Magenta** |
 | **Cyan**    |
 | **White**   |
-
+ 
 > **Style Object**
-
+ 
 All properties are optional.
 | Name | Description |
 | ----------- | ------------------------------------------------------------------------------------ |
@@ -319,29 +319,33 @@ All properties are optional.
 | **blink** | Makes the text blink |
 | **reverse** | Inverts the foreground and background colors. |
 | **hidden** | Makes the text hidden. |
-
+ 
 > **Style Functions**
-
+ 
 | Function    | Params                                        | Returns | Description                                      |
 | ----------- | --------------------------------------------- | ------- | ------------------------------------------------ |
 | **stylize** | **text** : string, **styleObj** : StyleObject | self    | Returns a string stylized with the given format. |
-
+ 
 > **Style Short Codes**
-
-The functions themsevles will just return stylized text made from the chain. If you use the style alias it will set the style for the next set of outputs.
-
-The example bellow will show a message with a bright red background and white text and then a bright blue background and white text. Notice that the
+ 
+The functions themselves will just return stylized text made from the chain. If you use the style alias it will set the style for the next set of outputs.
+ 
+The example below will show a message with a bright red background and white text and then a bright blue background and white text. Notice that the
 style must be cleared in-between the messages. This is so you can just re-use the same style if you want.
-
+ 
 ```typescript
 dsLog
   .newScreen()
   .BR.W.RBG.showSleep("Error Message")
-  .CLEAR.BR.W.BBG.showSleep("Info Message");
+  .ERROR.showSleep("Error Message")
+  .CLEAR.BR.W.BBG.showSleep("Info Message")
+  .INFO.showSleep("Info Message 1")
+  .showSleep("This will be the same style").CLEAR
+  .showSleep("This will not be.")
 ```
-
+ 
 > List of All Functions
-
+ 
 | Function       | Alias         | Params                                   | Returns | Description                                                               |
 | -------------- | ------------- | ---------------------------------------- | ------- | ------------------------------------------------------------------------- |
 | **clear**      | CLEAR CL      | none                                     | self    | Returns a string stylized to be bright.                                   |
@@ -364,21 +368,21 @@ dsLog
 | **magenta**    | MAGENTA M     | **text** : string                        | string  | Returns a string stylized to be magenta.                                  |
 | **cyan**       | CYAN C        | **text** : string                        | string  | Returns a string stylized to be cyan.                                     |
 | **white**      | WHITE W       | **text** : string                        | string  | Returns a string stylized to be white.                                    |
-| **blackBG**    | BLACKBG BLBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be black blackground.                        |
-| **redBG**      | REDBG RBG     | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be red blackground.                          |
-| **greenBG**    | GREENBG GBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be green blackground.                        |
-| **yellowBG**   | YELLOWBG YBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be yellow blackground.                       |
-| **blueBG**     | BLUEBG BBG    | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be blue blackground.                         |
-| **magentaBG**  | MAGENTABG MBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be magenta blackground.                      |
-| **cyanBG**     | CYANBG CBG    | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be cyan blackground.                         |
-| **whiteBG**    | WHITEBG WBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be white blackground.                        |
-
+| **blackBG**    | BLACKBG BLBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be black background.                        |
+| **redBG**      | REDBG RBG     | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be red background.                          |
+| **greenBG**    | GREENBG GBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be green background.                        |
+| **yellowBG**   | YELLOWBG YBG  | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be yellow background.                       |
+| **blueBG**     | BLUEBG BBG    | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be blue background.                         |
+| **magentaBG**  | MAGENTABG MBG | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be magenta background.                      |
+| **cyanBG**     | CYANBG CBG    | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be cyan background.                         |
+| **whiteBG**    | WHITEBG WBG   | **text** : string,**fg** ?: ConsoleColor | string  | Returns a string stylized to be white background.                        |
+ 
 ### Define and Get Functions
-
+ 
 Functions related to setting default strings, screens, and validation. This is for full customization of the program.
-
+ 
 > **Strings**
-
+ 
 Built in strings.
 | Name | Description |
 | ----------- | ------------------------------------------------------------------------------------ |
@@ -391,9 +395,9 @@ Built in strings.
 | **reAskStart** | The string that appears at the start of a re-ask. |
 | **reAskText** | The string that appears as the default for a re-ask. |
 | **reAskDelimiter** | The string that appears at the end of a re-ask. |
-
+ 
 > **QuestionDisplayTypes**
-
+ 
 Defined styles for the question outputs.
 | Name | Description |
 | ----------- | ------------------------------------------------------------------------------------ |
@@ -403,9 +407,9 @@ Defined styles for the question outputs.
 | **re-ask-start**| Style for re-ask start |
 | **re-ask** | Style for re-ask. |
 | **re-ask-delimiter** | Style for re-ask delimiter |
-
+ 
 > **Screens**
-
+ 
 Built in screens.
 | Name | Description |
 | ----------- | ------------------------------------------------------------------------------------ |
@@ -415,9 +419,9 @@ Built in screens.
 | **crash** | A crash screen. |
 | **done** | A screen to show when the program is done. |
 | **noInput** | a screen to show when the program runs with no input. |
-
+ 
 > **Functions**
-
+ 
 | Function                   | Params                                                                                          | Returns | Description                                                                                                                                 |
 | -------------------------- | ----------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | **defineValidator**        | type : QuestionTypes, **func** : (**input**:string)=Promise\<boolean\>, **customName** : string | self    | Define the function to be called to validate input.                                                                                         |
@@ -432,34 +436,36 @@ Built in screens.
 | **defineServiceBarStyle**  | **style**: ServiceBarStyle                                                                      | self    | Define the default service bar style.                                                                                                       |
 | **getString**              | **name** : String                                                                               | self    | Get a built in string.                                                                                                                      |
 | **setString**              | **name** : String, **string** : string                                                          | self    | Set a built in string.                                                                                                                      |
-
+ 
 ### Row Functions
-
+ 
 Functions related to the output row.
-
+ 
 | Function      | Params                               | Returns | Description                         |
 | ------------- | ------------------------------------ | ------- | ----------------------------------- |
 | **getRow**    | none                                 | number  | Gets the current output row.        |
 | **setRow**    | **row** : number                     | self    | Sets the output row.                |
 | **addRow**    | none                                 | self    | Adds one to the current output row. |
 | **clearRows** | **start** : number, **end** : number | self    | Clears given row range.             |
-
+ 
 ### Sleep Functions
-
+ 
 Functions used to make the program sleep.
-
+ 
 | Function   | Params          | Returns         | Description                                 |
 | ---------- | --------------- | --------------- | ------------------------------------------- |
 | **sleep**  | **ms** : number | self            | Make the progarm sleep via a sync method.   |
 | **setRow** | **ms** : number | Promise of self | Make the program sleep via an async method. |
-
+ 
 ### Other Functions
-
+ 
 Other usefull functions.
-
+ 
 | Function       | Params                                   | Returns | Description                             |
 | -------------- | ---------------------------------------- | ------- | --------------------------------------- |
 | **do**         | **func** : (arg:any)=>any,**arg** ?: any | none    | Run a function in the chain.            |
 | **exit**       | none                                     | none    | Runs process.exit(0).                   |
 | **done**       | none                                     | none    | Shows the done screen and then exits.   |
 | **countLines** | text : string                            | none    | Count the numbers of lines in a string. |
+ 
+
