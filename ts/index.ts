@@ -1,5 +1,3 @@
-import internal from "stream";
-
 type ConsoleCodes =
   | "Reset"
   | "Bright"
@@ -2635,6 +2633,7 @@ class DSLogger {
   }
   /** # Cyan Background
    * ---
+   * 
    * Returns a string styled to have a cyan background.
    * @param text
    * @returns string
