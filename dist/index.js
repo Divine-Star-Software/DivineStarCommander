@@ -274,7 +274,7 @@ class DSLogger {
         this.screens = {
             splash: () => { },
             helpScreen: () => {
-                this.TITLE.show(this.getString("title")).NL.RAW.show(this.getString("helpText")).NL;
+                this.TITLE.log(this.getString("title")).NL.RAW.log(this.getString("helpText")).NL;
                 const ii = " ";
                 for (let pk of this.paramValues.keys()) {
                     let start = "   ";
