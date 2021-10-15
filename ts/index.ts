@@ -1,3 +1,5 @@
+import internal from "stream";
+
 type ConsoleCodes =
   | "Reset"
   | "Bright"
@@ -51,11 +53,16 @@ type QuestionDisplayTypes =
   | "re-ask-delimiter";
 type QuestionsTypes =
   | "string"
+  | "string[]"
+  | "stringall"
+  | "stringall[]"
+  | "boolean"
+  | "boolean[]"
   | "number"
+  | "number[]"
   | "digit"
   | "email"
   | "password"
-  | "stringall"
   | "custom";
 type ParamTypes =
   | "boolean"
@@ -63,8 +70,9 @@ type ParamTypes =
   | "number"
   | "stringall"
   | "string[]"
-  | "stringAll[]"
-  | "number[]";
+  | "stringall[]"
+  | "number[]"
+  | "boolean[]";
 type ProgramParams = {
   flag: string;
   name: string;
@@ -134,6 +142,7 @@ class DSLogger {
   defaultStyleDelimiter: StyleObject = {};
   styleDelimiter: StyleObject = {};
   defaultSleepTime = 800;
+  services: Record<string, any> = {};
   //strings
   strings: Record<Strings, string> = {
     title: "[ Divine Star Logger ]",
@@ -268,7 +277,7 @@ class DSLogger {
   params: Map<string, ProgramParams> = new Map();
   paramValues: Map<string, ProgramParamsDataTypes> = new Map();
   requiredParams: Map<string, boolean> = new Map();
-  inputs: Map<string, string | number | undefined> = new Map();
+  inputs: Map<string, string | number | string[] | boolean | boolean[] | number[] | undefined> = new Map();
 
   lastQuestion: string = "";
   askedQuestions = 0;
@@ -286,34 +295,99 @@ class DSLogger {
   progressBars: Record<string, any> = {};
   serviceBars: Record<string, any> = {};
 
+  //The delimiters userd for parsing array inputs
+  arrayInputDelimiters = [",", "+"];
+  booleanTrueStrings = ["true", "t", "yes", "y", "Y"];
+  booleanFalseStrings = ["false", "f", "no", "no", "N"];
+
   validators: Record<
     QuestionsTypes,
-    (input: string, type?: string) => Promise<boolean>
+    (input: string | string[], type?: string) => Promise<boolean>
   > = {
-    number: async (input: string) => {
-      const reg = /^\d+$/;
-      return reg.test(input);
-    },
-    digit: async (input: string) => {
+    digit: async (input: string | string[]) => {
+      if (Array.isArray(input)) return false;
       const reg = /^[0-9]$/;
       return reg.test(input);
     },
-    string: async (input: string) => {
-      const reg = /^[a-zA-Z]+$/;
+    number: async (input: string | string[]) => {
+      if (Array.isArray(input)) return false;
+      const reg = /^\d+$/;
       return reg.test(input);
     },
-    email: async (input: string) => {
+    "number[]": async (input: string | string[]) => {
+      if (!Array.isArray(input)) return false;
+      const reg = /^\d+$/;
+      for (const value of input) {
+        if (!reg.test(value)) {
+          return false;
+        }
+      }
+      return true;
+    },
+    boolean: async (input: string | string[]) => {
+      if (Array.isArray(input)) return false;
+      if (
+        this.booleanFalseStrings.indexOf(input) == -1 &&
+        this.booleanTrueStrings.indexOf(input) == -1
+      ) {
+        return false;
+      }
+      return true;
+    },
+    "boolean[]": async (input: string | string[]) => {
+      if (!Array.isArray(input)) return false;
+      for (const value of input) {
+        if (
+          this.booleanFalseStrings.indexOf(value) == -1 &&
+          this.booleanTrueStrings.indexOf(value) == -1
+        ) {
+          return false;
+        }
+      }
+      return true;
+    },
+    string: async (input: string | string[]) => {
+      if (Array.isArray(input)) return false;
+      if (typeof input === "string" && input === "") return true;
+      const reg = /\d/;
+      return !reg.test(input);
+    },
+    "string[]": async (input: string | string[]) => {
+      if (!Array.isArray(input)) return false;
+       const reg = /\d/;
+      for (let value of input) {
+        value = value.trim();
+        if (reg.test(value)) {
+          return false;
+        }
+      } 
+      return true;
+    },
+    stringall: async (input: string | string[]) => {
+      if (Array.isArray(input)) return false;
+      if (typeof input === "string" && input === "") return true;
+      if (typeof input === "string") return true;
+      return false;
+    },
+    "stringall[]": async (input: string | string[]) => {
+      if (!Array.isArray(input)) return false;
+      for (const value of input) {
+        if (typeof value !== "string") {
+          return false;
+        }
+      }
+      return true;
+    },
+    email: async (input: string | string[]) => {
+      if (Array.isArray(input)) return false;
       const reg =
         /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
       return reg.test(input);
     },
-    password: async (input: string) => {
+    password: async (input: string | string[]) => {
       return true;
     },
-    stringall: async (input: string) => {
-      return true;
-    },
-    custom: async (input: string, type?: string) => {
+    custom: async (input: string | string[], type?: string) => {
       if (!type) {
         return false;
       }
@@ -321,15 +395,25 @@ class DSLogger {
     },
   };
 
+  validInputTypes: string[] = [
+    "string",
+    "string[]",
+    "number",
+    "number[]",
+    "boolean",
+    "boolean[]",
+    "stringall",
+    "stringall[]",
+  ];
+
   customValidators: Record<string, (input: any) => Promise<boolean>> = {};
 
   screens: Record<DisplayScreens, Function> = {
     splash: () => {},
     helpScreen: () => {
-      console.log(
-        this.getMessageStyled("Title", this.getString("title")) + "\n"
-      );
-      console.log(this.getString("helpText") + "\n");
+      this.TITLE.show(this.getString("title")).NL.RAW.show(
+        this.getString("helpText")
+      ).NL;
       const ii = " ";
       for (let pk of this.paramValues.keys()) {
         let start = "   ";
@@ -341,31 +425,23 @@ class DSLogger {
         const message = `${start}-${param.flag}, --${param.name} [${param.type}] ${ii}| ${param.desc}`;
         console.log(message);
       }
-      console.log("\n");
-      process.exit(1);
+
+      this.NEWLINE.exit();
     },
     programInitError: (message: string) => {
-      this.newScreen()
-        .show(message, "Error")
-        .show("Run --help for more info.", "Raw");
-      process.exit(0);
+      this.ERROR.log(message).RAW.log("Run --help for more info.").exit();
     },
     crash: (message: string) => {
-      this.newScreen()
-        .show("The program crashed.", "Raw")
-        .show(message, "Error");
+      this.ERROR.log("The program has crashed.").RAW.log(message).exit();
     },
     error: (message: string) => {
-      this.newScreen()
-        .show("The program had an error.", "Raw")
-        .show(message, "Error");
+      this.ERROR.log("The program has had an error.").RAW.log(message).exit();
     },
     noInput: () => {
-      this.log("Please run --help to learn how to use this program.", "Info");
+      this.INFO.log("Please run --help to learn how to use this program.");
     },
     done: (message: string) => {
-      this.log("The program is done running.", "Info").log(message);
-      process.exit(0);
+      this.INFO.log("The program is done running.", "Info").log(message).exit();
     },
   };
 
@@ -405,6 +481,14 @@ class DSLogger {
     }
     return front + text + this.consoleCodes["Reset"];
   }
+  /** # Get Raw Params
+   * ---
+   * Get the raw params submited to the program.
+   * @returns
+   */
+  getRawParams(): string[] {
+    return process.argv;
+  }
   /**# Get Param
    * ---
    * Adds a command line arg to the program.
@@ -428,6 +512,9 @@ class DSLogger {
     if (this.params.get(param.flag)) {
       throw new Error("Duplicate param.");
     }
+    if (this.validInputTypes.indexOf(param.type) == -1) {
+      throw new Error("Not a valid input type.");
+    }
     this.params.set(param.flag, param);
     this.params.set(param.name, param);
     this.paramValues.set(param.flag, undefined);
@@ -436,6 +523,7 @@ class DSLogger {
     }
     return this;
   }
+
   /** # If Param Isset
    * ---
    * If the param is set run a function.
@@ -452,120 +540,133 @@ class DSLogger {
     if ((p = this.params.get(param))) {
       const v = this.paramValues.get(p.flag);
       if (typeof v !== "undefined") {
-        func(v, {});
+        func(v, args);
       }
     }
     return this;
   }
-  _isProgramArg(arg: string) {
-    const reg1 = /^-/;
-    const reg2 = /^--/;
-    return reg1.test(arg) || reg2.test(arg);
+
+  initalProgramArgs: string[] = [];
+  /**# Get Inital Program Args
+   * ---
+   * Get arugments that suplied to the program between the program name and the start of the flags.
+   *
+   * For instance if you run:
+   *
+   * node index.js -a
+   *
+   * It will return ["index.js"]
+   * @returns
+   */
+  getInitalProgramArgs() {
+    return this.initalProgramArgs;
   }
 
   /**# Init Program Input
    * ---
    * Parses the arguments sent to the program and stores the values.
-   * Must run before you can access the values.
+   *
+   * __Must run before you can access the values.__
+   * @returns Promise\<this\>
    */
-  initProgramInput() {
+  async initProgramInput(): Promise<this> {
     const args = process.argv;
     const argsLength = args.length;
     let argc = 0;
+    let inital = true;
 
     for (const arg of args) {
       if (this._isProgramArg(arg)) {
+        inital = false;
         if (arg == "--help") {
           this.screens["helpScreen"]();
         }
         const inputString = arg.replace(/-/g, "");
         if (this.params.get(inputString)) {
           const param = this.params.get(inputString);
-          if (!param) return;
+          if (!param) {
+            this.screens["helpScreen"]();
+            return this;
+          }
+          if (this.paramValues.get(param.flag)) {
+            this.promgramInitErrorScreen(`${param.name} was set twice`);
+          }
+          //Set intial return value.
           let value: any = "";
+          //First check normal types then check for array types.
           if (param.type == "boolean") {
-            if (args[argc + 1]) {
-              const ahead = args[argc + 1];
-              if (ahead == "true") {
-                value = true;
-              }
-              if (ahead == "false") {
-                value = false;
-              }
-              if (this._isProgramArg(ahead)) {
-                value = true;
-              } else {
-                this.promgramInitErrorScreen(
-                  `${param.name} was supplied with the wrong value type. Either leave blank or use true or false. `
-                );
-              }
-            } else {
-              value = true;
-            }
+            value = await this._getBooleanParamValue(param, args, argc);
+            argc++;
           }
           if (param.type == "string") {
-            if (args[argc + 1]) {
-              const ahead = args[argc + 1];
-              if (!this.validators["string"](ahead)) {
-                this.promgramInitErrorScreen(
-                  `${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`
-                );
-              } else {
-                value = ahead;
-              }
-            } else if (param.valueNeeded || param.required) {
-              this.promgramInitErrorScreen(
-                `${param.name} was not supplied with a value.`
-              );
-            } else {
-              value = "";
-            }
+            value = await this._getStringParamValue(param, args, argc);
+            argc++;
           }
           if (param.type == "stringall") {
-            if (args[argc + 1]) {
-              const ahead = args[argc + 1];
-              if (!this.validators["stringall"](ahead)) {
-                this.promgramInitErrorScreen(
-                  `${param.name} was supplied with the wrong value type. Please enter a valid string.`
-                );
-              } else {
-                value = ahead;
-              }
-            } else if (param.valueNeeded || param.required) {
-              this.promgramInitErrorScreen(
-                `${param.name} was not supplied with a value.`
-              );
-            } else {
-              value = "";
-            }
+            value = await this._getStringAllParamValue(param, args, argc);
+            argc++;
           }
           if (param.type == "number") {
-            if (args[argc + 1]) {
-              const ahead = args[argc + 1];
-              if (!this.validators["number"](ahead)) {
-                this.promgramInitErrorScreen(
-                  `${param.name} was supplied with the wrong value type. Please enter a valid number.`
-                );
-              } else {
-                value = ahead;
-              }
-            } else if (param.valueNeeded || param.required) {
-              this.promgramInitErrorScreen(
-                `${param.name} was not supplied with a value.`
-              );
-            } else {
-              value = 0;
-            }
+            value = await this._getNumberParamValue(param, args, argc);
+            argc++;
           }
-
+          if (param.type == "string[]") {
+            let arrayResults = await this._getStringArrayParamValue(
+              param,
+              args,
+              argc
+            );
+            argc = arrayResults.newArgCount;
+            value = arrayResults.value;
+          }
+          if (param.type == "stringall[]") {
+            let arrayResults = await this._getStringAllArrayParamValue(
+              param,
+              args,
+              argc
+            );
+            argc = arrayResults.newArgCount;
+            value = arrayResults.value;
+          }
+          if (param.type == "number[]") {
+            let arrayResults = await this._getNumberArrayParamValue(
+              param,
+              args,
+              argc
+            );
+            argc = arrayResults.newArgCount;
+            value = arrayResults.value;
+          }
+          if (param.type == "boolean[]") {
+           
+            let arrayResults = await this._getBooleanArrayParamValue(
+              param,
+              args,
+              argc
+            );
+            argc = arrayResults.newArgCount;
+            value = arrayResults.value;
+           
+          }
           if (param.required) {
             this.requiredParams.set(param.flag, true);
           }
           this.paramValues.set(param.flag, value);
         }
+      } else {
+        if (inital && argc > 0) {
+          this.initalProgramArgs.push(arg);
+        }
+        argc++;
       }
-      argc++;
     }
+
+    this._validateAllRequiredProgramParamsAreSet();
+
+    return this;
+  }
+
+  _validateAllRequiredProgramParamsAreSet() {
     for (const pk of this.requiredParams.keys()) {
       if (!this.requiredParams.get(pk)) {
         const param = this.params.get(pk);
@@ -575,8 +676,316 @@ class DSLogger {
         );
       }
     }
-    return this;
   }
+
+  _isProgramArg(arg: string) {
+    const reg1 = /^-/;
+    const reg2 = /^--/;
+    return reg1.test(arg) || reg2.test(arg);
+  }
+
+  _createStringFromParamArray(args: string[], argc: number) {
+    let argStringArray: string[] = [];
+    let argSearch = "";
+    let newArgCount = argc + 1;
+    while (args.length > newArgCount) {
+      const value = args[newArgCount];
+      argSearch = value;
+      if (this._isProgramArg(argSearch) || value === undefined) {
+        break;
+      }
+      argStringArray.push(value);
+      newArgCount++;
+    }
+    return argStringArray.toString();
+  }
+
+  _getArrayValues(args: string[], argc: number) {
+    let returnValue: string[] = [];
+    let newArgCount: number = argc + 1;
+    if (!this._isProgramArg(args[argc + 1])) {
+      const ahead = this._createStringFromParamArray(args, argc);
+      let isDelimiterArray = false;
+      for (const delim of this.arrayInputDelimiters) {
+        returnValue = ahead.split(delim);
+        if (returnValue.length > 1) {
+          isDelimiterArray = true;
+          break;
+        }
+      }
+      if (!isDelimiterArray) {
+        returnValue = [];
+        let argSearch = "";
+        let argSearchCount = 0;
+        let newArgCount = argc + 1;
+        while (args.length > newArgCount) {
+          newArgCount += argSearchCount;
+          const value = args[newArgCount];
+          if (this._isProgramArg(argSearch) || value === undefined) {
+            break;
+          }
+          returnValue.push(value);
+          argSearchCount++;
+        }
+      }
+    }
+    return {
+      newArgCount: newArgCount,
+      value: returnValue,
+    };
+  }
+
+  async _getStringAllArrayParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<{ newArgCount: number; value: string[] }> {
+    let value: string[] = [];
+    let newArgCount = argc;
+    if (args[argc + 1]) {
+      const data = await this._getArrayValues(args, argc);
+      newArgCount = data.newArgCount;
+
+        if(!(await this.validators["stringall[]"](data.value))) {
+          this.promgramInitErrorScreen(
+            `${param.name} was supplied with the wrong value type. Please enter a valid string.`
+          );
+        }
+         else {
+          value = data.value;
+        }
+      
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = [""];
+    }
+    return {
+      newArgCount: newArgCount,
+      value: value,
+    };
+  }
+
+  async _getStringArrayParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<{ newArgCount: number; value: string[] }> {
+    let value: string[] = [];
+    let newArgCount = argc;
+    if (args[argc + 1]) {
+      const data = await this._getArrayValues(args, argc);
+      newArgCount = data.newArgCount;
+
+        if(!(await this.validators["string[]"](data.value))) {
+          this.promgramInitErrorScreen(
+            `${param.name} was supplied with the wrong value type. Please enter a valid string.`
+          );
+        }
+         else {
+          value = data.value;
+        }
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = [""];
+    }
+
+    return {
+      newArgCount: newArgCount,
+      value: value,
+    };
+  }
+
+  async _getNumberArrayParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<{ newArgCount: number; value: number[] }> {
+    let value: number[] = [];
+    let newArgCount = argc;
+    if (args[argc + 1]) {
+      const data = await this._getArrayValues(args, argc);
+      newArgCount = data.newArgCount;
+      const valid = await this.validators["number[]"](data.value);
+      if (!valid) {
+        this.promgramInitErrorScreen(
+          `${param.name} was supplied with the wrong value type. Please enter a valid number.`
+        );
+      }
+      for (const values of data.value) {
+          if (values.includes(".")) {
+            value.push(parseFloat(values));
+          } else {
+            value.push(parseInt(values));
+          }
+      }
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = [0];
+    }
+
+    return {
+      newArgCount: newArgCount,
+      value: value,
+    };
+  }
+
+  async _getBooleanArrayParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<{ newArgCount: number; value: boolean[] }> {
+    let value: boolean[] = [];
+    let newArgCount = argc;
+    if (args[argc + 1]) {
+      const data = await this._getArrayValues(args, argc);
+      newArgCount = data.newArgCount;
+      const valid = await this.validators["boolean[]"](data.value);
+      if (!valid) {
+        this.promgramInitErrorScreen(
+          `${
+            param.name
+          } was supplied with the wrong value type. Input must be either ${this.booleanTrueStrings.toString()} or${this.booleanFalseStrings.toString()}`
+        );
+      }
+      for (const values of data.value) {
+        if (this.booleanTrueStrings.indexOf(values) > -1) {
+          value.push(true);
+        }
+        if(this.booleanFalseStrings.indexOf(values) > -1) {
+          value.push(false);
+        } 
+      }
+ 
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = [true];
+    }
+    return {
+      newArgCount: newArgCount,
+      value: value,
+    };
+  }
+
+  async _getNumberParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<number> {
+    let value = 0;
+    if (args[argc + 1]) {
+      const ahead = args[argc + 1];
+      const valid = await this.validators["number"](ahead);
+      if (!valid) {
+        this.promgramInitErrorScreen(
+          `${param.name} was supplied with the wrong value type. Please enter a valid number.`
+        );
+      } else {
+        if (ahead.includes(".")) {
+          value = parseFloat(ahead);
+        } else {
+          value = parseInt(ahead);
+        }
+      }
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = 0;
+    }
+    return value;
+  }
+  async _getStringParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<string> {
+    let value = "";
+    if (args[argc + 1]) {
+      const ahead = args[argc + 1];
+
+      const valid = await this.validators["string"](ahead);
+      if (!valid) {
+        this.promgramInitErrorScreen(
+          `${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`
+        );
+      } else {
+        value = ahead;
+      }
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = "";
+    }
+    return value;
+  }
+  async _getStringAllParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<string> {
+    let value = "";
+    if (args[argc + 1]) {
+      const ahead = args[argc + 1];
+      const valid = await this.validators["stringall"](ahead);
+      if (valid) {
+        this.promgramInitErrorScreen(
+          `${param.name} was supplied with the wrong value type. Please enter a valid string.`
+        );
+      } else {
+        value = ahead;
+      }
+    } else if (param.valueNeeded || param.required) {
+      this.promgramInitErrorScreen(
+        `${param.name} was not supplied with a value.`
+      );
+    } else {
+      value = "";
+    }
+    return value;
+  }
+
+ async _getBooleanParamValue(
+    param: ProgramParams,
+    args: string[],
+    argc: number
+  ): Promise<boolean> {
+    let value = true;
+    if (args[argc + 1]) {
+      const ahead = args[argc + 1];
+      if (ahead == "true") {
+        value = true;
+      }
+      if (ahead == "false") {
+        value = false;
+      }
+      if (this._isProgramArg(ahead)) {
+        value = true;
+      } else {
+        this.promgramInitErrorScreen(
+          `${param.name} was supplied with the wrong value type. Either leave blank or use true or false. `
+        );
+      }
+    } else {
+      value = true;
+    }
+    return value;
+  }
+
   /**# Restart Prompt
    * ---
    * Restarat user input prompt.
@@ -608,7 +1017,17 @@ class DSLogger {
     return this;
   }
 
-  _prompt(
+  async _convertInput(varType : QuestionsTypes , input : string ) {
+    
+    let arrayTypes = ["boolean[]","string[]","number[]","stringall[]"];
+    if(arrayTypes.indexOf(varType) != -1) {
+      const value = await this._getArrayValues([input],-1);
+      return value.value;
+    }
+    return input;
+  }
+
+  async _prompt(
     question: string,
     varName: string,
     varType: QuestionsTypes,
@@ -659,14 +1078,16 @@ class DSLogger {
           this.rli.question(question, (input: QuestionsTypes) => {
             this.rli.history.slice(1);
             this.currentRow += this.countLines(question);
-            this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+            this.rdl.cursorTo(process.stdout, 0);
 
             (async () => {
               asked = true;
               gotinput = true;
               let valid = false;
+              let newInput : string | string[] = "";
               if (varType != "custom") {
-                valid = await this.validators[varType](input);
+                newInput = await this._convertInput(varType,input);
+                valid = await this.validators[varType](newInput);
               } else {
                 valid = await this.validators[varType](input, custonName);
               }
@@ -722,7 +1143,7 @@ class DSLogger {
                 passed = true;
               }
               if (passed) {
-                this.inputs.set(varName, input);
+                this.inputs.set(varName, newInput);
                 resolve(passed);
               }
             })();
@@ -809,7 +1230,7 @@ class DSLogger {
    * Get input from question
    * @param varName
    */
-  getInput(varName: string): string | number | undefined {
+  getInput(varName: string): string | number | any[] | undefined | boolean {
     return this.inputs.get(varName);
   }
   /**# Clear Rows
@@ -969,6 +1390,49 @@ class DSLogger {
     this.currentRow = 0;
     return this;
   }
+
+  /**# Get Message Array
+   * ---
+   * Returns back an array of strings with the given value.
+   * Used display multi messsages.
+   * @param message
+   * @returns
+   */
+  _getMessageArray(
+    message: string | number | object | any[]
+  ): string[] | false {
+    if (message == undefined) return false;
+    let messageArray: string[] = [];
+    if (Array.isArray(message)) {
+      for (const mem of message) {
+        if (typeof mem === "number" || typeof mem === "string") {
+          messageArray.push(`${mem}`);
+        } else if (typeof mem === "boolean") {
+          if(mem) {
+            messageArray.push(`true`);
+          } else {
+            messageArray.push(`false`);
+          }
+        } else if (typeof mem === "object") {
+          messageArray.push(JSON.stringify(mem, null, 5));
+        }
+      }
+    } else {
+      if (typeof message === "object") {
+        messageArray[0] == JSON.stringify(message, null, 5);
+      } else if (typeof message === "boolean") {
+        if(message) {
+          messageArray.push(`true`);
+        } else {
+          messageArray.push(`false`);
+        }
+      } else {
+        messageArray[0] = `${message}`;
+      }
+    }
+    return messageArray;
+  }
+
   _processMessage(message: string, type: MessageTypes | "none" = "none") {
     let output = message;
     if (type != "Raw" && type != "Data") {
@@ -995,12 +1459,12 @@ class DSLogger {
    *
    */
   showAtSleep(
-    message: any,
+    message: string | number | object | any[],
     params: {
-      row: number;
-      col: number;
-      type: MessageTypes | "none";
-      sleep: number;
+      row?: number;
+      col?: number;
+      type?: MessageTypes | "none";
+      sleep?: number;
     } = {
       row: this.currentRow,
       col: 0,
@@ -1008,12 +1472,21 @@ class DSLogger {
       sleep: this.defaultSleepTime,
     }
   ) {
-    this.showAt(message, {
-      row: params.row,
-      type: params.type,
-      col: params.col,
-    });
-    return this.sleep(params.sleep);
+    const messageArray = this._getMessageArray(message);
+    if (!messageArray) return this;
+    for (const mem of messageArray) {
+      this.showAt(mem, {
+        row: params.row,
+        type: params.type,
+        col: params.col,
+      });
+      let sleep = this.defaultSleepTime;
+      if (params.sleep) {
+        sleep = params.sleep;
+      }
+      this.sleep(sleep);
+    }
+    return this;
   }
   /**# Show At
    * ---
@@ -1026,22 +1499,38 @@ class DSLogger {
    *
    */
   showAt(
-    message: any,
+    message: string | number | object | any[],
     params: {
-      row: number;
-      col: number;
-      type: MessageTypes | "none";
+      row?: number;
+      col?: number;
+      type?: MessageTypes | "none";
     } = {
       row: this.currentRow,
       col: 0,
       type: "none",
     }
   ) {
-    let output = this._processMessage(message, params.type);
-    const lines = this.countLines(`${output}`);
-    this.rdl.cursorTo(process.stdout, params.col, params.row);
-    this.currentRow += lines;
-    console.log(output);
+    const messageArray = this._getMessageArray(message);
+    if (!messageArray) return this;
+    let col = 0;
+    if (params.col) {
+      col = params.col;
+    }
+    let row = this.currentRow;
+    if (params.row) {
+      row = params.row;
+    }
+    let type: MessageTypes | "none" = "none";
+    if (params.type) {
+      type = params.type;
+    }
+    for (const mem of messageArray) {
+      let output = this._processMessage(mem, type);
+      const lines = this.countLines(`${output}`);
+      this.rdl.cursorTo(process.stdout, col, row);
+      this.currentRow += lines;
+      console.log(output);
+    }
     return this;
   }
   /**# Show
@@ -1051,13 +1540,19 @@ class DSLogger {
    * @param message
    * @param type
    */
-  show(message: any, type: MessageTypes | "none" = "none") {
-    let output = this._processMessage(message, type);
-    const lines = this.countLines(`${output}`);
-    this.rdl.cursorTo(process.stdout, 0, this.currentRow);
-    this.currentRow += lines;
-
-    console.log(output);
+  show(
+    message: string | number | object | any[],
+    type: MessageTypes | "none" = "none"
+  ): this {
+    const messageArray = this._getMessageArray(message);
+    if (!messageArray) return this;
+    for (const mem of messageArray) {
+      let output = this._processMessage(mem, type);
+      const lines = this.countLines(`${output}`);
+      this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+      this.currentRow += lines;
+      console.log(output);
+    }
     return this;
   }
   /**# Show Sleep
@@ -1068,12 +1563,16 @@ class DSLogger {
    * @param ms
    */
   showSleep(
-    message: any,
+    message: string | number | object | any[],
     type: MessageTypes | "none" = "none",
     ms: number = this.defaultSleepTime
-  ) {
-    this.show(message, type);
-    this.sleep(ms);
+  ): this {
+    const messageArray = this._getMessageArray(message);
+    if (!messageArray) return this;
+    for (const mem of messageArray) {
+      this.show(mem, type);
+      this.sleep(ms);
+    }
     return this;
   }
   /**# Log
@@ -1082,11 +1581,18 @@ class DSLogger {
    * @param message
    * @param type
    */
-  log(message: any, type: MessageTypes | "none" = "none") {
-    let output = this._processMessage(message, type);
-    const lines = this.countLines(`${output}`);
-    this.currentRow += lines;
-    console.log(output);
+  log(
+    message: string | number | object | any[],
+    type: MessageTypes | "none" = "none"
+  ): this {
+    const messageArray = this._getMessageArray(message);
+    if (!messageArray) return this;
+    for (const mem of messageArray) {
+      let output = this._processMessage(mem, type);
+      const lines = this.countLines(`${output}`);
+      this.currentRow += lines;
+      console.log(output);
+    }
     return this;
   }
   /** # Log Sleep
@@ -1097,12 +1603,16 @@ class DSLogger {
    * @param ms
    */
   logSleep(
-    message: any,
+    message: string | number | object | any[],
     type: MessageTypes | "none" = "none",
     ms: number = this.defaultSleepTime
-  ) {
-    this.log(message, type);
-    this.sleep(ms);
+  ): this {
+    const messageArray = this._getMessageArray(message);
+    if (!messageArray) return this;
+    for (const mem of messageArray) {
+      this.log(mem, type);
+      this.sleep(ms);
+    }
     return this;
   }
   /** # Log Table
@@ -1112,10 +1622,19 @@ class DSLogger {
    * @param collumns
    * @returns
    */
-  logTable(data: object, collumns?: string[]) {
-    const lines = Object.keys(data).length + 2;
-    this.currentRow += lines;
-    console.table(data, collumns);
+  logTable(data: object | object[], collumns?: string[]): this {
+    if (data == undefined) return this;
+    let dataArray = [];
+    if (Array.isArray(data)) {
+      dataArray = data;
+    } else {
+      dataArray[0] = data;
+    }
+    for (const d of dataArray) {
+      const lines = Object.keys(d).length + 2;
+      this.currentRow += lines;
+      console.table(d, collumns);
+    }
     return this;
   }
   /** # Log Table
@@ -1125,11 +1644,20 @@ class DSLogger {
    * @param collumns
    * @returns
    */
-  showTable(data: any, collumns?: string[]) {
-    const lines = Object.keys(data).length + 2;
-    this.rdl.cursorTo(process.stdout, 0, this.currentRow);
-    console.table(data, collumns);
-    this.currentRow += lines;
+  showTable(data: any, collumns?: string[]): this {
+    if (data == undefined) return this;
+    let dataArray = [];
+    if (Array.isArray(data)) {
+      dataArray = data;
+    } else {
+      dataArray[0] = data;
+    }
+    for (const d of dataArray) {
+      const lines = Object.keys(d).length + 2;
+      this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+      this.currentRow += lines;
+      console.table(d, collumns);
+    }
     return this;
   }
   /** Get Message Styled
@@ -1155,8 +1683,8 @@ class DSLogger {
    * ---
    * Logs output seperator
    */
-   logSeparator() {
-    this.show(this.getString("separator"), "Info");
+  logSeparator() {
+    this.log(this.getString("separator"), "Info");
     return this;
   }
   /** # Log Program Title
@@ -1164,6 +1692,22 @@ class DSLogger {
    * Logs program title
    */
   logProgramTitle() {
+    this.log(this.getString("title"), "Title");
+    return this;
+  }
+  /** # Show Seperator
+   * ---
+   * Show output seperator at current row.
+   */
+  showSeparator() {
+    this.show(this.getString("separator"), "Info");
+    return this;
+  }
+  /** # Show Program Title
+   * ---
+   *  Show program serperator at current row.
+   */
+  showProgramTitle() {
     this.show(this.getString("title"), "Title");
     return this;
   }
@@ -1316,7 +1860,6 @@ class DSLogger {
    */
   crashScreen(message: string) {
     this.screens["crash"](message);
-    
   }
   /**# Get String
    * ---
@@ -1347,7 +1890,7 @@ class DSLogger {
    * Styles the text to be the "info" message style.
    * @returns string | this
    */
-  info(text?: string): this  | string {
+  info(text?: string): this | string {
     this.styleDelimiter = this._copyMessageStyle("Info");
     if (!text) return this;
     const string = this.stylize(text, this.styleDelimiter);
@@ -1503,6 +2046,15 @@ class DSLogger {
    * Alias for newLine()
    */
   get NEWLINE() {
+    this.newLine();
+    return this;
+  }
+  /**# [RETRUN] New Line
+   * ---
+   * Adds a new line to the console.
+   * Alias for newLine()
+   */
+    get RETURN() {
     this.newLine();
     return this;
   }
@@ -2167,18 +2719,39 @@ class DSLogger {
     this.styleDelimiter.bg = "Yellow";
     return this;
   }
-  /**# Do 
+  /**# Do
    * ---
-   * Run a function in the chain of functions. 
-   * @param func 
-   * @param arg 
-   * @returns 
+   * Run a function in the chain of functions.
+   * @param func
+   * @param arg
+   * @returns
    */
-  do(func : (arg?:any)=>any,arg : any ) : this {
+  do(func: (arg?: any) => any, arg: any): this {
     func(arg);
     return this;
   }
-  /**# Exit
+  /**# New Service
+   * ---
+   * Run a function on an interval. 
+   * @param name 
+   * @param params \{interval : number,run : Function\}
+   * @returns 
+   */
+  newService(name : string , params : {interval : number,run : Function}) {
+    const inte = setInterval(()=>{params.run()},params.interval);
+    this.services[name] = inte;
+    return this;
+  }
+  /** # Clear Service
+   * ---
+   * Stop a serivce from running. 
+   * @param name 
+   */
+  clearService(name : string) {
+   clearInterval(this.services[name]);
+   return this;
+  }
+   /**# Exit
    * ---
    * Makes the program exit.
    * Runs : process.exit(0)

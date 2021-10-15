@@ -1,10 +1,12 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
         this.defaultStyleDelimiter = {};
         this.styleDelimiter = {};
         this.defaultSleepTime = 800;
+        this.services = {};
         this.strings = {
             title: "[ Divine Star Logger ]",
             helpText: "",
@@ -145,27 +147,99 @@ class DSLogger {
         this.currentRow = 0;
         this.progressBars = {};
         this.serviceBars = {};
+        this.arrayInputDelimiters = [",", "+"];
+        this.booleanTrueStrings = ["true", "t", "yes", "y", "Y"];
+        this.booleanFalseStrings = ["false", "f", "no", "no", "N"];
         this.validators = {
-            number: async (input) => {
-                const reg = /^\d+$/;
-                return reg.test(input);
-            },
             digit: async (input) => {
+                if (Array.isArray(input))
+                    return false;
                 const reg = /^[0-9]$/;
                 return reg.test(input);
             },
-            string: async (input) => {
-                const reg = /^[a-zA-Z]+$/;
+            number: async (input) => {
+                if (Array.isArray(input))
+                    return false;
+                const reg = /^\d+$/;
                 return reg.test(input);
             },
+            "number[]": async (input) => {
+                if (!Array.isArray(input))
+                    return false;
+                const reg = /^\d+$/;
+                for (const value of input) {
+                    if (!reg.test(value)) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            boolean: async (input) => {
+                if (Array.isArray(input))
+                    return false;
+                if (this.booleanFalseStrings.indexOf(input) == -1 &&
+                    this.booleanTrueStrings.indexOf(input) == -1) {
+                    return false;
+                }
+                return true;
+            },
+            "boolean[]": async (input) => {
+                if (!Array.isArray(input))
+                    return false;
+                for (const value of input) {
+                    if (this.booleanFalseStrings.indexOf(value) == -1 &&
+                        this.booleanTrueStrings.indexOf(value) == -1) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            string: async (input) => {
+                if (Array.isArray(input))
+                    return false;
+                if (typeof input === "string" && input === "")
+                    return true;
+                const reg = /\d/;
+                return !reg.test(input);
+            },
+            "string[]": async (input) => {
+                if (!Array.isArray(input))
+                    return false;
+                const reg = /\d/;
+                for (let value of input) {
+                    value = value.trim();
+                    if (reg.test(value)) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            stringall: async (input) => {
+                if (Array.isArray(input))
+                    return false;
+                if (typeof input === "string" && input === "")
+                    return true;
+                if (typeof input === "string")
+                    return true;
+                return false;
+            },
+            "stringall[]": async (input) => {
+                if (!Array.isArray(input))
+                    return false;
+                for (const value of input) {
+                    if (typeof value !== "string") {
+                        return false;
+                    }
+                }
+                return true;
+            },
             email: async (input) => {
+                if (Array.isArray(input))
+                    return false;
                 const reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 return reg.test(input);
             },
             password: async (input) => {
-                return true;
-            },
-            stringall: async (input) => {
                 return true;
             },
             custom: async (input, type) => {
@@ -175,12 +249,21 @@ class DSLogger {
                 return this.customValidators[type](input);
             },
         };
+        this.validInputTypes = [
+            "string",
+            "string[]",
+            "number",
+            "number[]",
+            "boolean",
+            "boolean[]",
+            "stringall",
+            "stringall[]",
+        ];
         this.customValidators = {};
         this.screens = {
             splash: () => { },
             helpScreen: () => {
-                console.log(this.getMessageStyled("Title", this.getString("title")) + "\n");
-                console.log(this.getString("helpText") + "\n");
+                this.TITLE.show(this.getString("title")).NL.RAW.show(this.getString("helpText")).NL;
                 const ii = " ";
                 for (let pk of this.paramValues.keys()) {
                     let start = "   ";
@@ -193,33 +276,25 @@ class DSLogger {
                     const message = `${start}-${param.flag}, --${param.name} [${param.type}] ${ii}| ${param.desc}`;
                     console.log(message);
                 }
-                console.log("\n");
-                process.exit(1);
+                this.NEWLINE.exit();
             },
             programInitError: (message) => {
-                this.newScreen()
-                    .show(message, "Error")
-                    .show("Run --help for more info.", "Raw");
-                process.exit(0);
+                this.ERROR.log(message).RAW.log("Run --help for more info.").exit();
             },
             crash: (message) => {
-                this.newScreen()
-                    .show("The program crashed.", "Raw")
-                    .show(message, "Error");
+                this.ERROR.log("The program has crashed.").RAW.log(message).exit();
             },
             error: (message) => {
-                this.newScreen()
-                    .show("The program had an error.", "Raw")
-                    .show(message, "Error");
+                this.ERROR.log("The program has had an error.").RAW.log(message).exit();
             },
             noInput: () => {
-                this.log("Please run --help to learn how to use this program.", "Info");
+                this.INFO.log("Please run --help to learn how to use this program.");
             },
             done: (message) => {
-                this.log("The program is done running.", "Info").log(message);
-                process.exit(0);
+                this.INFO.log("The program is done running.", "Info").log(message).exit();
             },
         };
+        this.initalProgramArgs = [];
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
                 this.rdl = rdl;
@@ -363,6 +438,9 @@ class DSLogger {
         }
         return front + text + this.consoleCodes["Reset"];
     }
+    getRawParams() {
+        return process.argv;
+    }
     getParam(name) {
         let p;
         if ((p = this.params.get(name))) {
@@ -375,6 +453,9 @@ class DSLogger {
     addParam(param) {
         if (this.params.get(param.flag)) {
             throw new Error("Duplicate param.");
+        }
+        if (this.validInputTypes.indexOf(param.type) == -1) {
+            throw new Error("Not a valid input type.");
         }
         this.params.set(param.flag, param);
         this.params.set(param.name, param);
@@ -389,101 +470,71 @@ class DSLogger {
         if ((p = this.params.get(param))) {
             const v = this.paramValues.get(p.flag);
             if (typeof v !== "undefined") {
-                func(v, {});
+                func(v, args);
             }
         }
         return this;
     }
-    _isProgramArg(arg) {
-        const reg1 = /^-/;
-        const reg2 = /^--/;
-        return reg1.test(arg) || reg2.test(arg);
+    getInitalProgramArgs() {
+        return this.initalProgramArgs;
     }
-    initProgramInput() {
+    async initProgramInput() {
         const args = process.argv;
         const argsLength = args.length;
         let argc = 0;
+        let inital = true;
         for (const arg of args) {
             if (this._isProgramArg(arg)) {
+                inital = false;
                 if (arg == "--help") {
                     this.screens["helpScreen"]();
                 }
                 const inputString = arg.replace(/-/g, "");
                 if (this.params.get(inputString)) {
                     const param = this.params.get(inputString);
-                    if (!param)
-                        return;
+                    if (!param) {
+                        this.screens["helpScreen"]();
+                        return this;
+                    }
+                    if (this.paramValues.get(param.flag)) {
+                        this.promgramInitErrorScreen(`${param.name} was set twice`);
+                    }
                     let value = "";
                     if (param.type == "boolean") {
-                        if (args[argc + 1]) {
-                            const ahead = args[argc + 1];
-                            if (ahead == "true") {
-                                value = true;
-                            }
-                            if (ahead == "false") {
-                                value = false;
-                            }
-                            if (this._isProgramArg(ahead)) {
-                                value = true;
-                            }
-                            else {
-                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Either leave blank or use true or false. `);
-                            }
-                        }
-                        else {
-                            value = true;
-                        }
+                        value = await this._getBooleanParamValue(param, args, argc);
+                        argc++;
                     }
                     if (param.type == "string") {
-                        if (args[argc + 1]) {
-                            const ahead = args[argc + 1];
-                            if (!this.validators["string"](ahead)) {
-                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`);
-                            }
-                            else {
-                                value = ahead;
-                            }
-                        }
-                        else if (param.valueNeeded || param.required) {
-                            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
-                        }
-                        else {
-                            value = "";
-                        }
+                        value = await this._getStringParamValue(param, args, argc);
+                        argc++;
                     }
                     if (param.type == "stringall") {
-                        if (args[argc + 1]) {
-                            const ahead = args[argc + 1];
-                            if (!this.validators["stringall"](ahead)) {
-                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
-                            }
-                            else {
-                                value = ahead;
-                            }
-                        }
-                        else if (param.valueNeeded || param.required) {
-                            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
-                        }
-                        else {
-                            value = "";
-                        }
+                        value = await this._getStringAllParamValue(param, args, argc);
+                        argc++;
                     }
                     if (param.type == "number") {
-                        if (args[argc + 1]) {
-                            const ahead = args[argc + 1];
-                            if (!this.validators["number"](ahead)) {
-                                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid number.`);
-                            }
-                            else {
-                                value = ahead;
-                            }
-                        }
-                        else if (param.valueNeeded || param.required) {
-                            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
-                        }
-                        else {
-                            value = 0;
-                        }
+                        value = await this._getNumberParamValue(param, args, argc);
+                        argc++;
+                    }
+                    if (param.type == "string[]") {
+                        let arrayResults = await this._getStringArrayParamValue(param, args, argc);
+                        argc = arrayResults.newArgCount;
+                        value = arrayResults.value;
+                    }
+                    if (param.type == "stringall[]") {
+                        let arrayResults = await this._getStringAllArrayParamValue(param, args, argc);
+                        argc = arrayResults.newArgCount;
+                        value = arrayResults.value;
+                    }
+                    if (param.type == "number[]") {
+                        let arrayResults = await this._getNumberArrayParamValue(param, args, argc);
+                        argc = arrayResults.newArgCount;
+                        value = arrayResults.value;
+                    }
+                    if (param.type == "boolean[]") {
+                        let arrayResults = await this._getBooleanArrayParamValue(param, args, argc);
+                        argc = arrayResults.newArgCount;
+                        value = arrayResults.value;
                     }
                     if (param.required) {
                         this.requiredParams.set(param.flag, true);
@@ -491,8 +542,17 @@ class DSLogger {
                     this.paramValues.set(param.flag, value);
                 }
             }
-            argc++;
+            else {
+                if (inital && argc > 0) {
+                    this.initalProgramArgs.push(arg);
+                }
+                argc++;
+            }
         }
+        this._validateAllRequiredProgramParamsAreSet();
+        return this;
+    }
+    _validateAllRequiredProgramParamsAreSet() {
         for (const pk of this.requiredParams.keys()) {
             if (!this.requiredParams.get(pk)) {
                 const param = this.params.get(pk);
@@ -501,7 +561,255 @@ class DSLogger {
                 this.promgramInitErrorScreen(`${param.name} is required was not supplied with a value.`);
             }
         }
-        return this;
+    }
+    _isProgramArg(arg) {
+        const reg1 = /^-/;
+        const reg2 = /^--/;
+        return reg1.test(arg) || reg2.test(arg);
+    }
+    _createStringFromParamArray(args, argc) {
+        let argStringArray = [];
+        let argSearch = "";
+        let newArgCount = argc + 1;
+        while (args.length > newArgCount) {
+            const value = args[newArgCount];
+            argSearch = value;
+            if (this._isProgramArg(argSearch) || value === undefined) {
+                break;
+            }
+            argStringArray.push(value);
+            newArgCount++;
+        }
+        return argStringArray.toString();
+    }
+    _getArrayValues(args, argc) {
+        let returnValue = [];
+        let newArgCount = argc + 1;
+        if (!this._isProgramArg(args[argc + 1])) {
+            const ahead = this._createStringFromParamArray(args, argc);
+            let isDelimiterArray = false;
+            for (const delim of this.arrayInputDelimiters) {
+                returnValue = ahead.split(delim);
+                if (returnValue.length > 1) {
+                    isDelimiterArray = true;
+                    break;
+                }
+            }
+            if (!isDelimiterArray) {
+                returnValue = [];
+                let argSearch = "";
+                let argSearchCount = 0;
+                let newArgCount = argc + 1;
+                while (args.length > newArgCount) {
+                    newArgCount += argSearchCount;
+                    const value = args[newArgCount];
+                    if (this._isProgramArg(argSearch) || value === undefined) {
+                        break;
+                    }
+                    returnValue.push(value);
+                    argSearchCount++;
+                }
+            }
+        }
+        return {
+            newArgCount: newArgCount,
+            value: returnValue,
+        };
+    }
+    async _getStringAllArrayParamValue(param, args, argc) {
+        let value = [];
+        let newArgCount = argc;
+        if (args[argc + 1]) {
+            const data = await this._getArrayValues(args, argc);
+            newArgCount = data.newArgCount;
+            if (!(await this.validators["stringall[]"](data.value))) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
+            }
+            else {
+                value = data.value;
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = [""];
+        }
+        return {
+            newArgCount: newArgCount,
+            value: value,
+        };
+    }
+    async _getStringArrayParamValue(param, args, argc) {
+        let value = [];
+        let newArgCount = argc;
+        if (args[argc + 1]) {
+            const data = await this._getArrayValues(args, argc);
+            newArgCount = data.newArgCount;
+            if (!(await this.validators["string[]"](data.value))) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
+            }
+            else {
+                value = data.value;
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = [""];
+        }
+        return {
+            newArgCount: newArgCount,
+            value: value,
+        };
+    }
+    async _getNumberArrayParamValue(param, args, argc) {
+        let value = [];
+        let newArgCount = argc;
+        if (args[argc + 1]) {
+            const data = await this._getArrayValues(args, argc);
+            newArgCount = data.newArgCount;
+            const valid = await this.validators["number[]"](data.value);
+            if (!valid) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid number.`);
+            }
+            for (const values of data.value) {
+                if (values.includes(".")) {
+                    value.push(parseFloat(values));
+                }
+                else {
+                    value.push(parseInt(values));
+                }
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = [0];
+        }
+        return {
+            newArgCount: newArgCount,
+            value: value,
+        };
+    }
+    async _getBooleanArrayParamValue(param, args, argc) {
+        let value = [];
+        let newArgCount = argc;
+        if (args[argc + 1]) {
+            const data = await this._getArrayValues(args, argc);
+            newArgCount = data.newArgCount;
+            const valid = await this.validators["boolean[]"](data.value);
+            if (!valid) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Input must be either ${this.booleanTrueStrings.toString()} or${this.booleanFalseStrings.toString()}`);
+            }
+            for (const values of data.value) {
+                if (this.booleanTrueStrings.indexOf(values) > -1) {
+                    value.push(true);
+                }
+                if (this.booleanFalseStrings.indexOf(values) > -1) {
+                    value.push(false);
+                }
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = [true];
+        }
+        return {
+            newArgCount: newArgCount,
+            value: value,
+        };
+    }
+    async _getNumberParamValue(param, args, argc) {
+        let value = 0;
+        if (args[argc + 1]) {
+            const ahead = args[argc + 1];
+            const valid = await this.validators["number"](ahead);
+            if (!valid) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid number.`);
+            }
+            else {
+                if (ahead.includes(".")) {
+                    value = parseFloat(ahead);
+                }
+                else {
+                    value = parseInt(ahead);
+                }
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = 0;
+        }
+        return value;
+    }
+    async _getStringParamValue(param, args, argc) {
+        let value = "";
+        if (args[argc + 1]) {
+            const ahead = args[argc + 1];
+            const valid = await this.validators["string"](ahead);
+            if (!valid) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`);
+            }
+            else {
+                value = ahead;
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = "";
+        }
+        return value;
+    }
+    async _getStringAllParamValue(param, args, argc) {
+        let value = "";
+        if (args[argc + 1]) {
+            const ahead = args[argc + 1];
+            const valid = await this.validators["stringall"](ahead);
+            if (valid) {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
+            }
+            else {
+                value = ahead;
+            }
+        }
+        else if (param.valueNeeded || param.required) {
+            this.promgramInitErrorScreen(`${param.name} was not supplied with a value.`);
+        }
+        else {
+            value = "";
+        }
+        return value;
+    }
+    async _getBooleanParamValue(param, args, argc) {
+        let value = true;
+        if (args[argc + 1]) {
+            const ahead = args[argc + 1];
+            if (ahead == "true") {
+                value = true;
+            }
+            if (ahead == "false") {
+                value = false;
+            }
+            if (this._isProgramArg(ahead)) {
+                value = true;
+            }
+            else {
+                this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Either leave blank or use true or false. `);
+            }
+        }
+        else {
+            value = true;
+        }
+        return value;
     }
     restartPrompt() {
         this.questions = {};
@@ -519,7 +827,15 @@ class DSLogger {
         this.rli.close();
         return this;
     }
-    _prompt(question, varName, varType, custonName) {
+    async _convertInput(varType, input) {
+        let arrayTypes = ["boolean[]", "string[]", "number[]", "stringall[]"];
+        if (arrayTypes.indexOf(varType) != -1) {
+            const value = await this._getArrayValues([input], -1);
+            return value.value;
+        }
+        return input;
+    }
+    async _prompt(question, varName, varType, custonName) {
         let passed = true;
         let gotinput = false;
         let asked = false;
@@ -565,13 +881,15 @@ class DSLogger {
                     this.rli.question(question, (input) => {
                         this.rli.history.slice(1);
                         this.currentRow += this.countLines(question);
-                        this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+                        this.rdl.cursorTo(process.stdout, 0);
                         (async () => {
                             asked = true;
                             gotinput = true;
                             let valid = false;
+                            let newInput = "";
                             if (varType != "custom") {
-                                valid = await this.validators[varType](input);
+                                newInput = await this._convertInput(varType, input);
+                                valid = await this.validators[varType](newInput);
                             }
                             else {
                                 valid = await this.validators[varType](input, custonName);
@@ -613,7 +931,7 @@ class DSLogger {
                                 passed = true;
                             }
                             if (passed) {
-                                this.inputs.set(varName, input);
+                                this.inputs.set(varName, newInput);
                                 resolve(passed);
                             }
                         })();
@@ -741,6 +1059,46 @@ class DSLogger {
         this.currentRow = 0;
         return this;
     }
+    _getMessageArray(message) {
+        if (message == undefined)
+            return false;
+        let messageArray = [];
+        if (Array.isArray(message)) {
+            for (const mem of message) {
+                if (typeof mem === "number" || typeof mem === "string") {
+                    messageArray.push(`${mem}`);
+                }
+                else if (typeof mem === "boolean") {
+                    if (mem) {
+                        messageArray.push(`true`);
+                    }
+                    else {
+                        messageArray.push(`false`);
+                    }
+                }
+                else if (typeof mem === "object") {
+                    messageArray.push(JSON.stringify(mem, null, 5));
+                }
+            }
+        }
+        else {
+            if (typeof message === "object") {
+                messageArray[0] == JSON.stringify(message, null, 5);
+            }
+            else if (typeof message === "boolean") {
+                if (message) {
+                    messageArray.push(`true`);
+                }
+                else {
+                    messageArray.push(`false`);
+                }
+            }
+            else {
+                messageArray[0] = `${message}`;
+            }
+        }
+        return messageArray;
+    }
     _processMessage(message, type = "none") {
         let output = message;
         if (type != "Raw" && type != "Data") {
@@ -762,61 +1120,130 @@ class DSLogger {
         type: "none",
         sleep: this.defaultSleepTime,
     }) {
-        this.showAt(message, {
-            row: params.row,
-            type: params.type,
-            col: params.col,
-        });
-        return this.sleep(params.sleep);
+        const messageArray = this._getMessageArray(message);
+        if (!messageArray)
+            return this;
+        for (const mem of messageArray) {
+            this.showAt(mem, {
+                row: params.row,
+                type: params.type,
+                col: params.col,
+            });
+            let sleep = this.defaultSleepTime;
+            if (params.sleep) {
+                sleep = params.sleep;
+            }
+            this.sleep(sleep);
+        }
+        return this;
     }
     showAt(message, params = {
         row: this.currentRow,
         col: 0,
         type: "none",
     }) {
-        let output = this._processMessage(message, params.type);
-        const lines = this.countLines(`${output}`);
-        this.rdl.cursorTo(process.stdout, params.col, params.row);
-        this.currentRow += lines;
-        console.log(output);
+        const messageArray = this._getMessageArray(message);
+        if (!messageArray)
+            return this;
+        let col = 0;
+        if (params.col) {
+            col = params.col;
+        }
+        let row = this.currentRow;
+        if (params.row) {
+            row = params.row;
+        }
+        let type = "none";
+        if (params.type) {
+            type = params.type;
+        }
+        for (const mem of messageArray) {
+            let output = this._processMessage(mem, type);
+            const lines = this.countLines(`${output}`);
+            this.rdl.cursorTo(process.stdout, col, row);
+            this.currentRow += lines;
+            console.log(output);
+        }
         return this;
     }
     show(message, type = "none") {
-        let output = this._processMessage(message, type);
-        const lines = this.countLines(`${output}`);
-        this.rdl.cursorTo(process.stdout, 0, this.currentRow);
-        this.currentRow += lines;
-        console.log(output);
+        const messageArray = this._getMessageArray(message);
+        if (!messageArray)
+            return this;
+        for (const mem of messageArray) {
+            let output = this._processMessage(mem, type);
+            const lines = this.countLines(`${output}`);
+            this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+            this.currentRow += lines;
+            console.log(output);
+        }
         return this;
     }
     showSleep(message, type = "none", ms = this.defaultSleepTime) {
-        this.show(message, type);
-        this.sleep(ms);
+        const messageArray = this._getMessageArray(message);
+        if (!messageArray)
+            return this;
+        for (const mem of messageArray) {
+            this.show(mem, type);
+            this.sleep(ms);
+        }
         return this;
     }
     log(message, type = "none") {
-        let output = this._processMessage(message, type);
-        const lines = this.countLines(`${output}`);
-        this.currentRow += lines;
-        console.log(output);
+        const messageArray = this._getMessageArray(message);
+        if (!messageArray)
+            return this;
+        for (const mem of messageArray) {
+            let output = this._processMessage(mem, type);
+            const lines = this.countLines(`${output}`);
+            this.currentRow += lines;
+            console.log(output);
+        }
         return this;
     }
     logSleep(message, type = "none", ms = this.defaultSleepTime) {
-        this.log(message, type);
-        this.sleep(ms);
+        const messageArray = this._getMessageArray(message);
+        if (!messageArray)
+            return this;
+        for (const mem of messageArray) {
+            this.log(mem, type);
+            this.sleep(ms);
+        }
         return this;
     }
     logTable(data, collumns) {
-        const lines = Object.keys(data).length + 2;
-        this.currentRow += lines;
-        console.table(data, collumns);
+        if (data == undefined)
+            return this;
+        let dataArray = [];
+        if (Array.isArray(data)) {
+            dataArray = data;
+        }
+        else {
+            dataArray[0] = data;
+        }
+        for (const d of dataArray) {
+            const lines = Object.keys(d).length + 2;
+            this.currentRow += lines;
+            console.table(d, collumns);
+        }
         return this;
     }
     showTable(data, collumns) {
-        const lines = Object.keys(data).length + 2;
-        this.rdl.cursorTo(process.stdout, 0, this.currentRow);
-        console.table(data, collumns);
-        this.currentRow += lines;
+        if (data == undefined)
+            return this;
+        let dataArray = [];
+        if (Array.isArray(data)) {
+            dataArray = data;
+        }
+        else {
+            dataArray[0] = data;
+        }
+        for (const d of dataArray) {
+            const lines = Object.keys(d).length + 2;
+            this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+            this.currentRow += lines;
+            console.table(d, collumns);
+        }
         return this;
     }
     getMessageStyled(type, message) {
@@ -826,10 +1253,18 @@ class DSLogger {
         return message.split(/\r\n|\r|\n/).length;
     }
     logSeparator() {
-        this.show(this.getString("separator"), "Info");
+        this.log(this.getString("separator"), "Info");
         return this;
     }
     logProgramTitle() {
+        this.log(this.getString("title"), "Title");
+        return this;
+    }
+    showSeparator() {
+        this.show(this.getString("separator"), "Info");
+        return this;
+    }
+    showProgramTitle() {
         this.show(this.getString("title"), "Title");
         return this;
     }
@@ -1002,6 +1437,10 @@ class DSLogger {
         return this;
     }
     get NEWLINE() {
+        this.newLine();
+        return this;
+    }
+    get RETURN() {
         this.newLine();
         return this;
     }
@@ -1371,6 +1810,15 @@ class DSLogger {
     }
     do(func, arg) {
         func(arg);
+        return this;
+    }
+    newService(name, params) {
+        const inte = setInterval(() => { params.run(); }, params.interval);
+        this.services[name] = inte;
+        return this;
+    }
+    clearService(name) {
+        clearInterval(this.services[name]);
         return this;
     }
     exit() {
