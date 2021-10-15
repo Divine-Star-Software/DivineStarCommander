@@ -1100,7 +1100,7 @@ class DSLogger {
                 }
                 if (q.attempts && q.attempts != "all") {
                   (q as any).fails++;
-                  if (q.fails == q.attempts || !q.reAsk) {
+                  if ((q as any).fails >= q.attempts || !q.reAsk) {
                     this.questionsFails[qID].func(
                       this.questionsFails[qID].args
                     );
@@ -1184,6 +1184,7 @@ class DSLogger {
       this.questions[this.lastQuestion].attempts = attempts;
       this.questions[this.lastQuestion].fails = 0;
     }
+
     return this;
   }
   /**# Ask
@@ -2737,8 +2738,8 @@ class DSLogger {
    * @param params \{interval : number,run : Function\}
    * @returns 
    */
-  newService(name : string , params : {interval : number,run : Function}) {
-    const inte = setInterval(()=>{params.run()},params.interval);
+  newService(name : string , params : {interval : number,run : Function,args : any}) {
+    const inte = setInterval(()=>{params.run(params.args)},params.interval);
     this.services[name] = inte;
     return this;
   }
@@ -2758,6 +2759,15 @@ class DSLogger {
    */
   exit() {
     process.exit(0);
+  }
+  /**# [EXIT] Exit
+   * ---
+   * Makes the program exit.
+   * Runs : process.exit(0)
+   */
+  get EXIT(){
+    this.exit();
+    return this;
   }
   /**# Done
    * ---

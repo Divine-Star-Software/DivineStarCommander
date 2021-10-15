@@ -903,7 +903,7 @@ class DSLogger {
                                 }
                                 if (q.attempts && q.attempts != "all") {
                                     q.fails++;
-                                    if (q.fails == q.attempts || !q.reAsk) {
+                                    if (q.fails >= q.attempts || !q.reAsk) {
                                         this.questionsFails[qID].func(this.questionsFails[qID].args);
                                     }
                                 }
@@ -1813,7 +1813,7 @@ class DSLogger {
         return this;
     }
     newService(name, params) {
-        const inte = setInterval(() => { params.run(); }, params.interval);
+        const inte = setInterval(() => { params.run(params.args); }, params.interval);
         this.services[name] = inte;
         return this;
     }
@@ -1823,6 +1823,10 @@ class DSLogger {
     }
     exit() {
         process.exit(0);
+    }
+    get EXIT() {
+        this.exit();
+        return this;
     }
     done() {
         this.screens["done"]();

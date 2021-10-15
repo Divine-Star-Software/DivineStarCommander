@@ -68,9 +68,9 @@ const dsLog = require("../../dist/index.js");
       required: false,
       valueNeeded: false,
     })
-    .newScreen()
+    .newScreen();
     //Get command line args
-    .initProgramInput()
+    (await dsLog.initProgramInput())
     //Check if they are set
     .ifParamIsset("a", (value: any, args: any) => {
       dsLog.showSleep(value, "Info");
@@ -146,15 +146,49 @@ If you need to access readline later you can grab it from the dslog object.
 ### Program Params
  
 Functions related to getting command line input for the program.
+
+```typescript 
+  dsLog
+  .addParam({
+    flag: "a",
+    name: "auto",
+    desc: "Auto parse",
+    type: "string[]",
+    required: false,
+    valueNeeded: true,
+  })
+  .addParam({
+    flag: "b",
+    name: "batch",
+    desc: "Batch parse",
+    type: "boolean",
+    required: false,
+    valueNeeded: true,
+  });
+   (await dsLog.initProgramInput())
+  .ifParamIsset("a", (value: any, args: any) => {
+    dsLog.logSleep(value);
+  })
+  .ifParamIsset("b", (value: any, args: any) => {
+    dsLog.logSleep(value);
+  })
+  .logSleep(dsLog.getParam('b'));
+
+```
  
 > **Param Types**
  
 | Type          | Description                                                 |
 | ------------- | ----------------------------------------------------------- |
-| **string**    | Just chars.                                                 |
-| **stringall** | A string of chars and numbers.                              |
-| **string**    | Just numbers.                                               |
+| **string**    | Just chars.                                                  |
+| **string[]**    | Just an arrary of strings with just chars.                                                  |
+| **stringall** | A string of chars and numbers.                               |
+| **stringall[]** | A string array of chars and numbers.                               |
+| **number**    | Just numbers.                                                |
+| **number[]**    | Just an arrary of numbers.                                                |
 | **boolean**   | Can be left blank for true or user can input "true"/"false" |
+| **boolean[]**    | An array of booleans.                                             |
+
  
 > **Param Object**
  
@@ -174,11 +208,24 @@ Functions related to getting command line input for the program.
 | **addParam**         | param : ParamObject                                                             | self    | Adds a param to the program.                                                                            |
 | **getParam**         | getParam : string                                                               | self    | Get a user's input for a param.                                                                          |
 | **ifParamIsset**     | **param** : string, **func** : (**value**:any,**args**:any)=>{} ,**args** : any | self    | If a param is set, run a function that will be passed the value and any args you give as the arg object. |
-| **initProgramInput** | none                                                                            | self    | Parse the user's input. Must be called in order for the param functions to work.                         |
+| **initProgramInput** | none                                                                            | Promise of self    | Parse the user's input. Must be called in order for the param functions to work.                         |
  
 ### Show and Log Functions
  
 Functions related to logging to the console.
+
+```typescript 
+  dsLog
+   .defineSleepTime(300)
+   .INFO.logSleep(["Info 1","Info 2",{cool:"This is cool"}])
+   .WARNING.logSleep(["Warning 1","Warning 2"])
+   .RAW.logTable({someData : ["1","2","4"]})
+   .GOOD
+   .defineSleepTime(100)
+   .logSleep(["It","is","all","good"])
+   .CLEAR;
+
+```
  
 > **Message Types**
  
@@ -198,14 +245,14 @@ Functions related to logging to the console.
 | Function                    | Params                                                                                                                            | Returns | Description                                                                      |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------- |
 | **newScreen**               | none                                                                                                                              | self    | Clears the screen and resets the console log row.                                |
-| **show**                    | **message** : string, **type** ?: MessageType or "none"                                                                           | self    | Logs message at current row.                                                     |
-| **showSleep**               | **message** : string, **type** ?: MessageType or "none" , **ms** ?: number                                                        | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
-| **showAt**                  | **message** : string, **params** : {**row** ?: number,**type** : MessageType or "none", , **col** ?: number }                     | self    | Logs message at given row.                                                       |
-| **showAtSleep**             | **message** : string, **params** : {**row** ?: number, **type** ?: MessageType or "none",**sleep** ?: number, **col** ?: number } | self    | Logs message at given row and sleeps.                                            |
-| **log**                     | **message** : string, **type** ?: MessageType or "none"                                                                           | self    | Log message without adjusting cursor position.                                   |
-| **logSleep**                | **message** : string, **type** ?: MessageType or "none", **ms** : number                                                          | self    | Log message and sleep without adjusting cursor position.                         |
-| **showTable**               | **data** : object, **collumens** ?: string[]                                                                                      | self    | Moves cursor to current row and runs console.table.                              |
-| **logTable**                | **data** : string, **collumens** ?: string[]                                                                                      | self    | Runs console.table.                                                              |
+| **show**                    | **message** : string | number | any[], **type** ?: MessageType or "none"                                                                           | self    | Logs message at current row.                                                     |
+| **showSleep**               | **message** : string | number | any[], **type** ?: MessageType or "none" , **ms** ?: number                                                        | self    | Logs message at current sleep row then sync sleep for given miliseconds.         |
+| **showAt**                  | **message** : string | number | any[], **params** : {**row** ?: number,**type** : MessageType or "none", , **col** ?: number }                     | self    | Logs message at given row.                                                       |
+| **showAtSleep**             | **message** : string | number | any[], **params** : {**row** ?: number, **type** ?: MessageType or "none",**sleep** ?: number, **col** ?: number } | self    | Logs message at given row and sleeps.                                            |
+| **log**                     | **message** : string | number | any[], **type** ?: MessageType or "none"                                                                           | self    | Log message without adjusting cursor position.                                   |
+| **logSleep**                | **message** : string | number | any[], **type** ?: MessageType or "none", **ms** : number                                                          | self    | Log message and sleep without adjusting cursor position.                         |
+| **showTable**               | **data** : object | object[], **collumens** ?: string[]                                                                                      | self    | Moves cursor to current row and runs console.table.                              |
+| **logTable**                | **data** : object | object[], **collumens** ?: string[]                                                                                      | self    | Runs console.table.                                                              |
 | **logProgramTitle**         | none                                                                                                                              | self    | Logs the program defined title at the current row with the given title style.    |
 | **logSeparator**            | none                                                                                                                              | self    | Logs the program defined separator at the current row with the given info style. |
 | **displayScreen**           | (**screen**:Screens,**args**:any)                                                                                                 | self    | Logs the program defined screen at the current                                   |
@@ -217,14 +264,40 @@ Functions related to logging to the console.
 ### User Input Functions
  
 Functions related to getting the user's input.
+```typescript
+dsLog
+  .defineValidator("custom",async(input : string | string[])=>{
+    if(Array.isArray(input)) return false;
+    let yes = ['yes','y'];
+    if(yes.indexOf(input) > -1) {
+      return true;
+    }
+    return false;
+  },"yes")
+  .ask("What is your name?","name","string")
+  .fail(true,'Please re-enter your name.')
+  .ask("What is your email?","name","email")
+  .fail(true,'Please re-enter your email.')
+  .ask("Do you agree to the tems?","terms","custom","yes")
+  .fail(true,'Are you sure? Please re-enter:',2,()=>{dsLog.BR.R.logSleep("Exiting...").exit()});
+  (await dsLog.startPrompt())
+  .BRIGHT.BLUE
+  .logSleep(['Your name is:',dsLog.getInput("name")]); 
+
+```
  
 > **Question Types**
  
 | Type          | Description                                                  |
 | ------------- | ------------------------------------------------------------ |
 | **string**    | Just chars.                                                  |
+| **string[]**    | Just an arrary of strings with just chars.                                                  |
 | **stringall** | A string of chars and numbers.                               |
+| **stringall[]** | A string array of chars and numbers.                               |
 | **number**    | Just numbers.                                                |
+| **number[]**    | Just an arrary of numbers.                                                |
+| **boolean**    | True or false.                                                |
+| **boolean[]**    | An array of booleans.                                             |
 | **digit**     | Just one digit.                                              |
 | **email**     | An email.                                                    |
 | **password**  | String of chars and numbers. Output will be hidden.          |
@@ -337,7 +410,7 @@ style must be cleared in-between the messages. This is so you can just re-use th
 dsLog
   .newScreen()
   .BR.W.RBG.showSleep("Error Message")
-  .ERROR.showSleep("Error Message")
+  .ERROR.showSleep(["Error Message","Error Message 1","Error Message 2"])
   .CLEAR.BR.W.BBG.showSleep("Info Message")
   .INFO.showSleep("Info Message 1")
   .showSleep("This will be the same style").CLEAR
@@ -455,7 +528,7 @@ Functions used to make the program sleep.
 | Function   | Params          | Returns         | Description                                 |
 | ---------- | --------------- | --------------- | ------------------------------------------- |
 | **sleep**  | **ms** : number | self            | Make the progarm sleep via a sync method.   |
-| **setRow** | **ms** : number | Promise of self | Make the program sleep via an async method. |
+| **asyncSleep** | **ms** : number | Promise of self | Make the program sleep via an async method. |
  
 ### Other Functions
  
@@ -463,9 +536,9 @@ Other usefull functions.
  
 | Function       | Params                                   | Returns | Description                             |
 | -------------- | ---------------------------------------- | ------- | --------------------------------------- |
-| **do**         | **func** : (arg:any)=>any,**arg** ?: any | none    | Run a function in the chain.            |
+| **do**         | **func** : (arg:any)=>any,**arg** ?: any | self    | Run a function in the chain.            |
+| **newService** | **name** : string , params : {**interval** : number,run : **func** : (arg:any)=>any,**arg** : any }   |  self        |Run a function in the chain on an interval.   
+| **clearService**       | **name** : string                                     | self    | Stops a service from running.                |
 | **exit**       | none                                     | none    | Runs process.exit(0).                   |
 | **done**       | none                                     | none    | Shows the done screen and then exits.   |
-| **countLines** | text : string                            | none    | Count the numbers of lines in a string. |
- 
-
+| **countLines** | text : string                            | number    | Count the numbers of lines in a string. |
