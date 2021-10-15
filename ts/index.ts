@@ -409,7 +409,7 @@ class DSLogger {
   screens: Record<DisplayScreens, Function> = {
     splash: () => {},
     helpScreen: () => {
-      this.TITLE.show(this.getString("title")).NL.RAW.show(
+      this.TITLE.log(this.getString("title")).NL.RAW.log(
         this.getString("helpText")
       ).NL;
       const ii = " ";
