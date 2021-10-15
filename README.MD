@@ -26,11 +26,35 @@ colored messages, progress bars, and so on.
 ## Why?
  
 To make an easy chainable way to create a CLI fast. This provides a complete package for basic command line tools.
+
+## How To Start
+
+Start a new node project and install typescrit and dslog.
+
+```console
+  npm init
+  npm i --save-dev typescript tslib @types/node
+  npm i --save dslog
+```
+
+In your typescript config file set the types to be. 
+
+```json
+{
+
+    "types" : ["node","tslib","dslog"]
+
+}
+```
+
+And then you can simply require the dslog object and define it as DSLogger. 
+
+See the code bellow to get start quickly. 
  
-### Example
+### Starter Code
  
 ```typescript
-const dsLog = require("../../dist/index.js");
+const dsLog : DSLogger = require("dslog");
 (async () => {
   dsLog
     //Define the program
@@ -287,7 +311,7 @@ dsLog
   .fail(true, "Please re-enter your name.")
   .ask("What is your email?", "name", "email")
   .fail(true, "Please re-enter your email.")
-  .ask("Do you agree to the tems?", "terms", "custom", "yes")
+  .ask("Do you agree to the terms?", "terms", "custom", "yes")
   .fail(true, "Are you sure? Please re-enter:", 2, () => {
     dsLog.BR.R.logSleep("Exiting...").exit();
   });

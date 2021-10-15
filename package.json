@@ -1,6 +1,6 @@
 {
   "name": "dslog",
-  "version": "1.1.52",
+  "version": "1.1.53",
   "description": "A tool to create command line applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
