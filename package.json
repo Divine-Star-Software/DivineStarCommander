@@ -1,7 +1,7 @@
 {
   "name": "dslog",
-  "version": "1.1.51",
-  "description": "Easy logging script for command line tools.",
+  "version": "1.1.52",
+  "description": "A tool to create command line applications.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": { 
@@ -13,10 +13,12 @@
   "keywords": [
     "log",
     "logger",
+    "cocnsole input",
+    "console onput",
     "console",
     "cli",
     "args",
-    "color",
+    "console color",
     "prompt"
   ],
   "author": "Divine Star LLC",

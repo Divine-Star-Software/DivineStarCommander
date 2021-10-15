@@ -686,6 +686,11 @@ declare class DSLogger {
      * Sets chain style to be underscored.
      */
     get UNDERSCORE(): this;
+    /**# [UNDERLINE] Underscore
+   * ---
+   * Sets chain style to be underscored.
+   */
+    get UNDERLINE(): this;
     /** # Dim
      * ---
      * Returns a string styled to be dim.

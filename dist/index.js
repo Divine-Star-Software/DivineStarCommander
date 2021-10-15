@@ -1976,6 +1976,14 @@ class DSLogger {
         this.styleDelimiter.underscore = true;
         return this;
     }
+    /**# [UNDERLINE] Underscore
+   * ---
+   * Sets chain style to be underscored.
+   */
+    get UNDERLINE() {
+        this.styleDelimiter.underscore = true;
+        return this;
+    }
     /** # Dim
      * ---
      * Returns a string styled to be dim.
