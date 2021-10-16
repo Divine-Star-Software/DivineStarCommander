@@ -10,6 +10,7 @@
  
 ![GitHub top language](https://img.shields.io/github/languages/top/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
 ![GitHub repo size](https://img.shields.io/github/repo-size/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
+![npm own loads](https://img.shields.io/npm/dt/dslog?color=purple&style=plastic)
 ![GitHub latest release](https://img.shields.io/github/v/release/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
 ![GitHub latest version](https://img.shields.io/npm/v/dslog?color=purple&style=plastic)
 ![GitHub last commit](https://img.shields.io/github/last-commit/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
