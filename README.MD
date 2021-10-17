@@ -50,7 +50,7 @@ In your typescript config file set the types to be.
 
 And then you can simply require the dslog object and define it as DSLogger. 
 
-See the code bellow to get start quickly. 
+See the code bellow to get started quickly. 
  
 ### Starter Code
  
