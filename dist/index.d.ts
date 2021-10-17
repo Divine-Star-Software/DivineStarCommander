@@ -1,3 +1,8 @@
+declare type UserInputWatchObject = {
+    run: (args: any) => {};
+    args: any;
+};
+declare type UserInputKeys = "up" | "down" | "left" | "right" | "ctrl+c" | "ctrl+a" | "ctrl+b" | "ctrl+d" | "ctrl+e" | "ctrl+f" | "ctrl+g" | "ctrl+h" | "ctrl+i" | "ctrl+j" | "ctrl+k" | "ctrl+l" | "ctrl+m" | "ctrl+n" | "ctrl+o" | "ctrl+p" | "ctrl+q" | "ctrl+r" | "ctrl+s" | "ctrl+t" | "ctrl+u" | "ctrl+v" | "ctrl+w" | "ctrl+x" | "ctrl+y" | "ctrl+z" | "esc" | "del" | "f1" | "f2" | "f3" | "f4" | "f5" | "f6" | "f7" | "f8" | "f9" | "f10" | "f12" | "insert" | "end" | "home" | "page-up" | "page-down" | "enter";
 declare type ConsoleCodes = "Reset" | "Bright" | "Dim" | "Underscore" | "Blink" | "Reverse" | "Hidden";
 declare type ConsoleColors = "Black" | "Red" | "Green" | "Yellow" | "Blue" | "Magenta" | "Cyan" | "White";
 declare type StyleObject = {
@@ -54,6 +59,11 @@ declare type ServiceBarStyle = {
     size: number;
     interval: number;
 };
+declare type Directives = {
+    debug: boolean;
+    group: boolean;
+    trace: boolean;
+};
 /**
   # DSLogger
   ---
@@ -65,41 +75,98 @@ declare type ServiceBarStyle = {
   */
 declare class DSLogger {
     rdl: any;
-    defaultStyleDelimiter: StyleObject;
-    styleDelimiter: StyleObject;
-    defaultSleepTime: number;
-    services: Record<string, any>;
-    strings: Record<Strings, string>;
-    defaultPrgoressBarStyle: ProgressBarStyle;
-    defaultServiceBarStyle: ServiceBarStyle;
-    consoleCodes: Record<ConsoleCodes, string>;
-    consoleFGColors: Record<ConsoleColors, string>;
-    consoleBGColors: Record<ConsoleColors, string>;
-    questionStyles: Record<QuestionDisplayTypes, StyleObject>;
-    messageStyles: Record<MessageTypes, StyleObject>;
-    params: Map<string, ProgramParams>;
-    paramValues: Map<string, ProgramParamsDataTypes>;
-    requiredParams: Map<string, boolean>;
-    inputs: Map<string, string | number | string[] | boolean | boolean[] | number[] | undefined>;
-    lastQuestion: string;
-    askedQuestions: number;
-    questions: Record<string, StoredQuestions>;
-    questionsFails: Record<string, {
+    debugMode: boolean;
+    _numOfGroups: number;
+    _directives: Directives;
+    _defaultStyleDelimiter: StyleObject;
+    _styleDelimiter: StyleObject;
+    _defaultSleepTime: number;
+    _services: Record<string, any>;
+    _strings: Record<Strings, string>;
+    _defaultPrgoressBarStyle: ProgressBarStyle;
+    _defaultServiceBarStyle: ServiceBarStyle;
+    _consoleCodes: Record<ConsoleCodes, string>;
+    _consoleFGColors: Record<ConsoleColors, string>;
+    _consoleBGColors: Record<ConsoleColors, string>;
+    _questionStyles: Record<QuestionDisplayTypes, StyleObject>;
+    _messageStyles: Record<MessageTypes, StyleObject>;
+    _initalProgramArgs: string[];
+    _params: Map<string, ProgramParams>;
+    _paramValues: Map<string, ProgramParamsDataTypes>;
+    _requiredParams: Map<string, boolean>;
+    _inputs: Map<string, string | number | string[] | boolean | boolean[] | number[] | undefined>;
+    _lastQuestion: string;
+    _askedQuestions: number;
+    _questions: Record<string, StoredQuestions>;
+    _questionsFails: Record<string, {
         args: any;
         func: Function;
     }>;
     currentRow: number;
+    currentCol: number;
     rli: any;
-    progressBars: Record<string, any>;
-    serviceBars: Record<string, any>;
+    _progressBars: Record<string, any>;
+    _serviceBars: Record<string, any>;
     arrayInputDelimiters: string[];
     booleanTrueStrings: string[];
     booleanFalseStrings: string[];
-    validators: Record<QuestionsTypes, (input: string | string[], type?: string) => Promise<boolean>>;
-    validInputTypes: string[];
-    customValidators: Record<string, (input: any) => Promise<boolean>>;
-    screens: Record<DisplayScreens, Function>;
+    _validators: Record<QuestionsTypes, (input: string | string[], type?: string) => Promise<boolean>>;
+    _validInputTypes: string[];
+    _customValidators: Record<string, (input: any) => Promise<boolean>>;
+    _screens: Record<DisplayScreens, Function>;
+    boxChars: {
+        "style-1": {
+            top: string;
+        };
+    };
+    _keyMap: Record<UserInputKeys, string>;
+    _stdinKeyWatch: Record<string, UserInputWatchObject[]>;
+    _stdinCharWatch: Record<string, UserInputWatchObject[]>;
+    _stdinInputWatcher: (char: string) => void;
+    _stdin: any;
     constructor(rdl: any);
+    /**# Start User Input Captcher
+     * ---
+     * Start capturing the users input for processing.
+     * @returns this
+     */
+    startUserInputCaptcher(): this;
+    /**# Stop User Input Captcher
+     * ---
+     * Stops the cature of the input from the user.
+     * @returns this
+     */
+    stopUserInputCaptcher(): this;
+    /**# On User Input Char
+     * ---
+     * If the program is capturing input set a trigger for a specific char.
+     * The watcher object has two properties.
+     * \{
+     * __run__ : (args:any)=>{}
+     * __args__ : any
+     * \}
+     *
+     * The function will be passed the args you pass it in the object.
+     * @param char | Char to watch
+     * @param watcher | WatcherObject
+     * @returns this
+     */
+    onUserInputChar(char: string, watcher: UserInputWatchObject): this;
+    /**# On User Input Key
+     * ---
+     * If the program is capturing input set a trigger for a specific keyboard key.
+     * The watcher object has two properties.
+     * \{
+     * __run__ : (args:any)=>{}
+     * __args__ : any
+     * \}
+     *
+     * The function will be passed the args you pass it in the object.
+     * @param key | UserInputKeys
+     * @param watcher | WatcherObject
+     * @returns this
+     */
+    onUserInputKey(key: UserInputKeys, watcher: UserInputWatchObject): this;
     /** # Stylize
      * ---
      * Stylize the text with the given format.
@@ -132,8 +199,7 @@ declare class DSLogger {
      * @param func The function to be run. Will be passed the value of the param and the args given.
      * @param args Args to be passed to the function.
      */
-    ifParamIsset(param: string, func: (value: ProgramParamsDataTypes, args: any) => {}, args?: any): this;
-    initalProgramArgs: string[];
+    ifParamIsset(param: string, func: (value: ProgramParamsDataTypes, args: any) => any, args?: any): this;
     /**# Get Inital Program Args
      * ---
      * Get arugments that suplied to the program between the program name and the start of the flags.
@@ -217,6 +283,14 @@ declare class DSLogger {
      * @param varName
      */
     getInput(varName: string): string | number | any[] | undefined | boolean;
+    /** # If Input Isset
+     * ---
+     * If the input is set run a function.
+     * @param varName The name of the input.
+     * @param func The function to be run. Will be passed the value of the input and the args given.
+     * @param args Args to be passed to the function.
+     */
+    ifInputIsset(varName: string, func: (value: string | number | any[] | undefined | boolean, args: any) => any, args?: any): this;
     /**# Clear Rows
      * ---
      * Clears console output for a given row range.
@@ -240,6 +314,32 @@ declare class DSLogger {
      * Add one row to the current console cursor.
      */
     addRow(): this;
+    /**# Minus
+     * ---
+     * Minus one row to the current console cursor.
+     */
+    minusRow(): this;
+    /**# Get Row
+     * ---
+     * Gets the current row number that the output is on.
+     */
+    getCol(): number;
+    /**# Set Col
+     *---
+     * Sets the console cursor to a collumn.
+     * @param num
+     */
+    setCol(num: number): this;
+    /**# Add Col
+     * ---
+     * Add one to the current console cursor collumn.
+     */
+    addCol(): this;
+    /**# Minus Collumn
+     * ---
+     * Minus one to the current console cursor collumn.
+     */
+    minusCol(): this;
     /**# New Service Bar
      * ---
      * Makes a continuous loading bar.
@@ -297,6 +397,7 @@ declare class DSLogger {
      */
     _getMessageArray(message: string | number | object | any[]): string[] | false;
     _processMessage(message: string, type?: MessageTypes | "none"): string;
+    _checkDebug(): boolean;
     /**# Show At Sleep
      * ---
      * Shows a message at a specific row then sleeps. You can supply it arguments with the params object.
@@ -687,9 +788,9 @@ declare class DSLogger {
      */
     get UNDERSCORE(): this;
     /**# [UNDERLINE] Underscore
-   * ---
-   * Sets chain style to be underscored.
-   */
+     * ---
+     * Sets chain style to be underscored.
+     */
     get UNDERLINE(): this;
     /** # Dim
      * ---
@@ -1042,10 +1143,10 @@ declare class DSLogger {
      */
     clearService(name: string): this;
     /**# Exit
-    * ---
-    * Makes the program exit.
-    * Runs : process.exit(0)
-    */
+     * ---
+     * Makes the program exit.
+     * Runs : process.exit(0)
+     */
     exit(): void;
     /**# [EXIT] Exit
      * ---
@@ -1053,12 +1154,197 @@ declare class DSLogger {
      * Runs : process.exit(0)
      */
     get EXIT(): this;
+    /**# [END] Exit
+     * ---
+     * Makes the program exit.
+     * Runs : process.exit(0)
+     */
+    get END(): this;
+    /**# [DIE] Exit
+     * ---
+     * Makes the program exit.
+     * Runs : process.exit(0)
+     */
+    get DIE(): this;
     /**# Done
      * ---
      * Shows the done screen and then exits.
      * Runs : process.exit(1)
      */
     done(): void;
+    /**# [DONE] Done
+     * ---
+     * Shows the done screen and then exits.
+     * Runs : process.exit(1)
+     */
+    get DONE(): this;
+    /** # Debug
+     * ---
+     * Sets it to debug mode.
+     * @param debug
+     */
+    debug(debug?: boolean): this;
+    /**# [DEBUG] Toggle Debug
+     * ---
+     * Toggles the debug mode.
+     */
+    get DEBUG(): this;
+    /**# [DEBUGSTART] Debug Start
+     * ---
+     * Starts the debug directive.
+     */
+    get DEBUGSTART(): this;
+    /**# [DEBUGEND] Debug End
+     * ---
+     * Ends the debug directive.
+     */
+    get DEBUGEND(): this;
+    /**# Group
+     * ---
+     * Calls console.group to create an intented text.
+     * If you supply a name it will print before the next output.
+     * @param label
+     * @returns this
+     */
+    group(label?: string, styleObj?: StyleObject): this;
+    /**# [GROUP] Group
+     * ---
+     * This toggles the group feature.
+     * Calls console.group to create an intented text.
+     * @returns this
+     */
+    get GROUP(): this;
+    /**# [GROUPSTART] Group Start
+     * ---
+     * Calls console.group to create an intented text.
+     * @returns this
+     */
+    get GROUPSTART(): this;
+    /**# [GRS] Group Start
+     * ---
+     * Calls console.group to create an intented text.
+     * @returns this
+     */
+    get GRS(): this;
+    /**# End Group
+     * ---
+     * Calls console.groupEnd to end a group.
+     * @returns
+     */
+    endGroup(): this;
+    /**# [GROUPEND] Group End
+     * ---
+     * Calls console.groupEnd to end a group.
+     * @returns this
+     */
+    get GROUPEND(): this;
+    /**# [GRE] Group End
+     * ---
+     * Calls console.groupEnd to end a group.
+     * @returns this
+     */
+    get GRE(): this;
+    /**# End all groups
+     * ---
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    endAllGroups(): this;
+    /**# Collapse All Groups
+     * ---
+     * Alias for endAllGroups
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    collapseAllGroups(): this;
+    /**# [COLLAPSEALLGROUPS] Collapse All Groups
+     * ---
+     * Alias for End All Groups
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get COLLAPSEALLGROUPS(): this;
+    /**# [CAG] Collapse All Groups
+     * ---
+     * Alias for End All Groups
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get CAG(): this;
+    /**# [GROUPENDALL] Group End ALL
+     * ---
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get GROUPENDALL(): this;
+    /**# [GREA] Group End ALL
+     * ---
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get GREA(): this;
+    /**# Trace
+     * ---
+     * All show and log functions will now use trace until it is turned off.
+     * @returns this
+     */
+    trace(enable?: boolean): this;
+    /**# [TRACE] Trace
+     * ---
+     * Toggles the trace option.
+     * @returns this
+     */
+    get TRACE(): this;
+    /**# [TRACESTART] Trace Start
+     * ---
+     * Starts tracing
+     * @returns this
+     */
+    get TRACESTART(): this;
+    /**# [TS] Trace Start
+     * ---
+     * Starts tracing
+     * @returns this
+     */
+    get TS(): this;
+    /**# [TRACEEND] Trace End
+     * ---
+     * Stops tracing
+     * @returns this
+     */
+    get TRACEEND(): this;
+    /**# [TE] Trace End
+     * ---
+     * Strops tracing
+     * @returns this
+     */
+    get TE(): this;
+    /**# Time
+     * ---
+     * Runs console.time with the provided label or default.
+     * @param label
+     * @returns this
+     */
+    time(label?: string): this;
+    /**# [TIME] TIME
+     * ---
+     * Runs time
+     * @returns this
+     */
+    get TIME(): this;
+    /**# Time End
+     * ---
+     * Runs console.timeEnd with the provided label or default.
+     * @param label
+     * @returns this
+     */
+    timeEnd(label?: string): this;
+    /**# [TIMEEND] TIME END
+     * ---
+     * Runs timeEND
+     * @returns this
+     */
+    get TIMEEND(): this;
     ServiceBar: {
         new (rdl: any, rows?: number, size?: number, start?: number, interval?: number, base?: string, loadedOne?: string, loadedTwo?: string, cap?: string): {
             cursor: number;

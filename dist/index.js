@@ -11,13 +11,21 @@
 class DSLogger {
     constructor(rdl) {
         this.rdl = rdl;
+        this.debugMode = false;
+        //Used to keep track of number of console.group runs. So they can all be cleared later.
+        this._numOfGroups = 0;
+        this._directives = {
+            debug: false,
+            trace: false,
+            group: false,
+        };
         //Used for chaining styles
-        this.defaultStyleDelimiter = {};
-        this.styleDelimiter = {};
-        this.defaultSleepTime = 800;
-        this.services = {};
+        this._defaultStyleDelimiter = {};
+        this._styleDelimiter = {};
+        this._defaultSleepTime = 800;
+        this._services = {};
         //strings
-        this.strings = {
+        this._strings = {
             title: "[ Divine Star Logger ]",
             helpText: "",
             star: `            [1m[35m.[0m
@@ -36,7 +44,7 @@ class DSLogger {
             reAskText: "The input was not correct please re-enter",
             reAskDelimiter: ":",
         };
-        this.defaultPrgoressBarStyle = {
+        this._defaultPrgoressBarStyle = {
             base: "-",
             baseStyle: {},
             loaded: "=",
@@ -44,7 +52,7 @@ class DSLogger {
             size: 30,
             interval: 15,
         };
-        this.defaultServiceBarStyle = {
+        this._defaultServiceBarStyle = {
             base: "X",
             baseStyle: {
                 bg: "Blue",
@@ -68,7 +76,7 @@ class DSLogger {
             size: 30,
             interval: 80,
         };
-        this.consoleCodes = {
+        this._consoleCodes = {
             Reset: "\x1b[0m",
             Bright: "\x1b[1m",
             Dim: "\x1b[2m",
@@ -77,7 +85,7 @@ class DSLogger {
             Reverse: "\x1b[7m",
             Hidden: "\x1b[8m",
         };
-        this.consoleFGColors = {
+        this._consoleFGColors = {
             Black: "\x1b[30m",
             Red: "\x1b[31m",
             Green: "\x1b[32m",
@@ -87,7 +95,7 @@ class DSLogger {
             Cyan: "\x1b[36m",
             White: "\x1b[37m",
         };
-        this.consoleBGColors = {
+        this._consoleBGColors = {
             Black: "\x1b[40m",
             Red: "\x1b[41m",
             Green: "\x1b[42m",
@@ -97,7 +105,7 @@ class DSLogger {
             Cyan: "\x1b[46m",
             White: "\x1b[47m",
         };
-        this.questionStyles = {
+        this._questionStyles = {
             delimiter: {
                 fg: "Cyan",
                 bright: true,
@@ -114,7 +122,7 @@ class DSLogger {
                 bright: true,
             },
         };
-        this.messageStyles = {
+        this._messageStyles = {
             Blink: {
                 blink: true,
             },
@@ -146,22 +154,24 @@ class DSLogger {
                 bright: true,
             },
         };
-        this.params = new Map();
-        this.paramValues = new Map();
-        this.requiredParams = new Map();
-        this.inputs = new Map();
-        this.lastQuestion = "";
-        this.askedQuestions = 0;
-        this.questions = {};
-        this.questionsFails = {};
+        this._initalProgramArgs = [];
+        this._params = new Map();
+        this._paramValues = new Map();
+        this._requiredParams = new Map();
+        this._inputs = new Map();
+        this._lastQuestion = "";
+        this._askedQuestions = 0;
+        this._questions = {};
+        this._questionsFails = {};
         this.currentRow = 0;
-        this.progressBars = {};
-        this.serviceBars = {};
+        this.currentCol = 0;
+        this._progressBars = {};
+        this._serviceBars = {};
         //The delimiters userd for parsing array inputs
         this.arrayInputDelimiters = [",", "+"];
         this.booleanTrueStrings = ["true", "t", "yes", "y", "Y"];
         this.booleanFalseStrings = ["false", "f", "no", "no", "N"];
-        this.validators = {
+        this._validators = {
             digit: async (input) => {
                 if (Array.isArray(input))
                     return false;
@@ -257,10 +267,10 @@ class DSLogger {
                 if (!type) {
                     return false;
                 }
-                return this.customValidators[type](input);
+                return this._customValidators[type](input);
             },
         };
-        this.validInputTypes = [
+        this._validInputTypes = [
             "string",
             "string[]",
             "number",
@@ -270,15 +280,15 @@ class DSLogger {
             "stringall",
             "stringall[]",
         ];
-        this.customValidators = {};
-        this.screens = {
+        this._customValidators = {};
+        this._screens = {
             splash: () => { },
             helpScreen: () => {
                 this.TITLE.log(this.getString("title")).NL.RAW.log(this.getString("helpText")).NL;
                 const ii = " ";
-                for (let pk of this.paramValues.keys()) {
+                for (let pk of this._paramValues.keys()) {
                     let start = "   ";
-                    let param = this.params.get(pk);
+                    let param = this._params.get(pk);
                     if (!param)
                         return;
                     if (param.required) {
@@ -296,16 +306,78 @@ class DSLogger {
                 this.ERROR.log("The program has crashed.").RAW.log(message).exit();
             },
             error: (message) => {
-                this.ERROR.log("The program has had an error.").RAW.log(message).exit();
+                this.ERROR.log("The program has had an error.")
+                    .RAW.log(message)
+                    .exit();
             },
             noInput: () => {
                 this.INFO.log("Please run --help to learn how to use this program.");
             },
             done: (message) => {
-                this.INFO.log("The program is done running.", "Info").log(message).exit();
+                this.INFO.log("The program is done running.", "Info")
+                    .log(message)
+                    .exit();
             },
         };
-        this.initalProgramArgs = [];
+        this.boxChars = {
+            "style-1": {
+                top: "─",
+            },
+        };
+        this._keyMap = {
+            up: "\u001B\u005B\u0041",
+            down: "\u001B\u005B\u0042",
+            left: "\u001B\u005B\u0044",
+            right: "\u001B\u005B\u0043",
+            "ctrl+a": "\u0001",
+            "ctrl+b": "\u0002",
+            "ctrl+c": "\u0003",
+            "ctrl+d": "\u0004",
+            "ctrl+e": "\u0005",
+            "ctrl+f": "\u0006",
+            "ctrl+g": "\u0007",
+            "ctrl+h": "\u0008",
+            "ctrl+i": "\u0009",
+            "ctrl+j": "\u000A",
+            "ctrl+k": "\u000B",
+            "ctrl+l": "\u000C",
+            "ctrl+m": "\u000D",
+            "ctrl+n": "\u000E",
+            "ctrl+o": "\u000F",
+            "ctrl+p": "\u0010",
+            "ctrl+q": "\u0011",
+            "ctrl+r": "\u0012",
+            "ctrl+s": "\u0013",
+            "ctrl+t": "\u0014",
+            "ctrl+u": "\u0015",
+            "ctrl+v": "\u0016",
+            "ctrl+w": "\u0017",
+            "ctrl+x": "\u0018",
+            "ctrl+y": "\u0019",
+            "ctrl+z": "\u001A",
+            esc: "\x1B",
+            del: "\x1B[3~",
+            f1: "\x1B[[A",
+            f2: "\x1B[[B",
+            f3: "\x1B[[C",
+            f4: "\x1B[[D",
+            f5: "\x1B[[E",
+            f6: "\x1B[17~",
+            f7: "\x1B[18~",
+            f8: "\x1B[19~",
+            f9: "\x1B[20~",
+            f10: "\x1B[21~",
+            f12: "\x1B[24~",
+            insert: "\x1B[2~",
+            home: "\x1B[1~",
+            end: "\x1B[4~",
+            "page-up": "\x1B[5~",
+            "page-down": "\x1B[6~",
+            enter: "\r",
+        };
+        this._stdinKeyWatch = {};
+        this._stdinCharWatch = {};
+        this._stdinInputWatcher = () => { };
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
                 this.rdl = rdl;
@@ -421,6 +493,100 @@ class DSLogger {
             }
         };
     }
+    /**# Start User Input Captcher
+     * ---
+     * Start capturing the users input for processing.
+     * @returns this
+     */
+    startUserInputCaptcher() {
+        this._stdin = process.openStdin();
+        this._stdin.setRawMode(true);
+        this._stdin.resume();
+        this._stdin.setEncoding("utf8");
+        const watcher = (key) => {
+            if (this._stdinKeyWatch[key]) {
+                let funcs = this._stdinKeyWatch[key];
+                for (const func of funcs) {
+                    if (func.args) {
+                        func.run(func.args);
+                    }
+                    else {
+                        func.run({});
+                    }
+                }
+            }
+            if (this._stdinCharWatch[key]) {
+                let funcs = this._stdinCharWatch[key];
+                for (const func of funcs) {
+                    if (func.args) {
+                        func.run(func.args);
+                    }
+                    else {
+                        func.run({});
+                    }
+                }
+            }
+            if (key == this._keyMap["ctrl+c"]) {
+                process.exit();
+            }
+        };
+        this._stdin.on("data", watcher);
+        this._stdinInputWatcher = watcher;
+        return this;
+    }
+    /**# Stop User Input Captcher
+     * ---
+     * Stops the cature of the input from the user.
+     * @returns this
+     */
+    stopUserInputCaptcher() {
+        this._stdin.pause();
+        if (this._stdinInputWatcher) {
+            this._stdin.removeListener("data", this._stdinInputWatcher);
+        }
+        return this;
+    }
+    /**# On User Input Char
+     * ---
+     * If the program is capturing input set a trigger for a specific char.
+     * The watcher object has two properties.
+     * \{
+     * __run__ : (args:any)=>{}
+     * __args__ : any
+     * \}
+     *
+     * The function will be passed the args you pass it in the object.
+     * @param char | Char to watch
+     * @param watcher | WatcherObject
+     * @returns this
+     */
+    onUserInputChar(char, watcher) {
+        this._stdinCharWatch[char] ? true : (this._stdinCharWatch[char] = []);
+        this._stdinCharWatch[char].push(watcher);
+        return this;
+    }
+    /**# On User Input Key
+     * ---
+     * If the program is capturing input set a trigger for a specific keyboard key.
+     * The watcher object has two properties.
+     * \{
+     * __run__ : (args:any)=>{}
+     * __args__ : any
+     * \}
+     *
+     * The function will be passed the args you pass it in the object.
+     * @param key | UserInputKeys
+     * @param watcher | WatcherObject
+     * @returns this
+     */
+    onUserInputKey(key, watcher) {
+        const keyCode = this._keyMap[key];
+        this._stdinKeyWatch[keyCode]
+            ? true
+            : (this._stdinKeyWatch[keyCode] = []);
+        this._stdinKeyWatch[keyCode].push(watcher);
+        return this;
+    }
     /** # Stylize
      * ---
      * Stylize the text with the given format.
@@ -430,30 +596,30 @@ class DSLogger {
     stylize(text, styleObj) {
         let front = "";
         if (styleObj.reverse) {
-            front += this.consoleCodes["Reverse"];
+            front += this._consoleCodes["Reverse"];
         }
         if (styleObj.bright) {
-            front += this.consoleCodes["Bright"];
+            front += this._consoleCodes["Bright"];
         }
         if (styleObj.dim) {
-            front += this.consoleCodes["Dim"];
+            front += this._consoleCodes["Dim"];
         }
         if (styleObj.hidden) {
-            front += this.consoleCodes["Hidden"];
+            front += this._consoleCodes["Hidden"];
         }
         if (styleObj.underscore) {
-            front += this.consoleCodes["Underscore"];
+            front += this._consoleCodes["Underscore"];
         }
         if (styleObj.blink) {
-            front += this.consoleCodes["Blink"];
+            front += this._consoleCodes["Blink"];
         }
         if (styleObj.bg && styleObj.bg != "none") {
-            front += this.consoleBGColors[styleObj.bg];
+            front += this._consoleBGColors[styleObj.bg];
         }
         if (styleObj.fg && styleObj.fg != "none") {
-            front += this.consoleFGColors[styleObj.fg];
+            front += this._consoleFGColors[styleObj.fg];
         }
-        return front + text + this.consoleCodes["Reset"];
+        return front + text + this._consoleCodes["Reset"];
     }
     /** # Get Raw Params
      * ---
@@ -470,9 +636,9 @@ class DSLogger {
      */
     getParam(name) {
         let p;
-        if ((p = this.params.get(name))) {
-            if (typeof this.paramValues.get(p.flag) !== "undefined") {
-                return this.paramValues.get(p.flag);
+        if ((p = this._params.get(name))) {
+            if (typeof this._paramValues.get(p.flag) !== "undefined") {
+                return this._paramValues.get(p.flag);
             }
         }
         return undefined;
@@ -483,17 +649,17 @@ class DSLogger {
      * @param param An object to specify the param.
      */
     addParam(param) {
-        if (this.params.get(param.flag)) {
+        if (this._params.get(param.flag)) {
             throw new Error("Duplicate param.");
         }
-        if (this.validInputTypes.indexOf(param.type) == -1) {
+        if (this._validInputTypes.indexOf(param.type) == -1) {
             throw new Error("Not a valid input type.");
         }
-        this.params.set(param.flag, param);
-        this.params.set(param.name, param);
-        this.paramValues.set(param.flag, undefined);
+        this._params.set(param.flag, param);
+        this._params.set(param.name, param);
+        this._paramValues.set(param.flag, undefined);
         if (param.required) {
-            this.requiredParams.set(param.flag, false);
+            this._requiredParams.set(param.flag, false);
         }
         return this;
     }
@@ -506,8 +672,8 @@ class DSLogger {
      */
     ifParamIsset(param, func, args = {}) {
         let p;
-        if ((p = this.params.get(param))) {
-            const v = this.paramValues.get(p.flag);
+        if ((p = this._params.get(param))) {
+            const v = this._paramValues.get(p.flag);
             if (typeof v !== "undefined") {
                 func(v, args);
             }
@@ -526,7 +692,7 @@ class DSLogger {
      * @returns
      */
     getInitalProgramArgs() {
-        return this.initalProgramArgs;
+        return this._initalProgramArgs;
     }
     /**# Init Program Input
      * ---
@@ -544,16 +710,16 @@ class DSLogger {
             if (this._isProgramArg(arg)) {
                 inital = false;
                 if (arg == "--help") {
-                    this.screens["helpScreen"]();
+                    this._screens["helpScreen"]();
                 }
                 const inputString = arg.replace(/-/g, "");
-                if (this.params.get(inputString)) {
-                    const param = this.params.get(inputString);
+                if (this._params.get(inputString)) {
+                    const param = this._params.get(inputString);
                     if (!param) {
-                        this.screens["helpScreen"]();
+                        this._screens["helpScreen"]();
                         return this;
                     }
-                    if (this.paramValues.get(param.flag)) {
+                    if (this._paramValues.get(param.flag)) {
                         this.promgramInitErrorScreen(`${param.name} was set twice`);
                     }
                     //Set intial return value.
@@ -596,14 +762,14 @@ class DSLogger {
                         value = arrayResults.value;
                     }
                     if (param.required) {
-                        this.requiredParams.set(param.flag, true);
+                        this._requiredParams.set(param.flag, true);
                     }
-                    this.paramValues.set(param.flag, value);
+                    this._paramValues.set(param.flag, value);
                 }
             }
             else {
                 if (inital && argc > 0) {
-                    this.initalProgramArgs.push(arg);
+                    this._initalProgramArgs.push(arg);
                 }
                 argc++;
             }
@@ -612,9 +778,9 @@ class DSLogger {
         return this;
     }
     _validateAllRequiredProgramParamsAreSet() {
-        for (const pk of this.requiredParams.keys()) {
-            if (!this.requiredParams.get(pk)) {
-                const param = this.params.get(pk);
+        for (const pk of this._requiredParams.keys()) {
+            if (!this._requiredParams.get(pk)) {
+                const param = this._params.get(pk);
                 if (!param)
                     return;
                 this.promgramInitErrorScreen(`${param.name} is required was not supplied with a value.`);
@@ -681,7 +847,7 @@ class DSLogger {
         if (args[argc + 1]) {
             const data = await this._getArrayValues(args, argc);
             newArgCount = data.newArgCount;
-            if (!(await this.validators["stringall[]"](data.value))) {
+            if (!(await this._validators["stringall[]"](data.value))) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
             }
             else {
@@ -705,7 +871,7 @@ class DSLogger {
         if (args[argc + 1]) {
             const data = await this._getArrayValues(args, argc);
             newArgCount = data.newArgCount;
-            if (!(await this.validators["string[]"](data.value))) {
+            if (!(await this._validators["string[]"](data.value))) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
             }
             else {
@@ -729,7 +895,7 @@ class DSLogger {
         if (args[argc + 1]) {
             const data = await this._getArrayValues(args, argc);
             newArgCount = data.newArgCount;
-            const valid = await this.validators["number[]"](data.value);
+            const valid = await this._validators["number[]"](data.value);
             if (!valid) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid number.`);
             }
@@ -759,7 +925,7 @@ class DSLogger {
         if (args[argc + 1]) {
             const data = await this._getArrayValues(args, argc);
             newArgCount = data.newArgCount;
-            const valid = await this.validators["boolean[]"](data.value);
+            const valid = await this._validators["boolean[]"](data.value);
             if (!valid) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Input must be either ${this.booleanTrueStrings.toString()} or${this.booleanFalseStrings.toString()}`);
             }
@@ -787,7 +953,7 @@ class DSLogger {
         let value = 0;
         if (args[argc + 1]) {
             const ahead = args[argc + 1];
-            const valid = await this.validators["number"](ahead);
+            const valid = await this._validators["number"](ahead);
             if (!valid) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid number.`);
             }
@@ -812,7 +978,7 @@ class DSLogger {
         let value = "";
         if (args[argc + 1]) {
             const ahead = args[argc + 1];
-            const valid = await this.validators["string"](ahead);
+            const valid = await this._validators["string"](ahead);
             if (!valid) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string with no numbers.`);
             }
@@ -832,7 +998,7 @@ class DSLogger {
         let value = "";
         if (args[argc + 1]) {
             const ahead = args[argc + 1];
-            const valid = await this.validators["stringall"](ahead);
+            const valid = await this._validators["stringall"](ahead);
             if (valid) {
                 this.promgramInitErrorScreen(`${param.name} was supplied with the wrong value type. Please enter a valid string.`);
             }
@@ -875,8 +1041,8 @@ class DSLogger {
      * Restarat user input prompt.
      */
     restartPrompt() {
-        this.questions = {};
-        this.inputs = new Map();
+        this._questions = {};
+        this._inputs = new Map();
         return this;
     }
     /**# Start Prompt
@@ -884,14 +1050,16 @@ class DSLogger {
      * Starts user input prompt.
      */
     async startPrompt() {
+        this._stdin ? this._stdin.resume() : true;
         this.rli = rdl.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
-        for (const q of Object.keys(this.questions)) {
-            await this._prompt(q, this.questions[q].varName, this.questions[q].varType, this.questions[q].customName);
+        for (const q of Object.keys(this._questions)) {
+            await this._prompt(q, this._questions[q].varName, this._questions[q].varType, this._questions[q].customName);
         }
         this.rli.close();
+        this._stdin ? this._stdin.pause() : true;
         return this;
     }
     async _convertInput(varType, input) {
@@ -906,7 +1074,7 @@ class DSLogger {
         let passed = true;
         let gotinput = false;
         let asked = false;
-        const q = this.questions[question];
+        const q = this._questions[question];
         const qID = question;
         const prom = new Promise((resolve) => {
             let inte;
@@ -919,31 +1087,34 @@ class DSLogger {
                 }
                 else {
                     asked = true;
-                    let stdin;
                     let listener;
                     if (varType == "password") {
-                        stdin = process.openStdin();
+                        this._stdin
+                            ? true
+                            : (this._stdin = process.openStdin());
                         listener = (char) => {
                             char = char + "";
                             switch (char) {
                                 case "\n":
                                 case "\r":
                                 case "\u0004":
-                                    stdin.removeListener("data", listener);
+                                    this._stdin.removeListener("data", listener);
                                 default:
                                     process.stdout.clearLine(1);
                                     this.rdl.cursorTo(process.stdout, 0);
                                     process.stdout.write(question +
-                                        this.consoleCodes["Hidden"] +
+                                        this._consoleCodes["Hidden"] +
                                         Array(this.rli.line.length + 1).join("*") +
-                                        this.consoleCodes["Reset"]);
+                                        this._consoleCodes["Reset"]);
                                     break;
                             }
                         };
                         process.stdin.on("data", listener);
                     }
                     else {
-                        process.stdin.on("data", () => { });
+                        if (listener) {
+                            process.stdin.removeListener("data", listener);
+                        }
                     }
                     this.rli.question(question, (input) => {
                         this.rli.history.slice(1);
@@ -956,49 +1127,50 @@ class DSLogger {
                             let newInput = "";
                             if (varType != "custom") {
                                 newInput = await this._convertInput(varType, input);
-                                valid = await this.validators[varType](newInput);
+                                valid = await this._validators[varType](newInput);
                             }
                             else {
-                                valid = await this.validators[varType](input, custonName);
+                                valid = await this._validators[varType](input, custonName);
                             }
                             if (!valid) {
                                 passed = false;
                                 gotinput = false;
                                 asked = false;
                                 if (q.varType == "password") {
-                                    stdin.removeListener("data", listener);
+                                    this._stdin.removeListener("data", listener);
                                 }
                                 if (q.attempts && q.attempts != "all") {
                                     q.fails++;
-                                    if (q.fails >= q.attempts || !q.reAsk) {
-                                        this.questionsFails[qID].func(this.questionsFails[qID].args);
+                                    if (q.fails >= q.attempts ||
+                                        !q.reAsk) {
+                                        this._questionsFails[qID].func(this._questionsFails[qID].args);
                                     }
                                 }
                                 if (q.failPrompt) {
                                     question =
-                                        this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                                            this.stylize(q.failPrompt, this.questionStyles["re-ask"]) +
+                                        this.stylize(this.getString("reAskStart"), this._questionStyles["re-ask-start"]) +
+                                            this.stylize(q.failPrompt, this._questionStyles["re-ask"]) +
                                             " " +
-                                            this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) +
+                                            this.stylize(this.getString("reAskDelimiter"), this._questionStyles["re-ask-delimiter"]) +
                                             " ";
                                 }
                                 else {
                                     question =
-                                        this.stylize(this.getString("reAskStart"), this.questionStyles["re-ask-start"]) +
-                                            this.stylize(this.getString("reAskText"), this.questionStyles["re-ask"]) +
+                                        this.stylize(this.getString("reAskStart"), this._questionStyles["re-ask-start"]) +
+                                            this.stylize(this.getString("reAskText"), this._questionStyles["re-ask"]) +
                                             " " +
-                                            this.stylize(this.getString("reAskDelimiter"), this.questionStyles["re-ask-delimiter"]) +
+                                            this.stylize(this.getString("reAskDelimiter"), this._questionStyles["re-ask-delimiter"]) +
                                             " ";
                                 }
                             }
                             else {
                                 if (varType == "password") {
-                                    stdin.removeListener("data", listener);
+                                    this._stdin.removeListener("data", listener);
                                 }
                                 passed = true;
                             }
                             if (passed) {
-                                this.inputs.set(varName, newInput);
+                                this._inputs.set(varName, newInput);
                                 resolve(passed);
                             }
                         })();
@@ -1021,17 +1193,17 @@ class DSLogger {
      * @param args
      */
     fail(reAsk, reAskMessage, attempts = "all", onFail, arg = {}) {
-        this.questions[this.lastQuestion].reAsk = reAsk;
+        this._questions[this._lastQuestion].reAsk = reAsk;
         if (onFail) {
-            this.questionsFails[this.lastQuestion] = {
+            this._questionsFails[this._lastQuestion] = {
                 func: onFail,
                 args: arg,
             };
         }
-        this.questions[this.lastQuestion].failPrompt = reAskMessage;
+        this._questions[this._lastQuestion].failPrompt = reAskMessage;
         if (attempts != "all") {
-            this.questions[this.lastQuestion].attempts = attempts;
-            this.questions[this.lastQuestion].fails = 0;
+            this._questions[this._lastQuestion].attempts = attempts;
+            this._questions[this._lastQuestion].fails = 0;
         }
         return this;
     }
@@ -1044,21 +1216,21 @@ class DSLogger {
      * @param customType The name used for the custom question type.
      */
     ask(question, varName, varType, customName) {
-        this.askedQuestions++;
-        this.inputs.set(varName, undefined);
+        this._askedQuestions++;
+        this._inputs.set(varName, undefined);
         question =
-            this.stylize(this.getString("questionStart"), this.questionStyles["question-start"]) +
-                this.stylize(question, this.questionStyles["question"]) +
+            this.stylize(this.getString("questionStart"), this._questionStyles["question-start"]) +
+                this.stylize(question, this._questionStyles["question"]) +
                 " " +
-                this.stylize(this.getString("questionDelimiter"), this.questionStyles["delimiter"]) +
+                this.stylize(this.getString("questionDelimiter"), this._questionStyles["delimiter"]) +
                 " ";
-        this.questions[question] = {
+        this._questions[question] = {
             varName: varName,
             varType: varType,
         };
-        this.lastQuestion = question;
+        this._lastQuestion = question;
         if (customName) {
-            this.questions[question].customName = customName;
+            this._questions[question].customName = customName;
         }
         return this;
     }
@@ -1068,7 +1240,23 @@ class DSLogger {
      * @param varName
      */
     getInput(varName) {
-        return this.inputs.get(varName);
+        return this._inputs.get(varName);
+    }
+    /** # If Input Isset
+     * ---
+     * If the input is set run a function.
+     * @param varName The name of the input.
+     * @param func The function to be run. Will be passed the value of the input and the args given.
+     * @param args Args to be passed to the function.
+     */
+    ifInputIsset(varName, func, args = {}) {
+        let v;
+        if ((v = this._inputs.get(varName))) {
+            if (typeof v !== "undefined") {
+                func(v, args);
+            }
+        }
+        return this;
     }
     /**# Clear Rows
      * ---
@@ -1112,16 +1300,57 @@ class DSLogger {
         this.currentRow++;
         return this;
     }
+    /**# Minus
+     * ---
+     * Minus one row to the current console cursor.
+     */
+    minusRow() {
+        this.currentRow--;
+        return this;
+    }
+    /**# Get Row
+     * ---
+     * Gets the current row number that the output is on.
+     */
+    getCol() {
+        return this.currentCol;
+    }
+    /**# Set Col
+     *---
+     * Sets the console cursor to a collumn.
+     * @param num
+     */
+    setCol(num) {
+        this.currentCol = num;
+        this.rdl.cursorTo(process.stdout, this.currentCol, this.currentRow);
+        return this;
+    }
+    /**# Add Col
+     * ---
+     * Add one to the current console cursor collumn.
+     */
+    addCol() {
+        this.currentCol++;
+        return this;
+    }
+    /**# Minus Collumn
+     * ---
+     * Minus one to the current console cursor collumn.
+     */
+    minusCol() {
+        this.currentCol--;
+        return this;
+    }
     /**# New Service Bar
      * ---
      * Makes a continuous loading bar.
      * @param name
      */
-    newServiceBar(name, serviceBarStyle = this.defaultServiceBarStyle) {
+    newServiceBar(name, serviceBarStyle = this._defaultServiceBarStyle) {
         const s = serviceBarStyle;
         const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval, this.stylize(s.base, s.baseStyle), this.stylize(s.loadedOne, s.loadedOneStyle), this.stylize(s.loadedTwo, s.loadedTwoStyle), this.stylize(s.cap, s.capStyle));
         this.currentRow++;
-        this.serviceBars[name] = bar;
+        this._serviceBars[name] = bar;
         return this;
     }
     /**# Re Init Service Bar
@@ -1130,7 +1359,7 @@ class DSLogger {
      * @param name
      */
     reInitServiceBar(name) {
-        this.serviceBars[name].reInit();
+        this._serviceBars[name].reInit();
         return this;
     }
     /**# Destroy Service Bar
@@ -1139,12 +1368,12 @@ class DSLogger {
      * @param name
      */
     destroyServiceBar(name) {
-        const bar = this.serviceBars[name];
+        const bar = this._serviceBars[name];
         const row = bar.rows;
         bar.clear();
         this.clearRows(row, row);
-        this.serviceBars[name] = null;
-        delete this.serviceBars[name];
+        this._serviceBars[name] = null;
+        delete this._serviceBars[name];
         return this;
     }
     /**# New Progress Bar
@@ -1158,12 +1387,12 @@ class DSLogger {
             d = progressBarStyle;
         }
         else {
-            d = this.defaultPrgoressBarStyle;
+            d = this._defaultPrgoressBarStyle;
         }
         const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size, d.interval, this.stylize(d.base, d.baseStyle), this.stylize(d.loaded, d.loadedStyle));
         this.currentRow++;
         bar.start();
-        this.progressBars[name] = bar;
+        this._progressBars[name] = bar;
         return this;
     }
     /**# Increment Progress Bar
@@ -1173,7 +1402,7 @@ class DSLogger {
      * @param amount amount to increase by
      */
     async incrementProgressBar(name, amount) {
-        await this.progressBars[name].addProgressPerfect(amount);
+        await this._progressBars[name].addProgressPerfect(amount);
         return this;
     }
     /**# Sleep
@@ -1257,16 +1486,23 @@ class DSLogger {
         let output = message;
         if (type != "Raw" && type != "Data") {
             if (type != "none") {
-                output = this.stylize(message, this.messageStyles[type]);
+                output = this.stylize(message, this._messageStyles[type]);
             }
             else {
-                output = this.stylize(message, this.styleDelimiter);
+                output = this.stylize(message, this._styleDelimiter);
             }
         }
         if (type == "Data") {
             output = JSON.stringify(message, null, 3);
         }
         return output;
+    }
+    _checkDebug() {
+        if (this.debugMode && this._directives.debug)
+            return true;
+        if (!this.debugMode && this._directives.debug)
+            return false;
+        return true;
     }
     /**# Show At Sleep
      * ---
@@ -1283,8 +1519,10 @@ class DSLogger {
         row: this.currentRow,
         col: 0,
         type: "none",
-        sleep: this.defaultSleepTime,
+        sleep: this._defaultSleepTime,
     }) {
+        if (!this._checkDebug())
+            return this;
         const messageArray = this._getMessageArray(message);
         if (!messageArray)
             return this;
@@ -1294,7 +1532,7 @@ class DSLogger {
                 type: params.type,
                 col: params.col,
             });
-            let sleep = this.defaultSleepTime;
+            let sleep = this._defaultSleepTime;
             if (params.sleep) {
                 sleep = params.sleep;
             }
@@ -1317,6 +1555,8 @@ class DSLogger {
         col: 0,
         type: "none",
     }) {
+        if (!this._checkDebug())
+            return this;
         const messageArray = this._getMessageArray(message);
         if (!messageArray)
             return this;
@@ -1337,7 +1577,12 @@ class DSLogger {
             const lines = this.countLines(`${output}`);
             this.rdl.cursorTo(process.stdout, col, row);
             this.currentRow += lines;
-            console.log(output);
+            if (!this._directives.trace) {
+                console.log(output);
+            }
+            else {
+                console.trace(output);
+            }
         }
         return this;
     }
@@ -1349,15 +1594,22 @@ class DSLogger {
      * @param type
      */
     show(message, type = "none") {
+        if (!this._checkDebug())
+            return this;
         const messageArray = this._getMessageArray(message);
         if (!messageArray)
             return this;
         for (const mem of messageArray) {
             let output = this._processMessage(mem, type);
             const lines = this.countLines(`${output}`);
-            this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+            this.rdl.cursorTo(process.stdout, this.currentCol, this.currentRow);
             this.currentRow += lines;
-            console.log(output);
+            if (!this._directives.trace) {
+                console.log(output);
+            }
+            else {
+                console.trace(output);
+            }
         }
         return this;
     }
@@ -1368,7 +1620,9 @@ class DSLogger {
      * @param type
      * @param ms
      */
-    showSleep(message, type = "none", ms = this.defaultSleepTime) {
+    showSleep(message, type = "none", ms = this._defaultSleepTime) {
+        if (!this._checkDebug())
+            return this;
         const messageArray = this._getMessageArray(message);
         if (!messageArray)
             return this;
@@ -1385,6 +1639,8 @@ class DSLogger {
      * @param type
      */
     log(message, type = "none") {
+        if (!this._checkDebug())
+            return this;
         const messageArray = this._getMessageArray(message);
         if (!messageArray)
             return this;
@@ -1392,7 +1648,12 @@ class DSLogger {
             let output = this._processMessage(mem, type);
             const lines = this.countLines(`${output}`);
             this.currentRow += lines;
-            console.log(output);
+            if (!this._directives.trace) {
+                console.log(output);
+            }
+            else {
+                console.trace(output);
+            }
         }
         return this;
     }
@@ -1403,7 +1664,9 @@ class DSLogger {
      * @param type
      * @param ms
      */
-    logSleep(message, type = "none", ms = this.defaultSleepTime) {
+    logSleep(message, type = "none", ms = this._defaultSleepTime) {
+        if (!this._checkDebug())
+            return this;
         const messageArray = this._getMessageArray(message);
         if (!messageArray)
             return this;
@@ -1421,6 +1684,8 @@ class DSLogger {
      * @returns
      */
     logTable(data, collumns) {
+        if (!this._checkDebug())
+            return this;
         if (data == undefined)
             return this;
         let dataArray = [];
@@ -1445,6 +1710,8 @@ class DSLogger {
      * @returns
      */
     showTable(data, collumns) {
+        if (!this._checkDebug())
+            return this;
         if (data == undefined)
             return this;
         let dataArray = [];
@@ -1456,7 +1723,7 @@ class DSLogger {
         }
         for (const d of dataArray) {
             const lines = Object.keys(d).length + 2;
-            this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+            this.rdl.cursorTo(process.stdout, this.currentCol, this.currentRow);
             this.currentRow += lines;
             console.table(d, collumns);
         }
@@ -1470,7 +1737,7 @@ class DSLogger {
      * @returns string
      */
     getMessageStyled(type, message) {
-        return this.stylize(message, this.messageStyles[type]);
+        return this.stylize(message, this._messageStyles[type]);
     }
     /** # Count Lines
      * ---
@@ -1519,7 +1786,7 @@ class DSLogger {
      * @param sleep
      */
     defineSleepTime(sleep) {
-        this.defaultSleepTime = sleep;
+        this._defaultSleepTime = sleep;
         return this;
     }
     /** # Define Validator
@@ -1534,10 +1801,10 @@ class DSLogger {
             if (!name) {
                 throw new Error("Must define name for custom question type.");
             }
-            this.customValidators[name] = func;
+            this._customValidators[name] = func;
         }
         else {
-            this.validators[type] = func;
+            this._validators[type] = func;
         }
         return this;
     }
@@ -1548,7 +1815,7 @@ class DSLogger {
      * @param styleString
      */
     defineQuestionStyle(type, styleObj) {
-        this.questionStyles[type] = styleObj;
+        this._questionStyles[type] = styleObj;
         return this;
     }
     /**# Define Message Style
@@ -1558,7 +1825,7 @@ class DSLogger {
      * @param styleString
      */
     defineMessageStyle(type, styleObj) {
-        this.messageStyles[type] = styleObj;
+        this._messageStyles[type] = styleObj;
         return this;
     }
     /**# Define Progress Bar Style
@@ -1567,7 +1834,7 @@ class DSLogger {
      * @param progressBarStyle
      */
     defineProgressBarStyle(progressBarStyle) {
-        this.defaultPrgoressBarStyle = progressBarStyle;
+        this._defaultPrgoressBarStyle = progressBarStyle;
         return this;
     }
     /**# Define Service Bar Style
@@ -1576,7 +1843,7 @@ class DSLogger {
      * @param serviceBarStyle
      */
     defineServiceBarStyle(serviceBarStyle) {
-        this.defaultServiceBarStyle = serviceBarStyle;
+        this._defaultServiceBarStyle = serviceBarStyle;
         return this;
     }
     /**# Define Program Title
@@ -1585,9 +1852,9 @@ class DSLogger {
      * @param title
      */
     defineProgramTitle(title, styleObj) {
-        this.strings["title"] = title;
+        this._strings["title"] = title;
         if (styleObj) {
-            this.messageStyles["Title"] = styleObj;
+            this._messageStyles["Title"] = styleObj;
         }
         return this;
     }
@@ -1597,7 +1864,7 @@ class DSLogger {
      * @param text
      */
     defineHelpText(text) {
-        this.strings["helpText"] = text;
+        this._strings["helpText"] = text;
         return this;
     }
     /**# Define Screen
@@ -1607,7 +1874,7 @@ class DSLogger {
      * @param func
      */
     defineScreen(screen, func) {
-        this.screens[screen] = func;
+        this._screens[screen] = func;
         return this;
     }
     /**# Display Screen
@@ -1617,7 +1884,7 @@ class DSLogger {
      * @param args Args to be pased to screen. Default is an enpty object.
      */
     displayScreen(screen, args = {}) {
-        this.screens[screen](args);
+        this._screens[screen](args);
     }
     /**# Define Splash Screen
      * ---
@@ -1625,7 +1892,7 @@ class DSLogger {
      * @param func
      */
     defineSplashScreen(func) {
-        this.screens["splash"] = func;
+        this._screens["splash"] = func;
         return this;
     }
     /**# Splash Screen
@@ -1633,7 +1900,7 @@ class DSLogger {
      * Meant to show the programs title/splash screen.
      */
     splashScreen() {
-        this.screens["splash"]();
+        this._screens["splash"]();
         return this;
     }
     /** # Program Init Error Screen
@@ -1642,7 +1909,7 @@ class DSLogger {
      * @param message
      */
     promgramInitErrorScreen(message) {
-        this.screens["programInitError"](message);
+        this._screens["programInitError"](message);
     }
     /** # Program Error Screen
      * ---
@@ -1650,7 +1917,7 @@ class DSLogger {
      * @param message
      */
     errorScreen(message) {
-        this.screens["error"](message);
+        this._screens["error"](message);
     }
     /** # Program Crash Screen
      * ---
@@ -1658,7 +1925,7 @@ class DSLogger {
      * @param message
      */
     crashScreen(message) {
-        this.screens["crash"](message);
+        this._screens["crash"](message);
     }
     /**# Get String
      * ---
@@ -1666,7 +1933,7 @@ class DSLogger {
      * @param id
      */
     getString(id) {
-        return this.strings[id];
+        return this._strings[id];
     }
     /**# Set String
      * ---
@@ -1674,14 +1941,14 @@ class DSLogger {
      * @param id
      */
     setString(id, string) {
-        this.strings[id] = string;
+        this._strings[id] = string;
         return this;
     }
     _copyDefaultStyle() {
-        return JSON.parse(JSON.stringify(this.defaultStyleDelimiter));
+        return JSON.parse(JSON.stringify(this._defaultStyleDelimiter));
     }
     _copyMessageStyle(type) {
-        return JSON.parse(JSON.stringify(this.messageStyles[type]));
+        return JSON.parse(JSON.stringify(this._messageStyles[type]));
     }
     //Quick Styles
     /**# Info
@@ -1690,11 +1957,11 @@ class DSLogger {
      * @returns string | this
      */
     info(text) {
-        this.styleDelimiter = this._copyMessageStyle("Info");
+        this._styleDelimiter = this._copyMessageStyle("Info");
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [INFO] Info
@@ -1702,7 +1969,7 @@ class DSLogger {
      * Sets chain style to be the "info" message style..
      */
     get INFO() {
-        this.styleDelimiter = this._copyMessageStyle("Info");
+        this._styleDelimiter = this._copyMessageStyle("Info");
         return this;
     }
     /**# Good
@@ -1711,11 +1978,11 @@ class DSLogger {
      * @returns string | this
      */
     good(text) {
-        this.styleDelimiter = this._copyMessageStyle("Good");
+        this._styleDelimiter = this._copyMessageStyle("Good");
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [GOOD] Good
@@ -1723,7 +1990,7 @@ class DSLogger {
      * Sets chain style to be the "good" message style..
      */
     get GOOD() {
-        this.styleDelimiter = this._copyMessageStyle("Good");
+        this._styleDelimiter = this._copyMessageStyle("Good");
         return this;
     }
     /**# Warning
@@ -1732,11 +1999,11 @@ class DSLogger {
      * @returns string | this
      */
     warning(text) {
-        this.styleDelimiter = this._copyMessageStyle("Warning");
+        this._styleDelimiter = this._copyMessageStyle("Warning");
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [WARNING] Warning
@@ -1744,7 +2011,7 @@ class DSLogger {
      * Sets chain style to be the "warning" message style..
      */
     get WARNING() {
-        this.styleDelimiter = this._copyMessageStyle("Warning");
+        this._styleDelimiter = this._copyMessageStyle("Warning");
         return this;
     }
     /**# Raw
@@ -1753,11 +2020,11 @@ class DSLogger {
      * @returns string | this
      */
     raw(text) {
-        this.styleDelimiter = this._copyMessageStyle("Raw");
+        this._styleDelimiter = this._copyMessageStyle("Raw");
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [RAW] Raw
@@ -1765,7 +2032,7 @@ class DSLogger {
      * Sets chain style to be the "raw" message style..
      */
     get RAW() {
-        this.styleDelimiter = this._copyMessageStyle("Raw");
+        this._styleDelimiter = this._copyMessageStyle("Raw");
         return this;
     }
     /**# Title
@@ -1774,11 +2041,11 @@ class DSLogger {
      * @returns string | this
      */
     title(text) {
-        this.styleDelimiter = this._copyMessageStyle("Title");
+        this._styleDelimiter = this._copyMessageStyle("Title");
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [TITLE] Raw
@@ -1786,7 +2053,7 @@ class DSLogger {
      * Sets chain style to be the "title" message style..
      */
     get TITLE() {
-        this.styleDelimiter = this._copyMessageStyle("Title");
+        this._styleDelimiter = this._copyMessageStyle("Title");
         return this;
     }
     /**# Warning
@@ -1795,11 +2062,11 @@ class DSLogger {
      * @returns string | this
      */
     error(text) {
-        this.styleDelimiter = this._copyMessageStyle("Error");
+        this._styleDelimiter = this._copyMessageStyle("Error");
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [ERROR] Error
@@ -1807,7 +2074,7 @@ class DSLogger {
      * Sets chain style to be the "error" message style..
      */
     get ERROR() {
-        this.styleDelimiter = this._copyMessageStyle("Error");
+        this._styleDelimiter = this._copyMessageStyle("Error");
         return this;
     }
     /**# [NS] New Screen
@@ -1868,7 +2135,7 @@ class DSLogger {
      * Clears the chain style.
      */
     clear() {
-        this.styleDelimiter = this._copyDefaultStyle();
+        this._styleDelimiter = this._copyDefaultStyle();
         return this;
     }
     /**# [CL] Clear Line
@@ -1877,7 +2144,7 @@ class DSLogger {
      * Alias for clear()
      */
     get CL() {
-        this.styleDelimiter = this._copyDefaultStyle();
+        this._styleDelimiter = this._copyDefaultStyle();
         return this;
     }
     /**# [CLEAR] Clear Line
@@ -1886,7 +2153,7 @@ class DSLogger {
      * Alias for clear()
      */
     get CLEAR() {
-        this.styleDelimiter = this._copyDefaultStyle();
+        this._styleDelimiter = this._copyDefaultStyle();
         return this;
     }
     /**# Blink
@@ -1895,11 +2162,11 @@ class DSLogger {
      * @returns string
      */
     blink(text) {
-        this.styleDelimiter.blink = true;
+        this._styleDelimiter.blink = true;
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [BI] Blink
@@ -1907,7 +2174,7 @@ class DSLogger {
      * Sets chain style to blink.
      */
     get BI() {
-        this.styleDelimiter.blink = true;
+        this._styleDelimiter.blink = true;
         return this;
     }
     /**# [BLINK] Blink
@@ -1915,7 +2182,7 @@ class DSLogger {
      * Sets chain style to blink.
      */
     get BLINK() {
-        this.styleDelimiter.blink = true;
+        this._styleDelimiter.blink = true;
         return this;
     }
     /**# Hidden
@@ -1924,11 +2191,11 @@ class DSLogger {
      * @returns string
      */
     hidden(text) {
-        this.styleDelimiter.hidden = true;
+        this._styleDelimiter.hidden = true;
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [H] Hidden
@@ -1936,7 +2203,7 @@ class DSLogger {
      * Sets chain style to be hidden..
      */
     get H() {
-        this.styleDelimiter.hidden = true;
+        this._styleDelimiter.hidden = true;
         return this;
     }
     /**# [HIDDEN] Hidden
@@ -1944,7 +2211,7 @@ class DSLogger {
      * Sets chain style to be hidden.
      */
     get HIDDEN() {
-        this.styleDelimiter.hidden = true;
+        this._styleDelimiter.hidden = true;
         return this;
     }
     /**# Underscore
@@ -1953,11 +2220,11 @@ class DSLogger {
      * @returns string
      */
     underscore(text) {
-        this.styleDelimiter.underscore = true;
+        this._styleDelimiter.underscore = true;
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [U] Underscore
@@ -1965,7 +2232,7 @@ class DSLogger {
      * Sets chain style to be underscored.
      */
     get U() {
-        this.styleDelimiter.underscore = true;
+        this._styleDelimiter.underscore = true;
         return this;
     }
     /**# [UNDERSCORE] Underscore
@@ -1973,15 +2240,15 @@ class DSLogger {
      * Sets chain style to be underscored.
      */
     get UNDERSCORE() {
-        this.styleDelimiter.underscore = true;
+        this._styleDelimiter.underscore = true;
         return this;
     }
     /**# [UNDERLINE] Underscore
-   * ---
-   * Sets chain style to be underscored.
-   */
+     * ---
+     * Sets chain style to be underscored.
+     */
     get UNDERLINE() {
-        this.styleDelimiter.underscore = true;
+        this._styleDelimiter.underscore = true;
         return this;
     }
     /** # Dim
@@ -1991,11 +2258,11 @@ class DSLogger {
      * @returns string
      */
     dim(text) {
-        this.styleDelimiter.dim = true;
+        this._styleDelimiter.dim = true;
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [D] Dim
@@ -2003,7 +2270,7 @@ class DSLogger {
      * Sets chain style to be dim.
      */
     get D() {
-        this.styleDelimiter.dim = true;
+        this._styleDelimiter.dim = true;
         return this;
     }
     /**# [DIM] Dim
@@ -2011,7 +2278,7 @@ class DSLogger {
      * Sets chain style to be dim.
      */
     get DIM() {
-        this.styleDelimiter.dim = true;
+        this._styleDelimiter.dim = true;
         return this;
     }
     /** # Bright
@@ -2021,11 +2288,11 @@ class DSLogger {
      * @returns string
      */
     bright(text) {
-        this.styleDelimiter.bright = true;
+        this._styleDelimiter.bright = true;
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [BR] Bright
@@ -2033,7 +2300,7 @@ class DSLogger {
      * Sets chain style to be bright.
      */
     get BR() {
-        this.styleDelimiter.bright = true;
+        this._styleDelimiter.bright = true;
         return this;
     }
     /**# [BRIGHT] Bright
@@ -2041,7 +2308,7 @@ class DSLogger {
      * Sets chain style to be bright.
      */
     get BRIGHT() {
-        this.styleDelimiter.bright = true;
+        this._styleDelimiter.bright = true;
         return this;
     }
     /** # Invert
@@ -2051,11 +2318,11 @@ class DSLogger {
      * @returns string
      */
     invert(text) {
-        this.styleDelimiter.reverse = true;
+        this._styleDelimiter.reverse = true;
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [BRIGHT] Bright
@@ -2063,7 +2330,7 @@ class DSLogger {
      * Sets chain style to be reversed.
      */
     get I() {
-        this.styleDelimiter.reverse = true;
+        this._styleDelimiter.reverse = true;
         return this;
     }
     /**# [BRIGHT] Bright
@@ -2071,7 +2338,7 @@ class DSLogger {
      * Sets chain style to be reversed.
      */
     get INVERT() {
-        this.styleDelimiter.reverse = true;
+        this._styleDelimiter.reverse = true;
         return this;
     }
     /** # Red
@@ -2081,11 +2348,11 @@ class DSLogger {
      * @returns string
      */
     red(text) {
-        this.styleDelimiter.fg = "Red";
+        this._styleDelimiter.fg = "Red";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [R] Red
@@ -2093,7 +2360,7 @@ class DSLogger {
      * Sets chain style to be red.
      */
     get R() {
-        this.styleDelimiter.fg = "Red";
+        this._styleDelimiter.fg = "Red";
         return this;
     }
     /**# [RED] Red
@@ -2101,7 +2368,7 @@ class DSLogger {
      * Sets chain style to be red.
      */
     get RED() {
-        this.styleDelimiter.fg = "Red";
+        this._styleDelimiter.fg = "Red";
         return this;
     }
     /** # Green
@@ -2111,11 +2378,11 @@ class DSLogger {
      * @returns string
      */
     green(text) {
-        this.styleDelimiter.fg = "Green";
+        this._styleDelimiter.fg = "Green";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [G] Green
@@ -2123,7 +2390,7 @@ class DSLogger {
      * Sets chain style to be green.
      */
     get G() {
-        this.styleDelimiter.fg = "Green";
+        this._styleDelimiter.fg = "Green";
         return this;
     }
     /**# [GREEN] Green
@@ -2131,7 +2398,7 @@ class DSLogger {
      * Sets chain style to be green.
      */
     get GREEN() {
-        this.styleDelimiter.fg = "Green";
+        this._styleDelimiter.fg = "Green";
         return this;
     }
     /** # Blue
@@ -2141,11 +2408,11 @@ class DSLogger {
      * @returns string
      */
     blue(text) {
-        this.styleDelimiter.fg = "Blue";
+        this._styleDelimiter.fg = "Blue";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [B] Blue
@@ -2153,7 +2420,7 @@ class DSLogger {
      * Sets chain style to be blue.
      */
     get B() {
-        this.styleDelimiter.fg = "Blue";
+        this._styleDelimiter.fg = "Blue";
         return this;
     }
     /**# [BLUE] Blue
@@ -2161,7 +2428,7 @@ class DSLogger {
      * Sets chain style to be blue.
      */
     get BLUE() {
-        this.styleDelimiter.fg = "Blue";
+        this._styleDelimiter.fg = "Blue";
         return this;
     }
     /** # White
@@ -2171,11 +2438,11 @@ class DSLogger {
      * @returns string
      */
     white(text) {
-        this.styleDelimiter.fg = "White";
+        this._styleDelimiter.fg = "White";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [W] White
@@ -2183,7 +2450,7 @@ class DSLogger {
      * Sets chain style to be white.
      */
     get W() {
-        this.styleDelimiter.fg = "White";
+        this._styleDelimiter.fg = "White";
         return this;
     }
     /**# [WHITE] White
@@ -2191,7 +2458,7 @@ class DSLogger {
      * Sets chain style to be white.
      */
     get WHITE() {
-        this.styleDelimiter.fg = "White";
+        this._styleDelimiter.fg = "White";
         return this;
     }
     /** # Black
@@ -2201,11 +2468,11 @@ class DSLogger {
      * @returns string
      */
     black(text) {
-        this.styleDelimiter.fg = "Black";
+        this._styleDelimiter.fg = "Black";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [BL] Black
@@ -2213,7 +2480,7 @@ class DSLogger {
      * Sets chain style to be Black.
      */
     get BL() {
-        this.styleDelimiter.fg = "Black";
+        this._styleDelimiter.fg = "Black";
         return this;
     }
     /**# [BLACK] Black
@@ -2221,7 +2488,7 @@ class DSLogger {
      * Sets chain style to be Black.
      */
     get BLACK() {
-        this.styleDelimiter.fg = "Black";
+        this._styleDelimiter.fg = "Black";
         return this;
     }
     /** # Cyan
@@ -2231,11 +2498,11 @@ class DSLogger {
      * @returns string
      */
     cyan(text) {
-        this.styleDelimiter.fg = "Cyan";
+        this._styleDelimiter.fg = "Cyan";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [C] Cyan
@@ -2243,7 +2510,7 @@ class DSLogger {
      * Sets chain style to be cyan.
      */
     get C() {
-        this.styleDelimiter.fg = "Cyan";
+        this._styleDelimiter.fg = "Cyan";
         return this;
     }
     /**# [CYAN] Cyan
@@ -2251,7 +2518,7 @@ class DSLogger {
      * Sets chain style to be cyan.
      */
     get CYAN() {
-        this.styleDelimiter.fg = "Cyan";
+        this._styleDelimiter.fg = "Cyan";
         return this;
     }
     /** # Magenta
@@ -2261,11 +2528,11 @@ class DSLogger {
      * @returns string
      */
     magenta(text) {
-        this.styleDelimiter.fg = "Magenta";
+        this._styleDelimiter.fg = "Magenta";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [M] Magenta
@@ -2273,7 +2540,7 @@ class DSLogger {
      * Sets chain style to be magenta.
      */
     get M() {
-        this.styleDelimiter.fg = "Magenta";
+        this._styleDelimiter.fg = "Magenta";
         return this;
     }
     /**# [MAGENTA] Magenta
@@ -2281,7 +2548,7 @@ class DSLogger {
      * Sets chain style to be magenta.
      */
     get MAGENTA() {
-        this.styleDelimiter.fg = "Magenta";
+        this._styleDelimiter.fg = "Magenta";
         return this;
     }
     /** # Yellow
@@ -2291,11 +2558,11 @@ class DSLogger {
      * @returns string
      */
     yellow(text) {
-        this.styleDelimiter.fg = "Yellow";
+        this._styleDelimiter.fg = "Yellow";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [Y] Yellow
@@ -2303,7 +2570,7 @@ class DSLogger {
      * Sets chain style to be yellow.
      */
     get Y() {
-        this.styleDelimiter.fg = "Yellow";
+        this._styleDelimiter.fg = "Yellow";
         return this;
     }
     /**# [YELLOW] Yellow
@@ -2311,7 +2578,7 @@ class DSLogger {
      * Sets chain style to be yellow.
      */
     get YELLOW() {
-        this.styleDelimiter.fg = "Yellow";
+        this._styleDelimiter.fg = "Yellow";
         return this;
     }
     /** # Red Background
@@ -2321,11 +2588,11 @@ class DSLogger {
      * @returns string
      */
     redBG(text) {
-        this.styleDelimiter.bg = "Red";
+        this._styleDelimiter.bg = "Red";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [RBG] Red Background
@@ -2333,7 +2600,7 @@ class DSLogger {
      * Sets chain style to have a red background.
      */
     get RBG() {
-        this.styleDelimiter.bg = "Red";
+        this._styleDelimiter.bg = "Red";
         return this;
     }
     /**# [REDBG] Red Background
@@ -2341,7 +2608,7 @@ class DSLogger {
      * Sets chain style to have a red background.
      */
     get REDBG() {
-        this.styleDelimiter.bg = "Red";
+        this._styleDelimiter.bg = "Red";
         return this;
     }
     /** # Green Background
@@ -2351,11 +2618,11 @@ class DSLogger {
      * @returns string
      */
     greenBG(text) {
-        this.styleDelimiter.bg = "Green";
+        this._styleDelimiter.bg = "Green";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [GBG] Green Background
@@ -2363,7 +2630,7 @@ class DSLogger {
      * Sets chain style to have a green background..
      */
     get GBG() {
-        this.styleDelimiter.bg = "Green";
+        this._styleDelimiter.bg = "Green";
         return this;
     }
     /**# [GREENBG] Green Background
@@ -2371,7 +2638,7 @@ class DSLogger {
      * Sets chain style to have a green background..
      */
     get GREENBG() {
-        this.styleDelimiter.bg = "Green";
+        this._styleDelimiter.bg = "Green";
         return this;
     }
     /** # Blue Background
@@ -2381,11 +2648,11 @@ class DSLogger {
      * @returns string
      */
     blueBG(text) {
-        this.styleDelimiter.bg = "Blue";
+        this._styleDelimiter.bg = "Blue";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [BBG] Blue Background
@@ -2393,7 +2660,7 @@ class DSLogger {
      * Sets chain style to have a blue background.
      */
     get BBG() {
-        this.styleDelimiter.bg = "Blue";
+        this._styleDelimiter.bg = "Blue";
         return this;
     }
     /**# [BLUEBG] Blue Background
@@ -2401,7 +2668,7 @@ class DSLogger {
      * Sets chain style to have a blue background.
      */
     get BLUEBG() {
-        this.styleDelimiter.bg = "Blue";
+        this._styleDelimiter.bg = "Blue";
         return this;
     }
     /** # White Background
@@ -2411,11 +2678,11 @@ class DSLogger {
      * @returns string
      */
     whiteBG(text) {
-        this.styleDelimiter.bg = "White";
+        this._styleDelimiter.bg = "White";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [WBG] Blue Background
@@ -2423,7 +2690,7 @@ class DSLogger {
      * Sets chain style to have a white background.
      */
     get WBG() {
-        this.styleDelimiter.bg = "White";
+        this._styleDelimiter.bg = "White";
         return this;
     }
     /**# [WHITEBG] Blue Background
@@ -2431,7 +2698,7 @@ class DSLogger {
      * Sets chain style to have a white background.
      */
     get WHITEBG() {
-        this.styleDelimiter.bg = "White";
+        this._styleDelimiter.bg = "White";
         return this;
     }
     /** # Black Background
@@ -2441,11 +2708,11 @@ class DSLogger {
      * @returns string
      */
     blackBG(text) {
-        this.styleDelimiter.bg = "Black";
+        this._styleDelimiter.bg = "Black";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [BLBG] Black Background
@@ -2453,7 +2720,7 @@ class DSLogger {
      * Sets chain style to have a black background.
      */
     get BLBG() {
-        this.styleDelimiter.bg = "Black";
+        this._styleDelimiter.bg = "Black";
         return this;
     }
     /**# [BLACKBG] Black Background
@@ -2461,7 +2728,7 @@ class DSLogger {
      * Sets chain style to have a black background.
      */
     get BLACKBG() {
-        this.styleDelimiter.bg = "Black";
+        this._styleDelimiter.bg = "Black";
         return this;
     }
     /** # Cyan Background
@@ -2472,11 +2739,11 @@ class DSLogger {
      * @returns string
      */
     cyanBG(text) {
-        this.styleDelimiter.bg = "Cyan";
+        this._styleDelimiter.bg = "Cyan";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [CBG] Cyan Background
@@ -2484,7 +2751,7 @@ class DSLogger {
      * Sets chain style to have a cyan background.
      */
     get CBG() {
-        this.styleDelimiter.bg = "Cyan";
+        this._styleDelimiter.bg = "Cyan";
         return this;
     }
     /**# [CYANBG] Cyan Background
@@ -2492,7 +2759,7 @@ class DSLogger {
      * Sets chain style to have a cyan background.
      */
     get CYANBG() {
-        this.styleDelimiter.bg = "Cyan";
+        this._styleDelimiter.bg = "Cyan";
         return this;
     }
     /** # Magenta Background
@@ -2502,11 +2769,11 @@ class DSLogger {
      * @returns string
      */
     magentaBG(text) {
-        this.styleDelimiter.bg = "Magenta";
+        this._styleDelimiter.bg = "Magenta";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [MBG] Magenta Background
@@ -2514,7 +2781,7 @@ class DSLogger {
      * Sets chain style to have a magenta background.
      */
     get MBG() {
-        this.styleDelimiter.bg = "Magenta";
+        this._styleDelimiter.bg = "Magenta";
         return this;
     }
     /**# [MAGENTABG] Magenta Background
@@ -2522,7 +2789,7 @@ class DSLogger {
      * Sets chain style to have a magenta background.
      */
     get MAGENTABG() {
-        this.styleDelimiter.bg = "Magenta";
+        this._styleDelimiter.bg = "Magenta";
         return this;
     }
     /** # Yellow Background
@@ -2532,11 +2799,11 @@ class DSLogger {
      * @returns string
      */
     yellowBG(text) {
-        this.styleDelimiter.bg = "Yellow";
+        this._styleDelimiter.bg = "Yellow";
         if (!text)
             return this;
-        const string = this.stylize(text, this.styleDelimiter);
-        this.styleDelimiter = this._copyDefaultStyle();
+        const string = this.stylize(text, this._styleDelimiter);
+        this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [YBG] Yellow Background
@@ -2544,7 +2811,7 @@ class DSLogger {
      * Sets chain style to have a yellow background.
      */
     get YBG() {
-        this.styleDelimiter.bg = "Yellow";
+        this._styleDelimiter.bg = "Yellow";
         return this;
     }
     /**# [YBG] Yellow Background
@@ -2552,7 +2819,7 @@ class DSLogger {
      * Sets chain style to have a yellow background.
      */
     get YELLOWBG() {
-        this.styleDelimiter.bg = "Yellow";
+        this._styleDelimiter.bg = "Yellow";
         return this;
     }
     /**# Do
@@ -2574,8 +2841,10 @@ class DSLogger {
      * @returns
      */
     newService(name, params) {
-        const inte = setInterval(() => { params.run(params.args); }, params.interval);
-        this.services[name] = inte;
+        const inte = setInterval(() => {
+            params.run(params.args);
+        }, params.interval);
+        this._services[name] = inte;
         return this;
     }
     /** # Clear Service
@@ -2584,14 +2853,14 @@ class DSLogger {
      * @param name
      */
     clearService(name) {
-        clearInterval(this.services[name]);
+        clearInterval(this._services[name]);
         return this;
     }
     /**# Exit
-    * ---
-    * Makes the program exit.
-    * Runs : process.exit(0)
-    */
+     * ---
+     * Makes the program exit.
+     * Runs : process.exit(0)
+     */
     exit() {
         process.exit(0);
     }
@@ -2604,14 +2873,306 @@ class DSLogger {
         this.exit();
         return this;
     }
+    /**# [END] Exit
+     * ---
+     * Makes the program exit.
+     * Runs : process.exit(0)
+     */
+    get END() {
+        this.exit();
+        return this;
+    }
+    /**# [DIE] Exit
+     * ---
+     * Makes the program exit.
+     * Runs : process.exit(0)
+     */
+    get DIE() {
+        this.exit();
+        return this;
+    }
     /**# Done
      * ---
      * Shows the done screen and then exits.
      * Runs : process.exit(1)
      */
     done() {
-        this.screens["done"]();
+        this._screens["done"]();
         this.exit();
+    }
+    /**# [DONE] Done
+     * ---
+     * Shows the done screen and then exits.
+     * Runs : process.exit(1)
+     */
+    get DONE() {
+        this.exit();
+        return this;
+    }
+    //Other Directives
+    /** # Debug
+     * ---
+     * Sets it to debug mode.
+     * @param debug
+     */
+    debug(debug = true) {
+        this.debugMode = debug;
+        return this;
+    }
+    /**# [DEBUG] Toggle Debug
+     * ---
+     * Toggles the debug mode.
+     */
+    get DEBUG() {
+        this._directives.debug = this._directives.debug ? false : true;
+        return this;
+    }
+    /**# [DEBUGSTART] Debug Start
+     * ---
+     * Starts the debug directive.
+     */
+    get DEBUGSTART() {
+        this._directives.debug = true;
+        return this;
+    }
+    /**# [DEBUGEND] Debug End
+     * ---
+     * Ends the debug directive.
+     */
+    get DEBUGEND() {
+        this._directives.debug = false;
+        return this;
+    }
+    /**# Group
+     * ---
+     * Calls console.group to create an intented text.
+     * If you supply a name it will print before the next output.
+     * @param label
+     * @returns this
+     */
+    group(label, styleObj) {
+        if (!this._checkDebug()) {
+            return this;
+        }
+        let nameStyled = false;
+        if (label && styleObj) {
+            nameStyled = this.stylize(label, styleObj);
+        }
+        if (label && !styleObj) {
+            nameStyled = this._processMessage(label);
+        }
+        if (label) {
+            this.currentRow += this.countLines(label);
+            console.group(nameStyled);
+        }
+        else {
+            this.currentRow++;
+            console.group();
+        }
+        this._numOfGroups++;
+        return this;
+    }
+    /**# [GROUP] Group
+     * ---
+     * This toggles the group feature.
+     * Calls console.group to create an intented text.
+     * @returns this
+     */
+    get GROUP() {
+        this._directives.group = this._directives.group ? false : true;
+        return this.group();
+    }
+    /**# [GROUPSTART] Group Start
+     * ---
+     * Calls console.group to create an intented text.
+     * @returns this
+     */
+    get GROUPSTART() {
+        this._directives.group = true;
+        return this.group();
+    }
+    /**# [GRS] Group Start
+     * ---
+     * Calls console.group to create an intented text.
+     * @returns this
+     */
+    get GRS() {
+        return this.GROUPSTART;
+    }
+    /**# End Group
+     * ---
+     * Calls console.groupEnd to end a group.
+     * @returns
+     */
+    endGroup() {
+        console.groupEnd();
+        this._numOfGroups--;
+        if (this._numOfGroups <= 0) {
+            this._numOfGroups = 0;
+            if (this._directives.group) {
+                this._directives.group = false;
+            }
+        }
+        return this;
+    }
+    /**# [GROUPEND] Group End
+     * ---
+     * Calls console.groupEnd to end a group.
+     * @returns this
+     */
+    get GROUPEND() {
+        return this.endGroup();
+    }
+    /**# [GRE] Group End
+     * ---
+     * Calls console.groupEnd to end a group.
+     * @returns this
+     */
+    get GRE() {
+        return this.GROUPEND;
+    }
+    /**# End all groups
+     * ---
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    endAllGroups() {
+        while (this._numOfGroups) {
+            this.endGroup();
+        }
+        this._directives.group = false;
+        return this;
+    }
+    /**# Collapse All Groups
+     * ---
+     * Alias for endAllGroups
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    collapseAllGroups() {
+        return this.endAllGroups();
+    }
+    /**# [COLLAPSEALLGROUPS] Collapse All Groups
+     * ---
+     * Alias for End All Groups
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get COLLAPSEALLGROUPS() {
+        return this.endAllGroups();
+    }
+    /**# [CAG] Collapse All Groups
+     * ---
+     * Alias for End All Groups
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get CAG() {
+        return this.endAllGroups();
+    }
+    /**# [GROUPENDALL] Group End ALL
+     * ---
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get GROUPENDALL() {
+        return this.endAllGroups();
+    }
+    /**# [GREA] Group End ALL
+     * ---
+     * Calls console.groupEnd to end all groups.
+     * @returns this
+     */
+    get GREA() {
+        return this.GROUPENDALL;
+    }
+    /**# Trace
+     * ---
+     * All show and log functions will now use trace until it is turned off.
+     * @returns this
+     */
+    trace(enable = true) {
+        this._directives.trace = enable;
+        return this;
+    }
+    /**# [TRACE] Trace
+     * ---
+     * Toggles the trace option.
+     * @returns this
+     */
+    get TRACE() {
+        this._directives.trace = this._directives.trace ? false : true;
+        return this;
+    }
+    /**# [TRACESTART] Trace Start
+     * ---
+     * Starts tracing
+     * @returns this
+     */
+    get TRACESTART() {
+        this._directives.trace = true;
+        return this;
+    }
+    /**# [TS] Trace Start
+     * ---
+     * Starts tracing
+     * @returns this
+     */
+    get TS() {
+        return this.TRACESTART;
+    }
+    /**# [TRACEEND] Trace End
+     * ---
+     * Stops tracing
+     * @returns this
+     */
+    get TRACEEND() {
+        this._directives.trace = false;
+        return this;
+    }
+    /**# [TE] Trace End
+     * ---
+     * Strops tracing
+     * @returns this
+     */
+    get TE() {
+        return this.TRACEEND;
+    }
+    /**# Time
+     * ---
+     * Runs console.time with the provided label or default.
+     * @param label
+     * @returns this
+     */
+    time(label = "default") {
+        console.time(label);
+        return this;
+    }
+    /**# [TIME] TIME
+     * ---
+     * Runs time
+     * @returns this
+     */
+    get TIME() {
+        return this.time();
+    }
+    /**# Time End
+     * ---
+     * Runs console.timeEnd with the provided label or default.
+     * @param label
+     * @returns this
+     */
+    timeEnd(label = "default") {
+        console.timeEnd(label);
+        return this;
+    }
+    /**# [TIMEEND] TIME END
+     * ---
+     * Runs timeEND
+     * @returns this
+     */
+    get TIMEEND() {
+        return this.timeEnd();
     }
 }
 const rdl = require("readline");
