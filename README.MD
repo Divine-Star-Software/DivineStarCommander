@@ -28,8 +28,8 @@ colored messages, progress bars, and so on.
 ## Why?
  
 To make an easy chainable way to create a CLI fast. This provides a complete package for basic or advanced command line tools with many 
-customizable options. The aim is to create a way that is enjoyable and well readable syntax that allows for efficent creation of a command
-line user interface so you can focus more on the program. 
+customizable options. The aim is to create an enjoyable and understadnable syntax that allows for efficent creation of a command
+line user interface so developers can focus more on developing the application. 
 
 ## How To Start
 ### [Vist The Wiki](https://github.com/lucasdamianjohnson/DivineStarCommander/wiki)
