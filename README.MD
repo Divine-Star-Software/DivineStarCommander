@@ -32,12 +32,12 @@ line user interface so you can focus more on the program.
 
 ## How To Start
 
-Start a new node project and install typescrit and dsCom.
+Start a new node project and install typescrit and dscom.
 
 ```console
   npm init
   npm i --save-dev typescript tslib @types/node
-  npm i --save dsCom
+  npm i --save dscom
 ```
 
 In your typescript config file set the types to be.
