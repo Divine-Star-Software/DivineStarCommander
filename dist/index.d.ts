@@ -73,7 +73,7 @@ declare type Directives = {
   @since 9-19-2021
   @version 1.0.1
   */
-declare class DSLogger {
+declare class DSCommander {
     rdl: any;
     debugMode: boolean;
     _numOfGroups: number;
@@ -1386,4 +1386,4 @@ declare class DSLogger {
     };
 }
 declare const rdl: any;
-declare const DS: DSLogger;
+declare const DS: DSCommander;

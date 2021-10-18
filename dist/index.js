@@ -8,7 +8,7 @@
   @since 9-19-2021
   @version 1.0.1
   */
-class DSLogger {
+class DSCommander {
     constructor(rdl) {
         this.rdl = rdl;
         this.debugMode = false;
@@ -3176,5 +3176,5 @@ class DSLogger {
     }
 }
 const rdl = require("readline");
-const DS = new DSLogger(rdl);
+const DS = new DSCommander(rdl);
 module.exports = DS;
