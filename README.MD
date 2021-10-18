@@ -471,7 +471,7 @@ Functions and types related to making a progress bar.
 
 Functions and types related to creating a service bar.
 
-> **Progres Bar Style**
+> **Service Bar Style**
 
 | Type               | Description                                        |
 | ------------------ | -------------------------------------------------- |
