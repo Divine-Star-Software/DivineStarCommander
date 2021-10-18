@@ -1,5 +1,5 @@
 <h1 align="center">
- &#9733; Divine Star Logger &#9733;
+ &#9733; Divine Star Commander &#9733;
 </h1>
  
 <p align="center">
