@@ -55,7 +55,7 @@ See the code bellow to get started quickly.
 ### Starter Code
 
 ```typescript
-const dsCom: DSCommander = require("dsCom");
+const dsCom: DSCommander = require("dscom");
 (async () => {
     dsCom
         //Define the program
