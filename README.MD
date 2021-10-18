@@ -32,7 +32,7 @@ line user interface so you can focus more on the program.
 
 ## How To Start
 
-Start a new node project and install typescrit and dscom.
+Start a new node project and install typescrit and dscom .
 
 ```console
   npm init
