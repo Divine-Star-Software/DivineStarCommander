@@ -194,7 +194,7 @@ type Directives = {
   @since 9-19-2021
   @version 1.0.1
   */
-class DSLogger {
+class DSCommander {
     debugMode = false;
     //Used to keep track of number of console.group runs. So they can all be cleared later.
     _numOfGroups = 0;
@@ -3573,5 +3573,5 @@ class DSLogger {
     };
 }
 const rdl = require("readline");
-const DS = new DSLogger(rdl);
+const DS = new DSCommander(rdl);
 module.exports = DS;

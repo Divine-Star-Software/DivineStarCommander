@@ -8,16 +8,16 @@
  
 ---
  
-![GitHub top language](https://img.shields.io/github/languages/top/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
-![GitHub repo size](https://img.shields.io/github/repo-size/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
-![npm own loads](https://img.shields.io/npm/dt/dslog?color=purple&style=plastic)
-![GitHub latest release](https://img.shields.io/github/v/release/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
-![GitHub latest version](https://img.shields.io/npm/v/dslog?color=purple&style=plastic)
-![GitHub last commit](https://img.shields.io/github/last-commit/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
-![GitHub commit actiivty](https://img.shields.io/github/commit-activity/y/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
+![GitHub top language](https://img.shields.io/github/languages/top/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
+![GitHub repo size](https://img.shields.io/github/repo-size/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
+![npm own loads](https://img.shields.io/npm/dt/dscom?color=purple&style=plastic)
+![GitHub latest release](https://img.shields.io/github/v/release/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
+![GitHub latest version](https://img.shields.io/npm/v/dscom?color=purple&style=plastic)
+![GitHub last commit](https://img.shields.io/github/last-commit/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
+![GitHub commit actiivty](https://img.shields.io/github/commit-activity/y/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
 ![GitHub followers](https://img.shields.io/github/followers/lucasdamianjohnson?color=purple&style=plastic)
-![GitHub stars](https://img.shields.io/github/stars/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
-![GitHub watchers](https://img.shields.io/github/watchers/lucasdamianjohnson/DivineStarLoggger?color=purple&style=plastic)
+![GitHub stars](https://img.shields.io/github/stars/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
+![GitHub watchers](https://img.shields.io/github/watchers/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
  
 ## What Is It?
  
@@ -26,41 +26,43 @@ colored messages, progress bars, and so on.
  
 ## Why?
  
-To make an easy chainable way to create a CLI fast. This provides a complete package for basic command line tools.
+To make an easy chainable way to create a CLI fast. This provides a complete package for basic or advanced command line tools with many 
+customizable options. The aim is to create a way that is enjoyable and well readable syntax that allows for efficent creation of a command
+line user interface so you can focus more on the program. 
 
 ## How To Start
 
-Start a new node project and install typescrit and dslog.
+Start a new node project and install typescrit and dsCom.
 
 ```console
   npm init
   npm i --save-dev typescript tslib @types/node
-  npm i --save dslog
+  npm i --save dsCom
 ```
 
 In your typescript config file set the types to be.
 
 ```json
 {
-    "types": ["node", "tslib", "dslog"]
+    "types": ["node", "tslib", "dscom"]
 }
 ```
 
-And then you can simply require the dslog object and define it as DSLogger.
+And then you can simply require the dsCom object and define it as DSCommander.
 
 See the code bellow to get started quickly.
 
 ### Starter Code
 
 ```typescript
-const dsLog: DSLogger = require("dslog");
+const dsCom: DSCommander = require("dsCom");
 (async () => {
-    dsLog
+    dsCom
         //Define the program
         .defineSplashScreen(() => {
-            dsLog
+            dsCom
                 .newScreen()
-                .show(dsLog.getString("star"), "Raw")
+                .show(dsCom.getString("star"), "Raw")
                 .logProgramTitle()
                 .sleep(500);
         })
@@ -93,21 +95,21 @@ const dsLog: DSLogger = require("dslog");
         })
         .newScreen();
     //Get command line args
-    (await dsLog.initProgramInput())
+    (await dsCom.initProgramInput())
         //Check if they are set
         .ifParamIsset("a", (value: any, args: any) => {
-            dsLog.showSleep(value, "Info");
+            dsCom.showSleep(value, "Info");
         })
         .ifParamIsset("b", (value: any, args: any) => {
-            dsLog.showSleep(value, "Info");
+            dsCom.showSleep(value, "Info");
         })
         .ifParamIsset("c", (value: any, args: any) => {
-            dsLog.showSleep(value, "Info");
+            dsCom.showSleep(value, "Info");
         })
         .newScreen()
-        .RAW.show(dsLog.getParam("a"))
-        .show(dsLog.getParam("b"))
-        .show(dsLog.getParam("c"))
+        .RAW.show(dsCom.getParam("a"))
+        .show(dsCom.getParam("b"))
+        .show(dsCom.getParam("c"))
         .sleep(1000)
         //Start a new screen
         .splashScreen()
@@ -119,9 +121,9 @@ const dsLog: DSLogger = require("dslog");
         .CLEAR.newScreen()
         //Add a progress and service bar
         .newProgressBar("test");
-    await dsLog.incrementProgressBar("test", 100);
-    dsLog.newServiceBar("test");
-    (await dsLog.asyncSleep(3000))
+    await dsCom.incrementProgressBar("test", 100);
+    dsCom.newServiceBar("test");
+    (await dsCom.asyncSleep(3000))
         .destroyServiceBar("test")
         .newScreen()
         .showSleep("All good.", "Raw")
@@ -130,8 +132,8 @@ const dsLog: DSLogger = require("dslog");
         .show("Starting user input", "Info")
         .ask("enter name", "name", "string")
         .ask("enter num", "num", "number");
-    (await dsLog.startPrompt())
-        .showSleep(dsLog.getInput("name"), "Info")
+    (await dsCom.startPrompt())
+        .showSleep(dsCom.getInput("name"), "Info")
         .restartPrompt()
         .ask("enter email", "email", "email")
         .ask("enter password", "pass", "password")
@@ -139,7 +141,7 @@ const dsLog: DSLogger = require("dslog");
             process.exit(0);
         })
         .ask("enter comment", "comment", "string");
-    (await dsLog.startPrompt()).showSleep(dsLog.getInput("comment"), "Info");
+    (await dsCom.startPrompt()).showSleep(dsCom.getInput("comment"), "Info");
 })();
 ```
 
@@ -166,14 +168,14 @@ const dsLog: DSLogger = require("dslog");
 
 If you use this as a node module it will auto require "readline" which is built into node.
 
-If you need to access readline later you can grab it from the dslog object.
+If you need to access readline later you can grab it from the dsCom object.
 
 ### Program Params
 
 Functions related to getting command line input for the program.
 
 ```typescript
-dsLog
+dsCom
     .addParam({
         flag: "a",
         name: "auto",
@@ -190,14 +192,14 @@ dsLog
         required: false,
         valueNeeded: true,
     });
-(await dsLog.initProgramInput())
+(await dsCom.initProgramInput())
     .ifParamIsset("a", (value: any, args: any) => {
-        dsLog.logSleep(value);
+        dsCom.logSleep(value);
     })
     .ifParamIsset("b", (value: any, args: any) => {
-        dsLog.logSleep(value);
+        dsCom.logSleep(value);
     })
-    .logSleep(dsLog.getParam("b"));
+    .logSleep(dsCom.getParam("b"));
 ```
 
 > **Param Types**
@@ -239,7 +241,7 @@ dsLog
 Functions related to logging to the console.
 
 ```typescript
-dsLog
+dsCom
     .defineSleepTime(300)
     .INFO.logSleep(["Info 1", "Info 2", { cool: "This is cool" }])
     .WARNING.logSleep(["Warning 1", "Warning 2"])
@@ -293,7 +295,7 @@ Log functions just log the message without setting the console cursor. While sho
 Functions related to getting the user's input.
 
 ```typescript
-dsLog
+dsCom
     .defineValidator(
         "custom",
         async (input: string | string[]) => {
@@ -312,11 +314,11 @@ dsLog
     .fail(true, "Please re-enter your email.")
     .ask("Do you agree to the terms?", "terms", "custom", "yes")
     .fail(true, "Are you sure? Please re-enter:", 2, () => {
-        dsLog.BR.R.logSleep("Exiting...").exit();
+        dsCom.BR.R.logSleep("Exiting...").exit();
     });
-(await dsLog.startPrompt()).BRIGHT.BLUE.logSleep([
+(await dsCom.startPrompt()).BRIGHT.BLUE.logSleep([
     "Your name is:",
-    dsLog.getInput("name"),
+    dsCom.getInput("name"),
 ]);
 ```
 
@@ -412,26 +414,26 @@ dsLog
 > **Functions**
 
 ```typescript
-dsLog
+dsCom
     .startUserInputCaptcher()
     .onUserInputKey("up", {
         run: () => {
-            dsLog.INFO.log("up");
+            dsCom.INFO.log("up");
         },
     })
     .onUserInputKey("down", {
         run: () => {
-            dsLog.INFO.log("down");
+            dsCom.INFO.log("down");
         },
     })
     .onUserInputKey("left", {
         run: () => {
-            dsLog.INFO.log("left");
+            dsCom.INFO.log("left");
         },
     })
     .onUserInputKey("right", {
         run: () => {
-            dsLog.INFO.log("right");
+            dsCom.INFO.log("right");
         },
     });
 ```
@@ -537,7 +539,7 @@ The example below will show a message with a bright red background and white tex
 style must be cleared in-between the messages. This is so you can just re-use the same style if you want.
 
 ```typescript
-dsLog
+dsCom
     .newScreen()
     .BR.W.RBG.showSleep("Error Message")
     .ERROR.showSleep(["Error Message", "Error Message 1", "Error Message 2"])
@@ -617,7 +619,7 @@ dsLog
 > **Functions**
 
 ```typescript
-    dsLog
+    dsCom
         .debug()
         .DEBUG.logSleep(["This messages will log", "when debug is true"])
         .DEBUG.TRACE.log(["This message will be logged with console.trace."])
@@ -635,12 +637,12 @@ dsLog
 ### Directives
 
 Directives are all cap vars in the class that will do things if you get them. In the style section each color and output style has it's own directive which can be called to stylize the next output.
-Every directive will just return DSLogger so you can chain them together.
+Every directive will just return dsComger so you can chain them together.
 
 Below are other directives and their uses.
 
 ```typescript
-dsLog.NS.BR.W.logSleep([
+dsCom.NS.BR.W.logSleep([
     "This will clear the screen",
     "log bright white text ",
     "and then stop",
@@ -743,16 +745,16 @@ Functions used to make the program sleep.
 Used for running a function in the command chain or starting a service. A service is just some code that runs on an interval.
 
 ```typescript
-dsLog
+dsCom
     .defineSleepTime(200)
     .do(() => {
-        dsLog.BRIGHT.GREEN.logSleep(["do", "some", "stuff"]).CLEAR;
+        dsCom.BRIGHT.GREEN.logSleep(["do", "some", "stuff"]).CLEAR;
     })
     .newService("service-1", {
         interval: 2000,
         run: (args: any) => {
             args.count++;
-            dsLog.NEWSCREEN.DIM.MAGENTA.UNDERLINE.logSleep(
+            dsCom.NEWSCREEN.DIM.MAGENTA.UNDERLINE.logSleep(
                 `RAN : ${args.count} TIMES`
             ).CLEAR.DIM.CYAN.logSleep(["running", "the", "service"]);
         },
