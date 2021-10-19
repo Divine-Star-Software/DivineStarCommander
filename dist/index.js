@@ -1,5 +1,5 @@
 "use strict";
-/**
+/**   
   # DSLogger
   ---
   All in one CLI solution for Node.Js made by Divine Star

@@ -521,9 +521,169 @@ class DSCommander {
         },
     };
 
-    boxChars = {
-        "style-1": {
-            top: "─",
+    _boxChars = {
+        boxElemnts: {
+            doubleLines: {
+                corners: {
+                    downRight: {
+                        rightDouble: "╒",
+                        downDouble: "╓",
+                        double: "╔",
+                    },
+                    downLeft: {
+                        leftDouble: "╕",
+                        downDouble: "╖",
+                        double: "╗",
+                    },
+                    upRight: {
+                        rightDouble: "╘",
+                        upDouble: "╙",
+                        double: "╚",
+                    },
+                    upLeft: {
+                        leftDouble: "╛",
+                        downDouble: "╜",
+                        double: "╝",
+                    },
+                },
+                verticalRight: {},
+                verticalLeft: {},
+                horizontalDown: {},
+                horizontalLeft: {},
+                cross: {},
+            },
+            solid: {
+                verticalRight: {
+                    light: "├",
+                    rightHeavy: "┝",
+                    upHeavy: "┞",
+                    downHeavy: "┟",
+                    verticalHeavy: "┠",
+                    rightUpHeavy: "┡",
+                    rightDownHeavy: "┢",
+                    heavy: "┣",
+                },
+                verticalLeft: {
+                    light: "┤",
+                    leftHeavy: "┥",
+                    upHeavy: "┦",
+                    downHeavy: "┧",
+                    verticalHeavy: "┨",
+                    leftUpHeavy: "┩",
+                    leftDownHeavy: "┪",
+                    heavy: "┫",
+                },
+                horizontalDown: {
+                    light: "┬",
+                    leftHeavy: "┭",
+                    rightHeavy: "┮",
+                    verticalHeavy: "┯",
+                    downHeavy: "┰",
+                    leftDownHeavy: "┱",
+                    rightDownHeavy: "┲",
+                    heavy: "┳",
+                },
+                horizontalUp: {
+                    light: "┴",
+                    leftHeavy: "┵",
+                    rightHeavy: "┶",
+                    verticalHeavy: "┷",
+                    downHeavy: "┸",
+                    leftDownHeavy: "┹",
+                    rightDownHeavy: "┺",
+                    heavy: "┻",
+                },
+                cross: {
+                    light: "┼",
+                    leftHeavy: "┽",
+                    rightHeavy: "┾",
+                    horitzontalHeavy: "┿",
+                    upHeavy: "╀",
+                    downHeavy: "╁",
+                    verticalHeavy: "╂",
+                    leftUpHeavy: "╃",
+                    rightUpHeavy: "╄",
+                    leftDownHeavy: "╅",
+                    rightDownHeavy: "╆",
+                    horizontalUpHeavy: "╇",
+                    horizontalDownHeavy: "╈",
+                    verticalLeftHeavy: "╉",
+                    verticalRightHeavy: "╊",
+                    heavy: "╋",
+                },
+                corners: {
+                    downRight: {
+                        light: "┌",
+                        downLight: "┍",
+                        downHeavy: "┎",
+                        heavy: "┏",
+                    },
+                    downLeft: {
+                        light: "┐",
+                        downLight: "┑",
+                        downHeavy: "┒",
+                        heavy: "┓",
+                    },
+                    upRight: {
+                        light: "└",
+                        upLight: "┕",
+                        upHeavy: "┖",
+                        heavy: "┗",
+                    },
+                    upLeft: {
+                        light: "┘",
+                        upLight: "┙",
+                        upHeavy: "┚",
+                        heavy: "┛",
+                    },
+                },
+            },
+        },
+        lines: {
+            solid: {
+                horizontal: {
+                    light: "─",
+                    heavy: "━",
+                },
+                vertical: {
+                    light: "│",
+                    heavy: "┃",
+                },
+            },
+            dashedDouble: {
+                horizontal: {
+                    light: "╌",
+                    heavy: "╍",
+                },
+                vertical: {
+                    light: "╎",
+                    heavy: "╏",
+                },
+            },
+            dashedTriple: {
+                horizontal: {
+                    light: "┄",
+                    heavy: "┅",
+                },
+                vertical: {
+                    light: "┆",
+                    heavy: "┇",
+                },
+            },
+            dashedQuadruple: {
+                horizontal: {
+                    light: "┈",
+                    heavy: "┉",
+                },
+                vertical: {
+                    light: "┊",
+                    heavy: "┋",
+                },
+            },
+            doubleLines: {
+                horizontal: "═",
+                vertical: "║",
+            },
         },
     };
 

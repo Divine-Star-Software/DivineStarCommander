@@ -1,13 +1,14 @@
 <h1 align="center">
- &#9733; Divine Star Commander &#9733;
+ ⛯ Divine Star Commander ⛯
 </h1>
  
 <p align="center">
 <img src="https://divinestarapparel.com/wp-content/uploads/2021/02/logo-small.png"/>
 </p>
- 
+
+
 ---
- 
+
 ![GitHub top language](https://img.shields.io/github/languages/top/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
 ![GitHub repo size](https://img.shields.io/github/repo-size/lucasdamianjohnson/DivineStarCommander?color=purple&style=plastic)
 ![npm own loads](https://img.shields.io/npm/dt/dscom?color=purple&style=plastic)
