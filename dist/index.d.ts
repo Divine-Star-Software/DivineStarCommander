@@ -132,6 +132,7 @@ declare type BoxStyle = {
 };
 declare type BoxStyles = Record<BoxStyleNames, BoxStyle>;
 declare type CreateBoxObject = {
+    textAlign?: "center" | "left" | "right";
     boxStyle?: BoxStyleNames;
     marginTop?: number;
     marginBottom?: number;
@@ -1518,20 +1519,149 @@ declare class DSCommander {
      * @returns this
      */
     get YELLOWBG(): this;
-    /** # Box
+    /** # Box In
      * ---
-     *
+     * Put the next messages in a box.
+     * @params boxStyle : CreateBoxObject
      * @return this;
      */
-    boxIn(boxStyle: CreateBoxObject): this;
-    boxStop(): this;
+    boxIn(boxStyle?: CreateBoxObject): this;
+    /**# [BOXIN] Box In
+     * ---
+     * Runs box in.
+     * @returns this
+     */
+    get BOXIN(): this;
+    /**# Box End
+     * ---
+     * Stops putting content in the box.
+     * @returns this
+     */
+    boxEnd(): this;
     _processBoxMessage(message: string, boxWidth: number, westCap: string, eastCap: string, boxCreationObj: CreateBoxObject): string;
     _calculateLongestMessage(messages: string[]): number;
-    _wipeChars: string;
-    _wipeCharLength: number;
+    /**#[BOXEND]
+     * ---
+     * Runs boxEnd()
+     * @returns this
+     */
+    get BOXEND(): this;
+    /**#[BOXLIGHT] Box In Light
+     * ---
+     * Sets the box style to be light.
+     * @returns this
+     */
+    get BOXLIGHT(): this;
+    /**#[BOXHEAVY] Box In Heavy
+     * ---
+     * Sets the box style to be heavy.
+     * @returns this
+     */
+    get BOXHEAVY(): this;
+    /**#[BOXHALFBLOCK] Box In Full Block
+     * ---
+     * Sets the box style to be full block.
+     * @returns this
+     */
+    get BOXHALFBLOCK(): this;
+    /**#[BOXFULLBLOCK] Box In Half Block
+     * ---
+     * Sets the box style to be half block.
+     * @returns this
+     */
+    get BOXFULLBLOCK(): this;
+    /**#[BOXLIGHTSHADE] Box In Light Shade
+     * ---
+     * Sets the box style to be light shade.
+     * @returns this
+     */
+    get BOXLIGHTSHADE(): this;
+    /**#[BOXMEDIUMSHADE] Box In Medium Shade
+     * ---
+     * Sets the box style to be heavy.
+     * @returns this
+     */
+    get BOXMEDIUMSHADE(): this;
+    /**#[BOXDARKSAHDE] Box In Dark Shade
+     * ---
+     * Sets the box style to be dark shade.
+     * @returns this
+     */
+    get BOXDARKSAHDE(): this;
+    /**#[BOXCURVED] Box In Curved
+     * ---
+     * Sets the box style to be curved.
+     * @returns this
+     */
+    get BOXCURVED(): this;
+    /**#[BOXDASHEDLIGHT2] Box In dash light double
+     * ---
+     * Sets the box style to be dash light double.
+     * @returns this
+     */
+    get BOXDASHEDLIGHT2(): this;
+    /**#[BOXDASHEDLIGHT3] Box In dash light triple
+     * ---
+     * Sets the box style to be dash light triple.
+     * @returns this
+     */
+    get BOXDASHEDLIGHT3(): this;
+    /**#[BOXDASHEDLIGHT4] Box In dash light quad
+     * ---
+     * Sets the box style to be dash light quad.
+     * @returns this
+     */
+    get BOXDASHEDLIGHT4(): this;
+    /**#[BOXDASHEDHEAVY2] Box In dash heavy double
+     * ---
+     * Sets the box style to be dash heavy double.
+     * @returns this
+     */
+    get BOXDASHEDHEAVY2(): this;
+    /**#[BOXDASHEDHEAVY3] Box In dasy heavy triple
+     * ---
+     * Sets the box style to be dash heavy triple.
+     * @returns this
+     */
+    get BOXDASHEDHEAVY3(): this;
+    /**#[BOXDASHEDHEAVY4] Box In dash heavy quad
+     * ---
+     * Sets the box style to be dash heavy quad.
+     * @returns this
+     */
+    get BOXDASHEDHEAVY4(): this;
+    /**#[BOXTEXTALINGCENTER] Box Text Align Center
+     * ---
+     * Set all text to align to the center of the box.
+     * @returns this
+     */
+    get BOXTEXTALINGCENTER(): this;
+    /**#[BTAC] Box Text Align Center
+     * ---
+     * Set all text to align to the center of the box.
+     * @returns this
+     */
+    get BTAC(): this;
+    /**#[BOXTEXTALINGRIGHT] Box Text Align Right
+     * ---
+     *  Set all text to align to the right of the box.
+     * @returns this
+     */
+    get BOXTEXTALINGRIGHT(): this;
+    /**#[BTAR] Box Text Align Right
+     * ---
+     * Set all text to align to the center of the box.
+     * @returns this
+     */
+    get BTAR(): this;
+    /**# Wipe
+     * ---
+     * Wipe the whole screen with a specific string
+     * @param char
+     * @param direction
+     */
     wipe(char?: string, direction?: "right" | "left" | "top" | "down"): Promise<void>;
     _wipeOne(char: string, rows: number, cols: number, direction: string): Promise<boolean>;
-    _wipeTwo(char: string, rows: number, cols: number): Promise<void>;
     /**# Do
      * ---0
      * Run a function in the chain of functions.

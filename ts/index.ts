@@ -269,6 +269,7 @@ type BoxStyle = {
 type BoxStyles = Record<BoxStyleNames, BoxStyle>;
 
 type CreateBoxObject = {
+    textAlign?: "center" | "left" | "right";
     boxStyle?: BoxStyleNames;
     marginTop?: number;
     marginBottom?: number;
@@ -3981,14 +3982,18 @@ class DSCommander {
     }
     //Box Functions
 
-    /** # Box
+    /** # Box In
      * ---
-     *
+     * Put the next messages in a box.
+     * @params boxStyle : CreateBoxObject
      * @return this;
      */
-    boxIn(boxStyle: CreateBoxObject) {
+    boxIn(boxStyle?: CreateBoxObject) {
+        if (!boxStyle) {
+            boxStyle = this._defaultBoxStyle;
+        }
         if (this._directives.box.active) {
-            this.boxStop();
+            this.boxEnd();
         }
 
         this._boxData.boxCreationObj = boxStyle;
@@ -3997,8 +4002,26 @@ class DSCommander {
 
         return this;
     }
+    /**# [BOXIN] Box In
+     * ---
+     * Runs box in.
+     * @returns this
+     */
+    get BOXIN() {
+        this.boxIn();
+        return this;
+    }
+    /**# Box End
+     * ---
+     * Stops putting content in the box.
+     * @returns this
+     */
+    boxEnd() {
+        let show = false;
+        if (this._chceckShow()) {
+            show = true;
+        }
 
-    boxStop() {
         this._directives.box.active = false;
         //  const longestMessage = this._calculateLongestMessage(this._boxData.messageQue);
         const longestMessage = this._boxData.largestWidth;
@@ -4069,14 +4092,32 @@ class DSCommander {
             boxStyle.southEastCorner,
             boxStyle.southEastStyleObj
         );
-
+      
         const indent = 0;
-        this.rdl.cursorTo(process.stdout, indent);
+        if (show) {
+            this.rdl.cursorTo(
+                process.stdout,
+                this._currentCol,
+                this._currentRow
+            );
+        } else {
+            this.rdl.cursorTo(process.stdout, indent);
+        }
         console.log(boxTop);
+        this._currentRow++;
 
         if (boxCreationObj.paddingTop) {
             let temp = boxCreationObj.paddingTop;
             while (temp--) {
+                if (show) {
+                    this.rdl.cursorTo(
+                        process.stdout,
+                        this._currentCol,
+                        this._currentRow
+                    );
+                } else {
+                    this.rdl.cursorTo(process.stdout, indent);
+                }
                 const newMessage = this._processBoxMessage(
                     fillerMessage,
                     boxWidth,
@@ -4084,12 +4125,21 @@ class DSCommander {
                     eastCap,
                     boxCreationObj
                 );
-                this.rdl.cursorTo(process.stdout, indent);
+              
                 console.log(newMessage);
             }
         }
 
         for (const message of this._boxData.messageQue) {
+            if (show) {
+                this.rdl.cursorTo(
+                    process.stdout,
+                    this._currentCol,
+                    this._currentRow
+                );
+            } else {
+                this.rdl.cursorTo(process.stdout, indent);
+            }
             const newMessage = this._processBoxMessage(
                 message,
                 boxWidth,
@@ -4097,13 +4147,20 @@ class DSCommander {
                 eastCap,
                 boxCreationObj
             );
-            this.rdl.cursorTo(process.stdout, indent);
             console.log(newMessage);
         }
-
         if (boxCreationObj.paddingBottom) {
             let temp = boxCreationObj.paddingBottom;
             while (temp--) {
+                if (show) {
+                    this.rdl.cursorTo(
+                        process.stdout,
+                        this._currentCol,
+                        this._currentRow
+                    );
+                } else {
+                    this.rdl.cursorTo(process.stdout, indent);
+                }
                 const newMessage = this._processBoxMessage(
                     fillerMessage,
                     boxWidth,
@@ -4111,17 +4168,28 @@ class DSCommander {
                     eastCap,
                     boxCreationObj
                 );
-                this.rdl.cursorTo(process.stdout, indent);
                 console.log(newMessage);
             }
         }
-
-        this.rdl.cursorTo(process.stdout, indent);
+        if (show) {
+            this.rdl.cursorTo(
+                process.stdout,
+                this._currentCol,
+                this._currentRow
+            );
+        } else {
+            this.rdl.cursorTo(process.stdout, indent);
+        }
         console.log(boxBottom);
+        this._currentRow++;
+
         this._boxData.messageQue = [];
+        this._boxData.sleepMap = {};
         this._boxData.lengthMap = {};
+        this._defaultBoxStyle = {};
         return this;
     }
+
     _processBoxMessage(
         message: string,
         boxWidth: number,
@@ -4129,6 +4197,16 @@ class DSCommander {
         eastCap: string,
         boxCreationObj: CreateBoxObject
     ) {
+        let trueMessageLength = this._boxData.lengthMap[message];
+        if (!trueMessageLength) {
+            trueMessageLength = message.length;
+        }
+        let textAlign = "";
+        if (boxCreationObj.textAlign) {
+            textAlign = boxCreationObj.textAlign;
+        }
+
+        //Add padding left
         let paddingLeft = " ";
         let paddedLeft = 0;
         if (boxCreationObj.paddingLeft) {
@@ -4138,14 +4216,42 @@ class DSCommander {
                 paddedLeft++;
             }
         }
-        let newMessage = `${westCap}${paddingLeft}${message}`;
-
-        let trueMessageLength = this._boxData.lengthMap[message];
-        if (!trueMessageLength) {
-            trueMessageLength = message.length;
+        //Center
+        let paddedCenter = 0;
+        let paddingCenter = "";
+        if (textAlign == "center") {
+            if (trueMessageLength != this._boxData.largestWidth) {
+                let length =
+                    ((this._boxData.largestWidth - trueMessageLength) / 2) >>>
+                    0;
+                while (length--) {
+                    paddingCenter += " ";
+                    paddedCenter++;
+                }
+            }
         }
+        //Align Right
+        let paddedRight = 0;
+        let paddingRight = "";
+        if (textAlign == "right") {
+            if (trueMessageLength != this._boxData.largestWidth) {
+                let length = this._boxData.largestWidth - trueMessageLength;
+                while (length--) {
+                    paddingRight += " ";
+                    paddedRight++;
+                }
+            }
+        }
+
+        let newMessage = `${westCap}${paddingLeft}${paddingCenter}${paddingRight}${message}`;
+
         // console.log(trueMessageLength);
-        let widthNeeded = boxWidth - trueMessageLength - paddedLeft;
+        let widthNeeded =
+            boxWidth -
+            trueMessageLength -
+            paddedLeft -
+            paddedCenter -
+            paddedRight;
 
         if (widthNeeded > 0) {
             while (widthNeeded--) {
@@ -4153,6 +4259,7 @@ class DSCommander {
             }
         }
         newMessage += ` ${eastCap}`;
+        this._currentRow += this.countLines(newMessage);
         return newMessage;
     }
 
@@ -4177,12 +4284,188 @@ class DSCommander {
         });
         return lengths[0];
     }
+    /**#[BOXEND]
+     * ---
+     * Runs boxEnd()
+     * @returns this
+     */
+    get BOXEND() {
+        this.boxEnd();
+        return this;
+    }
 
+    //Box Styles
+    /**#[BOXLIGHT] Box In Light
+     * ---
+     * Sets the box style to be light.
+     * @returns this
+     */
+    get BOXLIGHT() {
+        this._defaultBoxStyle.boxStyle = "light";
+        return this;
+    }
+    /**#[BOXHEAVY] Box In Heavy
+     * ---
+     * Sets the box style to be heavy.
+     * @returns this
+     */
+    get BOXHEAVY() {
+        this._defaultBoxStyle.boxStyle = "heavy";
+        return this;
+    }
 
-     _wipeChars       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+|\=-{}:"\'<>?,./`~';
-     _wipeCharLength = this._wipeChars.length;
-
-    async wipe(char: string = "⛦", direction: "right" | "left" | "top" | "down" = "right") {
+    /**#[BOXHALFBLOCK] Box In Full Block
+     * ---
+     * Sets the box style to be full block.
+     * @returns this
+     */
+    get BOXHALFBLOCK() {
+        this._defaultBoxStyle.boxStyle = "fullBlock";
+        return this;
+    }
+    /**#[BOXFULLBLOCK] Box In Half Block
+     * ---
+     * Sets the box style to be half block.
+     * @returns this
+     */
+    get BOXFULLBLOCK() {
+        this._defaultBoxStyle.boxStyle = "halfBlock";
+        return this;
+    }
+    /**#[BOXLIGHTSHADE] Box In Light Shade
+     * ---
+     * Sets the box style to be light shade.
+     * @returns this
+     */
+    get BOXLIGHTSHADE() {
+        this._defaultBoxStyle.boxStyle = "lightShade";
+        return this;
+    }
+    /**#[BOXMEDIUMSHADE] Box In Medium Shade
+     * ---
+     * Sets the box style to be heavy.
+     * @returns this
+     */
+    get BOXMEDIUMSHADE() {
+        this._defaultBoxStyle.boxStyle = "mediumShade";
+        return this;
+    }
+    /**#[BOXDARKSAHDE] Box In Dark Shade
+     * ---
+     * Sets the box style to be dark shade.
+     * @returns this
+     */
+    get BOXDARKSAHDE() {
+        this._defaultBoxStyle.boxStyle = "darkShade";
+        return this;
+    }
+    /**#[BOXCURVED] Box In Curved
+     * ---
+     * Sets the box style to be curved.
+     * @returns this
+     */
+    get BOXCURVED() {
+        this._defaultBoxStyle.boxStyle = "curved";
+        return this;
+    }
+    /**#[BOXDASHEDLIGHT2] Box In dash light double
+     * ---
+     * Sets the box style to be dash light double.
+     * @returns this
+     */
+    get BOXDASHEDLIGHT2() {
+        this._defaultBoxStyle.boxStyle = "dashedLightDouble";
+        return this;
+    }
+    /**#[BOXDASHEDLIGHT3] Box In dash light triple
+     * ---
+     * Sets the box style to be dash light triple.
+     * @returns this
+     */
+    get BOXDASHEDLIGHT3() {
+        this._defaultBoxStyle.boxStyle = "dashedLightTriple";
+        return this;
+    }
+    /**#[BOXDASHEDLIGHT4] Box In dash light quad
+     * ---
+     * Sets the box style to be dash light quad.
+     * @returns this
+     */
+    get BOXDASHEDLIGHT4() {
+        this._defaultBoxStyle.boxStyle = "dashedLightQuad";
+        return this;
+    }
+    /**#[BOXDASHEDHEAVY2] Box In dash heavy double
+     * ---
+     * Sets the box style to be dash heavy double.
+     * @returns this
+     */
+    get BOXDASHEDHEAVY2() {
+        this._defaultBoxStyle.boxStyle = "dashedHeavyDouble";
+        return this;
+    }
+    /**#[BOXDASHEDHEAVY3] Box In dasy heavy triple
+     * ---
+     * Sets the box style to be dash heavy triple.
+     * @returns this
+     */
+    get BOXDASHEDHEAVY3() {
+        this._defaultBoxStyle.boxStyle = "dashedHeavyTriple";
+        return this;
+    }
+    /**#[BOXDASHEDHEAVY4] Box In dash heavy quad
+     * ---
+     * Sets the box style to be dash heavy quad.
+     * @returns this
+     */
+    get BOXDASHEDHEAVY4() {
+        this._defaultBoxStyle.boxStyle = "dashedHeavyQuad";
+        return this;
+    }
+    /**#[BOXTEXTALINGCENTER] Box Text Align Center
+     * ---
+     * Set all text to align to the center of the box.
+     * @returns this
+     */
+    get BOXTEXTALINGCENTER() {
+        this._defaultBoxStyle.textAlign = "center";
+        return this;
+    }
+    /**#[BTAC] Box Text Align Center
+     * ---
+     * Set all text to align to the center of the box.
+     * @returns this
+     */
+    get BTAC() {
+        return this.BOXTEXTALINGCENTER;
+    }
+    /**#[BOXTEXTALINGRIGHT] Box Text Align Right
+     * ---
+     *  Set all text to align to the right of the box.
+     * @returns this
+     */
+    get BOXTEXTALINGRIGHT() {
+        this._defaultBoxStyle.textAlign = "right";
+        return this;
+    }
+    /**#[BTAR] Box Text Align Right
+     * ---
+     * Set all text to align to the center of the box.
+     * @returns this
+     */
+    get BTAR() {
+        return this.BOXTEXTALINGRIGHT;
+    }
+    /**# Wipe
+     * ---
+     * Wipe the whole screen with a specific string
+     * @param char
+     * @param direction
+     */
+    async wipe(
+        char: string = "⛦",
+        direction: "right" | "left" | "top" | "down" = "right"
+    ) {
         let rows = process.stdout.rows;
         let cols = process.stdout.columns;
 
@@ -4217,7 +4500,7 @@ class DSCommander {
                 do {
                     if (row < rows && col < cols) {
                         this.rdl.cursorTo(process.stdout, col, row);
-                         process.stdout.write(char);
+                        process.stdout.write(char);
                         this.sleep(1);
                     }
                     row++;
@@ -4228,10 +4511,9 @@ class DSCommander {
         if (direction == "top") {
             for (let r = 0; r <= rows; r++) {
                 for (let c = 0; c <= cols; c++) {
-                        this.rdl.cursorTo(process.stdout, c, r);
-                         process.stdout.write(char);
-                        this.sleep(1);
-                    
+                    this.rdl.cursorTo(process.stdout, c, r);
+                    process.stdout.write(char);
+                    this.sleep(1);
                 }
             }
         }
@@ -4240,7 +4522,7 @@ class DSCommander {
                 for (let c = 0; c <= cols; c++) {
                     if (r < rows && c < cols) {
                         this.rdl.cursorTo(process.stdout, c, r);
-                         process.stdout.write(char);
+                        process.stdout.write(char);
                         this.sleep(1);
                     }
                 }
@@ -4248,17 +4530,6 @@ class DSCommander {
         }
 
         return true;
-    }
-    async _wipeTwo(char: string, rows: number, cols: number) {
-        /*         let r = rows;
-        while(r--) {
-            let c = cols;
-            while(c--) {
-        this.rdl.cursorTo(process.stdout, c, r);
-        process.stdout.write(char);
-            }
-
-        } */
     }
 
     /**# Do

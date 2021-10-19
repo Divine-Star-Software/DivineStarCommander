@@ -29,8 +29,8 @@ colored messages, progress bars, and so on.
 ## Why?
  
 To make an easy chainable way to create a CLI fast. This provides a complete package for basic or advanced command line tools with many 
-customizable options. The aim is to create an enjoyable and understadnable syntax that allows for efficent creation of a command
-line user interface so developers can focus more on developing the application. 
+customizable options. The aim is to create an enjoyable and understadnable syntax that allows for efficent creation of command
+line user interfaces so developers can focus more on developing their applications. 
 
 ## How To Start
 ### [Vist The Wiki](https://github.com/lucasdamianjohnson/DivineStarCommander/wiki)
@@ -60,45 +60,8 @@ See the code bellow to get started quickly. It shows the program setting up inpu
 ```typescript
 const dsCom: DSCommander = require("dscom");
 (async () => {
-    dsCom
-        //Define the program
-        .defineSplashScreen(() => {
-            dsCom
-                .newScreen()
-                .show(dsCom.getString("star"), "Raw")
-                .logProgramTitle()
-                .sleep(500);
-        })
-        .defineProgramTitle("[ DS TESTING ]")
-        .defineHelpText("This is an easy command line tool.")
-        //Add command line args
-        .addParam({
-            flag: "a",
-            name: "auto",
-            desc: "Auto parse",
-            type: "boolean",
-            required: false,
-            valueNeeded: true,
-        })
-        .addParam({
-            flag: "b",
-            name: "batch",
-            desc: "Auto batch",
-            type: "string",
-            required: false,
-            valueNeeded: true,
-        })
-        .addParam({
-            flag: "c",
-            name: "cache",
-            desc: "Auto cache",
-            type: "number",
-            required: false,
-            valueNeeded: false,
-        })
-        .newScreen();
-    //Get command line args
-    (await dsCom.initProgramInput())
+    (await dsCom.initProgramInput()).$ENABLESHOW //enable use of show functions
+        .defineSleepTime(100)
         //Check if they are set
         .ifParamIsset("a", (value: any, args: any) => {
             dsCom.showSleep(value, "Info");
@@ -121,7 +84,25 @@ const dsCom: DSCommander = require("dscom");
         .GOOD.showSleep("Everything is fine.")
         .ERROR.showSleep("Everything is not fine.")
         .WARNING.showSleep("Something may be wrong.")
-        .CLEAR.newScreen()
+        .sleep(500)
+        .CLEAR
+        //Show message in boxes
+        .BOXIN.BOXDASHEDHEAVY4.BTAC.BR.G.show([
+            "Divine Star Software",
+            "Presents",
+            "Divine Star Commander",
+            "The Ultimate Command Line Interface",
+            "Creation Tool",
+        ])
+        .sleep(500)
+        .BOXEND.BOXIN.BOXTEXTALINGRIGHT.BR.B.show([
+            "Divine Star Software",
+            "Presents",
+            "Divine Star Commander",
+            "The Ultimate Command Line Interface",
+            "Creation Tool",
+        ])
+        .BOXEND.sleep(500)
         //Add a progress and service bar
         .newProgressBar("test");
     await dsCom.incrementProgressBar("test", 100);
@@ -144,6 +125,8 @@ const dsCom: DSCommander = require("dscom");
             process.exit(0);
         })
         .ask("enter comment", "comment", "string");
-    (await dsCom.startPrompt()).showSleep(dsCom.getInput("comment"), "Info");
+    (await dsCom.startPrompt()).ifInputIsset("comment", (value: any) => {
+        dsCom.INFO.show(value);
+    });
 })();
 ```
