@@ -1,3 +1,37 @@
+declare type BlockChars = {
+    "upper-1/2-block": string;
+    "lower-1/8-block": string;
+    "lower-1/4-block": string;
+    "lower-1/3-block": string;
+    "lower-1/2-block": string;
+    "lower-5/8-block": string;
+    "lower-3/4-block": string;
+    "lower-7/8-block": string;
+    "full-block": string;
+    "left-7/8-block": string;
+    "left-3/4-block": string;
+    "left-5/8-block": string;
+    "left-1/2-block": string;
+    "left-3/8-block": string;
+    "left-1/4-block": string;
+    "left-1/8-block": string;
+    "right-1/2-block": string;
+    "light-shade": string;
+    "medium-shade": string;
+    "dark-shade": string;
+    "upper-1/8-block": string;
+    "right-1/8-block": string;
+    "quad-lower-left": string;
+    "quad-lower-right": string;
+    "quad-upper-left": string;
+    "quad-upper-left-lower-left-lower-right": string;
+    "quad-upper-left-lower-right": string;
+    "quad-upper-left-upper-right-lower-left": string;
+    "quad-upper-left-upper-right-lower-right": string;
+    "quad-upper-right": string;
+    "quad-upper-right-lower-left": string;
+    "quad-upper-right-lower-right": string;
+};
 declare type UserInputWatchObject = {
     run: (args: any) => {};
     args: any;
@@ -59,10 +93,53 @@ declare type ServiceBarStyle = {
     size: number;
     interval: number;
 };
+declare type BoxStyleNames = "light" | "heavy" | "doubleLines" | "fullBlock" | "halfBlock" | "lightShade" | "mediumShade" | "darkShade" | "curved" | "dashedLightDouble" | "dashedLightTriple" | "dashedLightQuad" | "dashedHeavyDouble" | "dashedHeavyTriple" | "dashedHeavyQuad";
 declare type Directives = {
     debug: boolean;
     group: boolean;
     trace: boolean;
+    box: {
+        active: boolean;
+        style: BoxStyleNames;
+    };
+};
+declare type BoxData = {
+    messageQue: string[];
+    largestWidth: number;
+    lengthMap: Record<string, number>;
+    sleepMap: Record<string, number>;
+    boxCreationObj: CreateBoxObject;
+};
+declare type BoxStyle = {
+    bottomLine: string;
+    bottomLineStyleObj: StyleObject;
+    topLine: string;
+    topLineStyleObj: StyleObject;
+    westLine: string;
+    westLineStyleObj: StyleObject;
+    eastLine: string;
+    eastLineStyleObj: StyleObject;
+    southEastCorner: string;
+    southEastStyleObj: StyleObject;
+    southWestCorner: string;
+    southWestStyleObj: StyleObject;
+    northEastCorner: string;
+    northEastStyleObj: StyleObject;
+    northWestCorner: string;
+    northWestStyleObj: StyleObject;
+    cross: string;
+    crossStyleObj: StyleObject;
+};
+declare type BoxStyles = Record<BoxStyleNames, BoxStyle>;
+declare type CreateBoxObject = {
+    boxStyle?: BoxStyleNames;
+    marginTop?: number;
+    marginBottom?: number;
+    paddingTop?: number;
+    paddingBottom?: number;
+    paddingLeft?: number;
+    paddingRight?: number;
+    customBoxStyle?: BoxStyle;
 };
 /**
   # DSLogger
@@ -75,7 +152,8 @@ declare type Directives = {
   */
 declare class DSCommander {
     rdl: any;
-    debugMode: boolean;
+    _showEnabled: boolean;
+    _debugMode: boolean;
     _numOfGroups: number;
     _directives: Directives;
     _defaultStyleDelimiter: StyleObject;
@@ -102,8 +180,8 @@ declare class DSCommander {
         args: any;
         func: Function;
     }>;
-    currentRow: number;
-    currentCol: number;
+    _currentRow: number;
+    _currentCol: number;
     rli: any;
     _progressBars: Record<string, any>;
     _serviceBars: Record<string, any>;
@@ -114,11 +192,217 @@ declare class DSCommander {
     _validInputTypes: string[];
     _customValidators: Record<string, (input: any) => Promise<boolean>>;
     _screens: Record<DisplayScreens, Function>;
-    boxChars: {
-        "style-1": {
-            top: string;
+    _blockChars: BlockChars;
+    _boxChars: {
+        boxElemnts: {
+            arcs: {
+                downRight: string;
+                downLeft: string;
+                upLeft: string;
+                upRight: string;
+            };
+            doubleLines: {
+                corners: {
+                    downRight: {
+                        rightDouble: string;
+                        downDouble: string;
+                        double: string;
+                    };
+                    downLeft: {
+                        leftDouble: string;
+                        downDouble: string;
+                        double: string;
+                    };
+                    upRight: {
+                        rightDouble: string;
+                        upDouble: string;
+                        double: string;
+                    };
+                    upLeft: {
+                        leftDouble: string;
+                        downDouble: string;
+                        double: string;
+                    };
+                };
+                verticalRight: {
+                    rightDouble: string;
+                    verticalDouble: string;
+                    double: string;
+                };
+                verticalLeft: {
+                    leftDouble: string;
+                    verticalDouble: string;
+                    double: string;
+                };
+                horizontalDown: {
+                    horizontalDouble: string;
+                    downDouble: string;
+                    double: string;
+                };
+                horizontalUp: {
+                    horizontalDouble: string;
+                    upDouble: string;
+                    double: string;
+                };
+                cross: {
+                    horizontalDouble: string;
+                    verticalDouble: string;
+                    double: string;
+                };
+            };
+            solid: {
+                verticalRight: {
+                    light: string;
+                    rightHeavy: string;
+                    upHeavy: string;
+                    downHeavy: string;
+                    verticalHeavy: string;
+                    rightUpHeavy: string;
+                    rightDownHeavy: string;
+                    heavy: string;
+                };
+                verticalLeft: {
+                    light: string;
+                    leftHeavy: string;
+                    upHeavy: string;
+                    downHeavy: string;
+                    verticalHeavy: string;
+                    leftUpHeavy: string;
+                    leftDownHeavy: string;
+                    heavy: string;
+                };
+                horizontalDown: {
+                    light: string;
+                    leftHeavy: string;
+                    rightHeavy: string;
+                    verticalHeavy: string;
+                    downHeavy: string;
+                    leftDownHeavy: string;
+                    rightDownHeavy: string;
+                    heavy: string;
+                };
+                horizontalUp: {
+                    light: string;
+                    leftHeavy: string;
+                    rightHeavy: string;
+                    verticalHeavy: string;
+                    downHeavy: string;
+                    leftDownHeavy: string;
+                    rightDownHeavy: string;
+                    heavy: string;
+                };
+                cross: {
+                    light: string;
+                    leftHeavy: string;
+                    rightHeavy: string;
+                    horitzontalHeavy: string;
+                    upHeavy: string;
+                    downHeavy: string;
+                    verticalHeavy: string;
+                    leftUpHeavy: string;
+                    rightUpHeavy: string;
+                    leftDownHeavy: string;
+                    rightDownHeavy: string;
+                    horizontalUpHeavy: string;
+                    horizontalDownHeavy: string;
+                    verticalLeftHeavy: string;
+                    verticalRightHeavy: string;
+                    heavy: string;
+                };
+                corners: {
+                    downRight: {
+                        light: string;
+                        downLight: string;
+                        downHeavy: string;
+                        heavy: string;
+                    };
+                    downLeft: {
+                        light: string;
+                        downLight: string;
+                        downHeavy: string;
+                        heavy: string;
+                    };
+                    upRight: {
+                        light: string;
+                        upLight: string;
+                        upHeavy: string;
+                        heavy: string;
+                    };
+                    upLeft: {
+                        light: string;
+                        upLight: string;
+                        upHeavy: string;
+                        heavy: string;
+                    };
+                };
+            };
+        };
+        lines: {
+            solid: {
+                horizontal: {
+                    light: string;
+                    heavy: string;
+                };
+                vertical: {
+                    light: string;
+                    heavy: string;
+                };
+            };
+            dashedDouble: {
+                horizontal: {
+                    light: string;
+                    heavy: string;
+                };
+                vertical: {
+                    light: string;
+                    heavy: string;
+                };
+            };
+            dashedTriple: {
+                horizontal: {
+                    light: string;
+                    heavy: string;
+                };
+                vertical: {
+                    light: string;
+                    heavy: string;
+                };
+            };
+            dashedQuadruple: {
+                horizontal: {
+                    light: string;
+                    heavy: string;
+                };
+                vertical: {
+                    light: string;
+                    heavy: string;
+                };
+            };
+            doubleLines: {
+                horizontal: string;
+                vertical: string;
+            };
+            halfLines: {
+                lightLeft: string;
+                lightUp: string;
+                lightRight: string;
+                lightDown: string;
+                heavyLeft: string;
+                heavyUp: string;
+                heavyRight: string;
+                heavyDown: string;
+            };
+            mixedLines: {
+                heavyRight: string;
+                heavyDown: string;
+                heavyLeft: string;
+                heavyUp: string;
+            };
         };
     };
+    _boxStyles: BoxStyles;
+    _defaultBoxStyle: CreateBoxObject;
+    _boxData: BoxData;
     _keyMap: Record<UserInputKeys, string>;
     _stdinKeyWatch: Record<string, UserInputWatchObject[]>;
     _stdinCharWatch: Record<string, UserInputWatchObject[]>;
@@ -172,12 +456,13 @@ declare class DSCommander {
      * Stylize the text with the given format.
      * @param text : string
      * @param styleObj : StyleObject
+     * @returns string
      */
     stylize(text: string, styleObj: StyleObject): string;
     /** # Get Raw Params
      * ---
      * Get the raw params submited to the program.
-     * @returns
+     * @returns string[]
      */
     getRawParams(): string[];
     /**# Get Param
@@ -190,6 +475,7 @@ declare class DSCommander {
      * ---
      * Adds a command line arg to the program.
      * @param param An object to specify the param.
+     * @returns this
      */
     addParam(param: ProgramParams): this;
     /** # If Param Isset
@@ -198,6 +484,7 @@ declare class DSCommander {
      * @param param Either the name or the flag of the param.
      * @param func The function to be run. Will be passed the value of the param and the args given.
      * @param args Args to be passed to the function.
+     * @returns this
      */
     ifParamIsset(param: string, func: (value: ProgramParamsDataTypes, args: any) => any, args?: any): this;
     /**# Get Inital Program Args
@@ -209,7 +496,7 @@ declare class DSCommander {
      * node index.js -a
      *
      * It will return ["index.js"]
-     * @returns
+     * @returns string[]
      */
     getInitalProgramArgs(): string[];
     /**# Init Program Input
@@ -250,11 +537,13 @@ declare class DSCommander {
     /**# Restart Prompt
      * ---
      * Restarat user input prompt.
+     * @returns this
      */
     restartPrompt(): this;
     /**# Start Prompt
      * ---
      * Starts user input prompt.
+     * @returns this
      */
     startPrompt(): Promise<this>;
     _convertInput(varType: QuestionsTypes, input: string): Promise<string | string[]>;
@@ -266,6 +555,7 @@ declare class DSCommander {
      * @param reAskMessage
      * @param onFail
      * @param args
+     * @returns this
      */
     fail(reAsk: boolean, reAskMessage: string, attempts?: number | "all", onFail?: Function, arg?: any): this;
     /**# Ask
@@ -275,12 +565,14 @@ declare class DSCommander {
      * @param varName
      * @param varType
      * @param customType The name used for the custom question type.
+     * @returns this
      */
     ask(question: string, varName: string, varType: QuestionsTypes, customName?: string): this;
     /**# Get Input
      * ---
      * Get input from question
      * @param varName
+     * @returns input value or undefined
      */
     getInput(varName: string): string | number | any[] | undefined | boolean;
     /** # If Input Isset
@@ -289,6 +581,7 @@ declare class DSCommander {
      * @param varName The name of the input.
      * @param func The function to be run. Will be passed the value of the input and the args given.
      * @param args Args to be passed to the function.
+     * @returns this
      */
     ifInputIsset(varName: string, func: (value: string | number | any[] | undefined | boolean, args: any) => any, args?: any): this;
     /**# Clear Rows
@@ -296,72 +589,86 @@ declare class DSCommander {
      * Clears console output for a given row range.
      * @param rowStart
      * @param rowEnd
+     * @returns this
      */
     clearRows(rowStart: number, rowEnd: number): this;
     /**# Get Row
      * ---
      * Gets the current row number that the output is on.
+     * @returns number
      */
     getRow(): number;
     /**# Set Row
      *---
      * Sets the console cursor to a row.
      * @param num
+     * @returns this
      */
     setRow(num: number): this;
     /**# Add Row
      * ---
      * Add one row to the current console cursor.
+     * @returns this
      */
     addRow(): this;
     /**# Minus
      * ---
      * Minus one row to the current console cursor.
+     * @returns this
      */
     minusRow(): this;
     /**# Get Row
      * ---
      * Gets the current row number that the output is on.
+     * @returns number
      */
     getCol(): number;
     /**# Set Col
      *---
      * Sets the console cursor to a collumn.
      * @param num
+     * @returns this
      */
     setCol(num: number): this;
     /**# Add Col
      * ---
      * Add one to the current console cursor collumn.
+     * @returns this
      */
     addCol(): this;
     /**# Minus Collumn
      * ---
      * Minus one to the current console cursor collumn.
+     * @returns this
      */
     minusCol(): this;
     /**# New Service Bar
      * ---
      * Makes a continuous loading bar.
+     * Show must be enabled in order for this to work.
      * @param name
+     * @returns this
      */
     newServiceBar(name: string, serviceBarStyle?: ServiceBarStyle): this;
     /**# Re Init Service Bar
      * ---
      * Restart a service bar.
      * @param name
+     * @returns this
      */
     reInitServiceBar(name: string): this;
     /**# Destroy Service Bar
      * ---
      * Destroy a service bar.
      * @param name
+     * @returns this
      */
     destroyServiceBar(name: string): this;
     /**# New Progress Bar
      * ---
      * Makes a new progress loading bar.
      * @param name of bar to be used as an id
+     * @returns this
      */
     newProgressBar(name: string, progressBarStyle?: ProgressBarStyle): this;
     /**# Increment Progress Bar
@@ -369,23 +676,27 @@ declare class DSCommander {
      * Adds progress to the progress bar.
      * @param name name of bar to increase
      * @param amount amount to increase by
+     * @returns this
      */
     incrementProgressBar(name: string, amount: number): Promise<this>;
     /**# Sleep
      * ---
      * Makes the program sleep via a loop.
      * @param ms miliseconds to sleep
+     * @returns this
      */
     sleep(ms: number): this;
     /**# Async Sleep
      * ---
      * Makes the program sleep via a promsie.
      * @param ms miliseconds to sleep
+     * @returns Promise\<self>
      */
     asyncSleep(ms: number): Promise<this>;
     /** # New Screen
      * ---
      * Clears the screen and resets the row.
+     * @returns this
      */
     newScreen(): this;
     /**# Get Message Array
@@ -393,11 +704,12 @@ declare class DSCommander {
      * Returns back an array of strings with the given value.
      * Used display multi messsages.
      * @param message
-     * @returns
      */
     _getMessageArray(message: string | number | object | any[]): string[] | false;
     _processMessage(message: string, type?: MessageTypes | "none"): string;
     _checkDebug(): boolean;
+    _chceckShow(): boolean;
+    _checkBoxIn(message?: string, processMessage?: string): boolean;
     /**# Show At Sleep
      * ---
      * Shows a message at a specific row then sleeps. You can supply it arguments with the params object.
@@ -407,7 +719,7 @@ declare class DSCommander {
      * @property __row__ : The row to log message at.
      * @property __col__ : The collumn to log text at. Default is 0.
      * @property __sleep__ : The miliseconds to sleep.
-     *
+     * @returns this
      */
     showAtSleep(message: string | number | object | any[], params?: {
         row?: number;
@@ -423,7 +735,7 @@ declare class DSCommander {
      * @property __type__ : MessageType or "none"
      * @property __row__ : The row to log message at.
      * @property __col__ : The collumn to log text at. Default is 0.
-     *
+     * @returns this
      */
     showAt(message: string | number | object | any[], params?: {
         row?: number;
@@ -436,6 +748,7 @@ declare class DSCommander {
      * one created from a style chain.
      * @param message
      * @param type
+     * @returns this
      */
     show(message: string | number | object | any[], type?: MessageTypes | "none"): this;
     /**# Show Sleep
@@ -444,13 +757,17 @@ declare class DSCommander {
      * @param message
      * @param type
      * @param ms
+     * @returns this
      */
     showSleep(message: string | number | object | any[], type?: MessageTypes | "none", ms?: number): this;
+    $enableShow(): this;
+    get $ENABLESHOW(): this;
     /**# Log
      * ---
      * Log message without adjusting cursor position.
      * @param message
      * @param type
+     * @returns this
      */
     log(message: string | number | object | any[], type?: MessageTypes | "none"): this;
     /** # Log Sleep
@@ -459,6 +776,7 @@ declare class DSCommander {
      * @param message
      * @param type
      * @param ms
+     * @returns this
      */
     logSleep(message: string | number | object | any[], type?: MessageTypes | "none", ms?: number): this;
     /** # Log Table
@@ -466,7 +784,7 @@ declare class DSCommander {
      * Use console.table to show a table without adjusting cursor row position.
      * @param data
      * @param collumns
-     * @returns
+     * @returns this
      */
     logTable(data: object | object[], collumns?: string[]): this;
     /** # Log Table
@@ -474,7 +792,7 @@ declare class DSCommander {
      * Use console.table to show a table at current row position.
      * @param data
      * @param collumns
-     * @returns
+     * @returns this
      */
     showTable(data: any, collumns?: string[]): this;
     /** Get Message Styled
@@ -495,27 +813,32 @@ declare class DSCommander {
     /** # Log Seperator
      * ---
      * Logs output seperator
+     * @returns this
      */
     logSeparator(): this;
     /** # Log Program Title
      * ---
      * Logs program title
+     * @returns this
      */
     logProgramTitle(): this;
     /** # Show Seperator
      * ---
      * Show output seperator at current row.
+     * @returns this
      */
     showSeparator(): this;
     /** # Show Program Title
      * ---
      *  Show program serperator at current row.
+     * @returns this
      */
     showProgramTitle(): this;
     /**# Define Sleep Time
      * ---
      * Defines the default sleep time.
      * @param sleep
+     * @returns this
      */
     defineSleepTime(sleep: number): this;
     /** # Define Validator
@@ -524,6 +847,7 @@ declare class DSCommander {
      * @param type
      * @param func
      * @param name If using a custom question type you must set this param.
+     * @returns this
      */
     defineValidator(type: QuestionsTypes, func: (input: any) => Promise<boolean>, name?: string): this;
     /**# Define Question Style
@@ -531,6 +855,7 @@ declare class DSCommander {
      * Use a style object to define a questions style.
      * @param type "question" | "re-ask" | "delimiter"
      * @param styleString
+     * @returns this
      */
     defineQuestionStyle(type: QuestionDisplayTypes, styleObj: StyleObject): this;
     /**# Define Message Style
@@ -538,30 +863,42 @@ declare class DSCommander {
      * Use a style object to define a messages style.
      * @param type
      * @param styleString
+     * @returns this
      */
     defineMessageStyle(type: MessageTypes, styleObj: StyleObject): this;
+    /**# Define Default Box Style
+     * ---
+     * Use a box creation object to define the default box sutle.
+     * @param boxCreatoinObj CreateBoxObject
+     * @returns this
+     */
+    defineDefaultBoxStyle(boxCreatoinObj: CreateBoxObject): this;
     /**# Define Progress Bar Style
      * ---
      * Define the default progress bar style.
      * @param progressBarStyle
+     * @returns this
      */
     defineProgressBarStyle(progressBarStyle: ProgressBarStyle): this;
     /**# Define Service Bar Style
      * ---
      * Define the default service bar style.
      * @param serviceBarStyle
+     * @returns this
      */
     defineServiceBarStyle(serviceBarStyle: ServiceBarStyle): this;
     /**# Define Program Title
      * ---
      * Define the programs title.
      * @param title
+     * @returns this
      */
     defineProgramTitle(title: string, styleObj?: StyleObject): this;
     /** # Define Help Text
      * ---
      * Defines the help text for the program.
      * @param text
+     * @returns this
      */
     defineHelpText(text: string): this;
     /**# Define Screen
@@ -569,6 +906,7 @@ declare class DSCommander {
      * Define a function to be called for a screen.
      * @param screen
      * @param func
+     * @returns this
      */
     defineScreen(screen: DisplayScreens, func: Function): this;
     /**# Display Screen
@@ -576,17 +914,20 @@ declare class DSCommander {
      * Display a built in screen.
      * @param screen
      * @param args Args to be pased to screen. Default is an enpty object.
+     * @returns this
      */
-    displayScreen(screen: DisplayScreens, args?: any): void;
+    displayScreen(screen: DisplayScreens, args?: any): this;
     /**# Define Splash Screen
      * ---
      * Define a function to be called for the splash screen.
      * @param func
+     * @returns this
      */
     defineSplashScreen(func: Function): this;
     /**# Splash Screen
      * ---
      * Meant to show the programs title/splash screen.
+     * @returns this
      */
     splashScreen(): this;
     /** # Program Init Error Screen
@@ -611,12 +952,14 @@ declare class DSCommander {
      * ---
      * Get a built in string.
      * @param id
+     * @returns string
      */
     getString(id: Strings): string;
     /**# Set String
      * ---
      * Set a built in string.
      * @param id
+     * @returns this
      */
     setString(id: Strings, string: string): this;
     _copyDefaultStyle(): StyleObject;
@@ -624,119 +967,134 @@ declare class DSCommander {
     /**# Info
      * ---
      * Styles the text to be the "info" message style.
-     * @returns string | this
+     * @returns string
      */
-    info(text?: string): this | string;
+    info(text: string): string;
     /**# [INFO] Info
      * ---
-     * Sets chain style to be the "info" message style..
+     * Sets chain style to be the "info" message style.
+     * @returns this
      */
     get INFO(): this;
     /**# Good
      * ---
      * Styles the text to be the "good" message style.
-     * @returns string | this
+     * @returns string
      */
-    good(text?: string): string | this;
+    good(text: string): string;
     /**# [GOOD] Good
      * ---
-     * Sets chain style to be the "good" message style..
+     * Sets chain style to be the "good" message style.
+     * @returns this
      */
     get GOOD(): this;
     /**# Warning
      * ---
      * Styles the text to be the "warning" message style.
-     * @returns string | this
+     * @returns string
      */
-    warning(text?: string): string | this;
+    warning(text: string): string;
     /**# [WARNING] Warning
      * ---
-     * Sets chain style to be the "warning" message style..
+     * Sets chain style to be the "warning" message style.
+     * @returns this
      */
     get WARNING(): this;
     /**# Raw
      * ---
      * Styles the text to be the "raw" message style.
-     * @returns string | this
+     * @returns string
      */
-    raw(text?: string): string | this;
+    raw(text: string): string | this;
     /**# [RAW] Raw
      * ---
-     * Sets chain style to be the "raw" message style..
+     * Sets chain style to be the "raw" message style.
+     * @returns this
      */
     get RAW(): this;
     /**# Title
      * ---
      * Styles the text to be the "title" message style.
-     * @returns string | this
+     * @returns string
      */
-    title(text?: string): string | this;
+    title(text: string): string;
     /**# [TITLE] Raw
      * ---
-     * Sets chain style to be the "title" message style..
+     * Sets chain style to be the "title" message style.
+     * @returns this
      */
     get TITLE(): this;
     /**# Warning
      * ---
      * Styles the text to be the "error" message style.
-     * @returns string | this
+     * @returns string
      */
-    error(text?: string): string | this;
+    error(text: string): string;
     /**# [ERROR] Error
      * ---
-     * Sets chain style to be the "error" message style..
+     * Sets chain style to be the "error" message style.
+     * @returns this
      */
     get ERROR(): this;
     /**# [NS] New Screen
      * ---
      * Clears the screen.
      * Alias for newScreen()
+     * @returns this
      */
     get NS(): this;
     /**# [NEWSCREEN] New Screen
      * ---
      * Clears the screen.
      * Alias for newScreen()
+     * @returns this
      */
     get NEWSCREEN(): this;
     /**# New Line
      * ---
      * Adds a new line to the console.
+     * @returns number
      */
     newLine(): void;
     /**# [NL] New Line
      * ---
      * Adds a new line to the console.
      * Alias for newLine()
+     * @returns this
      */
     get NL(): this;
     /**# [NEWLINE] New Line
      * ---
      * Adds a new line to the console.
      * Alias for newLine()
+     * @returns this
      */
     get NEWLINE(): this;
     /**# [RETRUN] New Line
      * ---
      * Adds a new line to the console.
      * Alias for newLine()
+     * @returns this
      */
     get RETURN(): this;
     /**# Clear
      * ---
      * Clears the chain style.
+     * @returns this
      */
     clear(): this;
     /**# [CL] Clear Line
      * ---
      * Clears the chain style.
      * Alias for clear()
+     * @returns this
      */
     get CL(): this;
     /**# [CLEAR] Clear Line
      * ---
      * Clears the chain style.
      * Alias for clear()
+     * @returns this
      */
     get CLEAR(): this;
     /**# Blink
@@ -748,11 +1106,13 @@ declare class DSCommander {
     /**# [BI] Blink
      * ---
      * Sets chain style to blink.
+     * @returns this
      */
     get BI(): this;
     /**# [BLINK] Blink
      * ---
      * Sets chain style to blink.
+     * @returns this
      */
     get BLINK(): this;
     /**# Hidden
@@ -763,12 +1123,14 @@ declare class DSCommander {
     hidden(text?: string): string | this;
     /**# [H] Hidden
      * ---
-     * Sets chain style to be hidden..
+     * Sets chain style to be hidden.
+     * @returns this
      */
     get H(): this;
     /**# [HIDDEN] Hidden
      * ---
      * Sets chain style to be hidden.
+     * @returns this
      */
     get HIDDEN(): this;
     /**# Underscore
@@ -780,16 +1142,19 @@ declare class DSCommander {
     /**# [U] Underscore
      * ---
      * Sets chain style to be underscored.
+     * @returns this
      */
     get U(): this;
     /**# [UNDERSCORE] Underscore
      * ---
      * Sets chain style to be underscored.
+     * @returns this
      */
     get UNDERSCORE(): this;
     /**# [UNDERLINE] Underscore
      * ---
      * Sets chain style to be underscored.
+     * @returns this
      */
     get UNDERLINE(): this;
     /** # Dim
@@ -802,11 +1167,13 @@ declare class DSCommander {
     /**# [D] Dim
      * ---
      * Sets chain style to be dim.
+     * @returns this
      */
     get D(): this;
     /**# [DIM] Dim
      * ---
      * Sets chain style to be dim.
+     * @returns this
      */
     get DIM(): this;
     /** # Bright
@@ -819,11 +1186,13 @@ declare class DSCommander {
     /**# [BR] Bright
      * ---
      * Sets chain style to be bright.
+     * @returns this
      */
     get BR(): this;
     /**# [BRIGHT] Bright
      * ---
      * Sets chain style to be bright.
+     * @returns this
      */
     get BRIGHT(): this;
     /** # Invert
@@ -836,11 +1205,13 @@ declare class DSCommander {
     /**# [BRIGHT] Bright
      * ---
      * Sets chain style to be reversed.
+     * @returns this
      */
     get I(): this;
     /**# [BRIGHT] Bright
      * ---
      * Sets chain style to be reversed.
+     * @returns this
      */
     get INVERT(): this;
     /** # Red
@@ -853,11 +1224,13 @@ declare class DSCommander {
     /**# [R] Red
      * ---
      * Sets chain style to be red.
+     * @returns this
      */
     get R(): this;
     /**# [RED] Red
      * ---
      * Sets chain style to be red.
+     * @returns this
      */
     get RED(): this;
     /** # Green
@@ -870,11 +1243,13 @@ declare class DSCommander {
     /**# [G] Green
      * ---
      * Sets chain style to be green.
+     * @returns this
      */
     get G(): this;
     /**# [GREEN] Green
      * ---
      * Sets chain style to be green.
+     * @returns this
      */
     get GREEN(): this;
     /** # Blue
@@ -887,11 +1262,13 @@ declare class DSCommander {
     /**# [B] Blue
      * ---
      * Sets chain style to be blue.
+     * @returns this
      */
     get B(): this;
     /**# [BLUE] Blue
      * ---
      * Sets chain style to be blue.
+     * @returns this
      */
     get BLUE(): this;
     /** # White
@@ -904,11 +1281,13 @@ declare class DSCommander {
     /**# [W] White
      * ---
      * Sets chain style to be white.
+     * @returns this
      */
     get W(): this;
     /**# [WHITE] White
      * ---
      * Sets chain style to be white.
+     * @returns this
      */
     get WHITE(): this;
     /** # Black
@@ -921,15 +1300,17 @@ declare class DSCommander {
     /**# [BL] Black
      * ---
      * Sets chain style to be Black.
+     * @returns this
      */
     get BL(): this;
     /**# [BLACK] Black
      * ---
      * Sets chain style to be Black.
+     * @returns this
      */
     get BLACK(): this;
     /** # Cyan
-     * ---
+     * ---0
      * Returns a string styled to be cyan.
      * @param text
      * @returns string
@@ -938,11 +1319,13 @@ declare class DSCommander {
     /**# [C] Cyan
      * ---
      * Sets chain style to be cyan.
+     * @returns this
      */
     get C(): this;
     /**# [CYAN] Cyan
      * ---
      * Sets chain style to be cyan.
+     * @returns this
      */
     get CYAN(): this;
     /** # Magenta
@@ -955,11 +1338,13 @@ declare class DSCommander {
     /**# [M] Magenta
      * ---
      * Sets chain style to be magenta.
+     * @returns this
      */
     get M(): this;
     /**# [MAGENTA] Magenta
      * ---
      * Sets chain style to be magenta.
+     * @returns this
      */
     get MAGENTA(): this;
     /** # Yellow
@@ -972,11 +1357,13 @@ declare class DSCommander {
     /**# [Y] Yellow
      * ---
      * Sets chain style to be yellow.
+     * @returns this
      */
     get Y(): this;
     /**# [YELLOW] Yellow
      * ---
      * Sets chain style to be yellow.
+     * @returns this
      */
     get YELLOW(): this;
     /** # Red Background
@@ -989,11 +1376,13 @@ declare class DSCommander {
     /**# [RBG] Red Background
      * ---
      * Sets chain style to have a red background.
+     * @returns this
      */
     get RBG(): this;
     /**# [REDBG] Red Background
      * ---
      * Sets chain style to have a red background.
+     * @returns this
      */
     get REDBG(): this;
     /** # Green Background
@@ -1005,12 +1394,14 @@ declare class DSCommander {
     greenBG(text?: string): string | this;
     /**# [GBG] Green Background
      * ---
-     * Sets chain style to have a green background..
+     * Sets chain style to have a green background.
+     * @returns this
      */
     get GBG(): this;
     /**# [GREENBG] Green Background
      * ---
-     * Sets chain style to have a green background..
+     * Sets chain style to have a green background.
+     * @returns this
      */
     get GREENBG(): this;
     /** # Blue Background
@@ -1023,11 +1414,13 @@ declare class DSCommander {
     /**# [BBG] Blue Background
      * ---
      * Sets chain style to have a blue background.
+     * @returns this
      */
     get BBG(): this;
     /**# [BLUEBG] Blue Background
      * ---
      * Sets chain style to have a blue background.
+     * @returns this
      */
     get BLUEBG(): this;
     /** # White Background
@@ -1040,11 +1433,13 @@ declare class DSCommander {
     /**# [WBG] Blue Background
      * ---
      * Sets chain style to have a white background.
+     * @returns this
      */
     get WBG(): this;
     /**# [WHITEBG] Blue Background
      * ---
      * Sets chain style to have a white background.
+     * @returns this
      */
     get WHITEBG(): this;
     /** # Black Background
@@ -1057,11 +1452,13 @@ declare class DSCommander {
     /**# [BLBG] Black Background
      * ---
      * Sets chain style to have a black background.
+     * @returns this
      */
     get BLBG(): this;
     /**# [BLACKBG] Black Background
      * ---
      * Sets chain style to have a black background.
+     * @returns this
      */
     get BLACKBG(): this;
     /** # Cyan Background
@@ -1075,11 +1472,13 @@ declare class DSCommander {
     /**# [CBG] Cyan Background
      * ---
      * Sets chain style to have a cyan background.
+     * @returns this
      */
     get CBG(): this;
     /**# [CYANBG] Cyan Background
      * ---
      * Sets chain style to have a cyan background.
+     * @returns this
      */
     get CYANBG(): this;
     /** # Magenta Background
@@ -1092,6 +1491,7 @@ declare class DSCommander {
     /**# [MBG] Magenta Background
      * ---
      * Sets chain style to have a magenta background.
+     * @returns this
      */
     get MBG(): this;
     /**# [MAGENTABG] Magenta Background
@@ -1109,19 +1509,35 @@ declare class DSCommander {
     /**# [YBG] Yellow Background
      * ---
      * Sets chain style to have a yellow background.
+     * @returns this
      */
     get YBG(): this;
     /**# [YBG] Yellow Background
      * ---
      * Sets chain style to have a yellow background.
+     * @returns this
      */
     get YELLOWBG(): this;
-    /**# Do
+    /** # Box
      * ---
+     *
+     * @return this;
+     */
+    boxIn(boxStyle: CreateBoxObject): this;
+    boxStop(): this;
+    _processBoxMessage(message: string, boxWidth: number, westCap: string, eastCap: string, boxCreationObj: CreateBoxObject): string;
+    _calculateLongestMessage(messages: string[]): number;
+    _wipeChars: string;
+    _wipeCharLength: number;
+    wipe(char?: string, direction?: "right" | "left" | "top" | "down"): Promise<void>;
+    _wipeOne(char: string, rows: number, cols: number, direction: string): Promise<boolean>;
+    _wipeTwo(char: string, rows: number, cols: number): Promise<void>;
+    /**# Do
+     * ---0
      * Run a function in the chain of functions.
      * @param func
      * @param arg
-     * @returns
+     * @returns this
      */
     do(func: (arg?: any) => any, arg: any): this;
     /**# New Service
@@ -1129,7 +1545,7 @@ declare class DSCommander {
      * Run a function on an interval.
      * @param name
      * @param params \{interval : number,run : Function\}
-     * @returns
+     * @returns this
      */
     newService(name: string, params: {
         interval: number;
@@ -1140,6 +1556,7 @@ declare class DSCommander {
      * ---
      * Stop a serivce from running.
      * @param name
+     * @returns this
      */
     clearService(name: string): this;
     /**# Exit
@@ -1152,51 +1569,60 @@ declare class DSCommander {
      * ---
      * Makes the program exit.
      * Runs : process.exit(0)
+     * @returns this
      */
     get EXIT(): this;
     /**# [END] Exit
      * ---
      * Makes the program exit.
      * Runs : process.exit(0)
+     * @returns this
      */
     get END(): this;
     /**# [DIE] Exit
      * ---
      * Makes the program exit.
      * Runs : process.exit(0)
+     * @returns this
      */
     get DIE(): this;
     /**# Done
      * ---
      * Shows the done screen and then exits.
      * Runs : process.exit(1)
+     * @returns this
      */
     done(): void;
     /**# [DONE] Done
      * ---
      * Shows the done screen and then exits.
      * Runs : process.exit(1)
+     * @returns this
      */
     get DONE(): this;
     /** # Debug
      * ---
      * Sets it to debug mode.
      * @param debug
+     * @returns this
      */
     debug(debug?: boolean): this;
     /**# [DEBUG] Toggle Debug
      * ---
      * Toggles the debug mode.
+     * @returns this
      */
     get DEBUG(): this;
     /**# [DEBUGSTART] Debug Start
      * ---
      * Starts the debug directive.
+     * @returns this
      */
     get DEBUGSTART(): this;
     /**# [DEBUGEND] Debug End
      * ---
      * Ends the debug directive.
+     * @returns this
      */
     get DEBUGEND(): this;
     /**# Group
@@ -1322,7 +1748,7 @@ declare class DSCommander {
     /**# Time
      * ---
      * Runs console.time with the provided label or default.
-     * @param label
+     * @pa0ram label
      * @returns this
      */
     time(label?: string): this;
@@ -1368,10 +1794,11 @@ declare class DSCommander {
         };
     };
     ProgressBar: {
-        new (rdl: any, row: number, size: number, interval?: number, base?: string, loaded?: string): {
+        new (show: boolean, rdl: any, row: number, size: number, interval?: number, base?: string, loaded?: string): {
             done: boolean;
             cursor: number;
             timer: any;
+            show: boolean;
             rdl: any;
             row: number;
             size: number;

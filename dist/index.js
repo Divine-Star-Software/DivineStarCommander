@@ -1,5 +1,5 @@
 "use strict";
-/**   
+/**
   # DSLogger
   ---
   All in one CLI solution for Node.Js made by Divine Star
@@ -11,13 +11,18 @@
 class DSCommander {
     constructor(rdl) {
         this.rdl = rdl;
-        this.debugMode = false;
+        this._showEnabled = false;
+        this._debugMode = false;
         //Used to keep track of number of console.group runs. So they can all be cleared later.
         this._numOfGroups = 0;
         this._directives = {
             debug: false,
             trace: false,
             group: false,
+            box: {
+                active: false,
+                style: "light",
+            },
         };
         //Used for chaining styles
         this._defaultStyleDelimiter = {};
@@ -163,8 +168,8 @@ class DSCommander {
         this._askedQuestions = 0;
         this._questions = {};
         this._questionsFails = {};
-        this.currentRow = 0;
-        this.currentCol = 0;
+        this._currentRow = 0;
+        this._currentCol = 0;
         this._progressBars = {};
         this._serviceBars = {};
         //The delimiters userd for parsing array inputs
@@ -260,6 +265,7 @@ class DSCommander {
                 const reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
                 return reg.test(input);
             },
+            //User is meant to override this function.
             password: async (input) => {
                 return true;
             },
@@ -319,10 +325,556 @@ class DSCommander {
                     .exit();
             },
         };
-        this.boxChars = {
-            "style-1": {
-                top: "─",
+        this._blockChars = {
+            "upper-1/2-block": "▀",
+            "lower-1/8-block": "▁",
+            "lower-1/4-block": "▂",
+            "lower-1/3-block": "▃",
+            "lower-1/2-block": "▄",
+            "lower-5/8-block": "▅",
+            "lower-3/4-block": "▆",
+            "lower-7/8-block": "▇",
+            "full-block": "█",
+            "left-7/8-block": "▉",
+            "left-3/4-block": "▊",
+            "left-5/8-block": "▋",
+            "left-1/2-block": "▌",
+            "left-3/8-block": "▍",
+            "left-1/4-block": "▎",
+            "left-1/8-block": "▏",
+            "right-1/2-block": "▐",
+            "light-shade": "░",
+            "medium-shade": "▒",
+            "dark-shade": "▓",
+            "upper-1/8-block": "▔",
+            "right-1/8-block": "▕",
+            "quad-lower-left": "▖",
+            "quad-lower-right": "▗",
+            "quad-upper-left": "▘",
+            "quad-upper-left-lower-left-lower-right": "▙",
+            "quad-upper-left-lower-right": "▚",
+            "quad-upper-left-upper-right-lower-left": "▛",
+            "quad-upper-left-upper-right-lower-right": "▜",
+            "quad-upper-right": "▝",
+            "quad-upper-right-lower-left": "▞",
+            "quad-upper-right-lower-right": "▟",
+        };
+        this._boxChars = {
+            boxElemnts: {
+                arcs: {
+                    downRight: "╭",
+                    downLeft: "╮",
+                    upLeft: "╯",
+                    upRight: "╰",
+                },
+                doubleLines: {
+                    corners: {
+                        downRight: {
+                            rightDouble: "╒",
+                            downDouble: "╓",
+                            double: "╔",
+                        },
+                        downLeft: {
+                            leftDouble: "╕",
+                            downDouble: "╖",
+                            double: "╗",
+                        },
+                        upRight: {
+                            rightDouble: "╘",
+                            upDouble: "╙",
+                            double: "╚",
+                        },
+                        upLeft: {
+                            leftDouble: "╛",
+                            downDouble: "╜",
+                            double: "╝",
+                        },
+                    },
+                    verticalRight: {
+                        rightDouble: "╞",
+                        verticalDouble: "╟",
+                        double: "╠",
+                    },
+                    verticalLeft: {
+                        leftDouble: "╡",
+                        verticalDouble: "╢",
+                        double: "╣",
+                    },
+                    horizontalDown: {
+                        horizontalDouble: "╤",
+                        downDouble: "╥",
+                        double: "╦",
+                    },
+                    horizontalUp: {
+                        horizontalDouble: "╧",
+                        upDouble: "╨",
+                        double: "╩",
+                    },
+                    cross: {
+                        horizontalDouble: "╪",
+                        verticalDouble: "╫",
+                        double: "╬",
+                    },
+                },
+                solid: {
+                    verticalRight: {
+                        light: "├",
+                        rightHeavy: "┝",
+                        upHeavy: "┞",
+                        downHeavy: "┟",
+                        verticalHeavy: "┠",
+                        rightUpHeavy: "┡",
+                        rightDownHeavy: "┢",
+                        heavy: "┣",
+                    },
+                    verticalLeft: {
+                        light: "┤",
+                        leftHeavy: "┥",
+                        upHeavy: "┦",
+                        downHeavy: "┧",
+                        verticalHeavy: "┨",
+                        leftUpHeavy: "┩",
+                        leftDownHeavy: "┪",
+                        heavy: "┫",
+                    },
+                    horizontalDown: {
+                        light: "┬",
+                        leftHeavy: "┭",
+                        rightHeavy: "┮",
+                        verticalHeavy: "┯",
+                        downHeavy: "┰",
+                        leftDownHeavy: "┱",
+                        rightDownHeavy: "┲",
+                        heavy: "┳",
+                    },
+                    horizontalUp: {
+                        light: "┴",
+                        leftHeavy: "┵",
+                        rightHeavy: "┶",
+                        verticalHeavy: "┷",
+                        downHeavy: "┸",
+                        leftDownHeavy: "┹",
+                        rightDownHeavy: "┺",
+                        heavy: "┻",
+                    },
+                    cross: {
+                        light: "┼",
+                        leftHeavy: "┽",
+                        rightHeavy: "┾",
+                        horitzontalHeavy: "┿",
+                        upHeavy: "╀",
+                        downHeavy: "╁",
+                        verticalHeavy: "╂",
+                        leftUpHeavy: "╃",
+                        rightUpHeavy: "╄",
+                        leftDownHeavy: "╅",
+                        rightDownHeavy: "╆",
+                        horizontalUpHeavy: "╇",
+                        horizontalDownHeavy: "╈",
+                        verticalLeftHeavy: "╉",
+                        verticalRightHeavy: "╊",
+                        heavy: "╋",
+                    },
+                    corners: {
+                        downRight: {
+                            light: "┌",
+                            downLight: "┍",
+                            downHeavy: "┎",
+                            heavy: "┏",
+                        },
+                        downLeft: {
+                            light: "┐",
+                            downLight: "┑",
+                            downHeavy: "┒",
+                            heavy: "┓",
+                        },
+                        upRight: {
+                            light: "└",
+                            upLight: "┕",
+                            upHeavy: "┖",
+                            heavy: "┗",
+                        },
+                        upLeft: {
+                            light: "┘",
+                            upLight: "┙",
+                            upHeavy: "┚",
+                            heavy: "┛",
+                        },
+                    },
+                },
             },
+            lines: {
+                solid: {
+                    horizontal: {
+                        light: "─",
+                        heavy: "━",
+                    },
+                    vertical: {
+                        light: "│",
+                        heavy: "┃",
+                    },
+                },
+                dashedDouble: {
+                    horizontal: {
+                        light: "╌",
+                        heavy: "╍",
+                    },
+                    vertical: {
+                        light: "╎",
+                        heavy: "╏",
+                    },
+                },
+                dashedTriple: {
+                    horizontal: {
+                        light: "┄",
+                        heavy: "┅",
+                    },
+                    vertical: {
+                        light: "┆",
+                        heavy: "┇",
+                    },
+                },
+                dashedQuadruple: {
+                    horizontal: {
+                        light: "┈",
+                        heavy: "┉",
+                    },
+                    vertical: {
+                        light: "┊",
+                        heavy: "┋",
+                    },
+                },
+                doubleLines: {
+                    horizontal: "═",
+                    vertical: "║",
+                },
+                halfLines: {
+                    lightLeft: "╴",
+                    lightUp: "╵",
+                    lightRight: "╶",
+                    lightDown: "╷",
+                    heavyLeft: "╸",
+                    heavyUp: "╹",
+                    heavyRight: "╺",
+                    heavyDown: "╻",
+                },
+                mixedLines: {
+                    heavyRight: "╼",
+                    heavyDown: "╽",
+                    heavyLeft: "╾",
+                    heavyUp: "╿",
+                },
+            },
+        };
+        this._boxStyles = {
+            dashedHeavyQuad: {
+                bottomLine: this._boxChars.lines.dashedQuadruple.horizontal.heavy,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.dashedQuadruple.horizontal.heavy,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.dashedQuadruple.vertical.heavy,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.dashedQuadruple.vertical.heavy,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.heavy,
+                crossStyleObj: {},
+            },
+            dashedLightQuad: {
+                bottomLine: this._boxChars.lines.dashedQuadruple.horizontal.light,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.dashedQuadruple.horizontal.light,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.dashedQuadruple.vertical.light,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.dashedQuadruple.vertical.light,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.light,
+                crossStyleObj: {},
+            },
+            dashedHeavyTriple: {
+                bottomLine: this._boxChars.lines.dashedTriple.horizontal.heavy,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.dashedTriple.horizontal.heavy,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.dashedTriple.vertical.heavy,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.dashedTriple.vertical.heavy,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.heavy,
+                crossStyleObj: {},
+            },
+            dashedLightTriple: {
+                bottomLine: this._boxChars.lines.dashedTriple.horizontal.light,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.dashedTriple.horizontal.light,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.dashedTriple.vertical.light,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.dashedTriple.vertical.light,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.light,
+                crossStyleObj: {},
+            },
+            dashedHeavyDouble: {
+                bottomLine: this._boxChars.lines.dashedDouble.horizontal.heavy,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.dashedDouble.horizontal.heavy,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.dashedDouble.vertical.heavy,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.dashedDouble.vertical.heavy,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.heavy,
+                crossStyleObj: {},
+            },
+            dashedLightDouble: {
+                bottomLine: this._boxChars.lines.dashedDouble.horizontal.light,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.dashedDouble.horizontal.light,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.dashedDouble.vertical.light,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.dashedDouble.vertical.light,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.light,
+                crossStyleObj: {},
+            },
+            curved: {
+                bottomLine: this._boxChars.lines.solid.horizontal.light,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.solid.horizontal.light,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.solid.vertical.light,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.solid.vertical.light,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.arcs.upLeft,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.arcs.upRight,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.arcs.downLeft,
+                northEastStyleObj: { fg: "Red" },
+                northWestCorner: this._boxChars.boxElemnts.arcs.downRight,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.light,
+                crossStyleObj: {},
+            },
+            darkShade: {
+                bottomLine: this._blockChars["dark-shade"],
+                bottomLineStyleObj: {},
+                topLine: this._blockChars["dark-shade"],
+                topLineStyleObj: {},
+                westLine: this._blockChars["dark-shade"],
+                westLineStyleObj: {},
+                eastLine: this._blockChars["dark-shade"],
+                eastLineStyleObj: {},
+                southEastCorner: this._blockChars["dark-shade"],
+                southEastStyleObj: {},
+                southWestCorner: this._blockChars["dark-shade"],
+                southWestStyleObj: {},
+                northEastCorner: this._blockChars["dark-shade"],
+                northEastStyleObj: {},
+                northWestCorner: this._blockChars["dark-shade"],
+                northWestStyleObj: {},
+                cross: this._blockChars["dark-shade"],
+                crossStyleObj: {},
+            },
+            mediumShade: {
+                bottomLine: this._blockChars["medium-shade"],
+                bottomLineStyleObj: {},
+                topLine: this._blockChars["medium-shade"],
+                topLineStyleObj: {},
+                westLine: this._blockChars["medium-shade"],
+                westLineStyleObj: {},
+                eastLine: this._blockChars["medium-shade"],
+                eastLineStyleObj: {},
+                southEastCorner: this._blockChars["medium-shade"],
+                southEastStyleObj: {},
+                southWestCorner: this._blockChars["medium-shade"],
+                southWestStyleObj: {},
+                northEastCorner: this._blockChars["medium-shade"],
+                northEastStyleObj: {},
+                northWestCorner: this._blockChars["medium-shade"],
+                northWestStyleObj: {},
+                cross: this._blockChars["medium-shade"],
+                crossStyleObj: {},
+            },
+            lightShade: {
+                bottomLine: this._blockChars["light-shade"],
+                bottomLineStyleObj: {},
+                topLine: this._blockChars["light-shade"],
+                topLineStyleObj: {},
+                westLine: this._blockChars["light-shade"],
+                westLineStyleObj: {},
+                eastLine: this._blockChars["light-shade"],
+                eastLineStyleObj: {},
+                southEastCorner: this._blockChars["light-shade"],
+                southEastStyleObj: {},
+                southWestCorner: this._blockChars["light-shade"],
+                southWestStyleObj: {},
+                northEastCorner: this._blockChars["light-shade"],
+                northEastStyleObj: {},
+                northWestCorner: this._blockChars["light-shade"],
+                northWestStyleObj: {},
+                cross: this._blockChars["light-shade"],
+                crossStyleObj: {},
+            },
+            halfBlock: {
+                bottomLine: this._blockChars["lower-1/2-block"],
+                bottomLineStyleObj: {},
+                topLine: this._blockChars["upper-1/2-block"],
+                topLineStyleObj: {},
+                westLine: this._blockChars["left-1/2-block"],
+                westLineStyleObj: {},
+                eastLine: this._blockChars["right-1/2-block"],
+                eastLineStyleObj: {},
+                southEastCorner: this._blockChars["full-block"],
+                southEastStyleObj: {},
+                southWestCorner: this._blockChars["full-block"],
+                southWestStyleObj: {},
+                northEastCorner: this._blockChars["full-block"],
+                northEastStyleObj: {},
+                northWestCorner: this._blockChars["full-block"],
+                northWestStyleObj: {},
+                cross: this._blockChars["full-block"],
+                crossStyleObj: {},
+            },
+            fullBlock: {
+                bottomLine: this._blockChars["full-block"],
+                bottomLineStyleObj: {},
+                topLine: this._blockChars["full-block"],
+                topLineStyleObj: {},
+                westLine: this._blockChars["full-block"],
+                westLineStyleObj: {},
+                eastLine: this._blockChars["full-block"],
+                eastLineStyleObj: {},
+                southEastCorner: this._blockChars["full-block"],
+                southEastStyleObj: {},
+                southWestCorner: this._blockChars["full-block"],
+                southWestStyleObj: {},
+                northEastCorner: this._blockChars["full-block"],
+                northEastStyleObj: {},
+                northWestCorner: this._blockChars["full-block"],
+                northWestStyleObj: {},
+                cross: this._blockChars["full-block"],
+                crossStyleObj: {},
+            },
+            doubleLines: {
+                bottomLine: this._boxChars.lines.doubleLines.horizontal,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.doubleLines.horizontal,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.doubleLines.vertical,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.doubleLines.vertical,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.doubleLines.corners.upLeft.double,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.doubleLines.corners.upRight.double,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.doubleLines.corners.downLeft.double,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.doubleLines.corners.downRight.double,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.doubleLines.cross.double,
+                crossStyleObj: {},
+            },
+            light: {
+                bottomLine: this._boxChars.lines.solid.horizontal.light,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.solid.horizontal.light,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.solid.vertical.light,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.solid.vertical.light,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.light,
+                crossStyleObj: {},
+            },
+            heavy: {
+                bottomLine: this._boxChars.lines.solid.horizontal.heavy,
+                bottomLineStyleObj: {},
+                topLine: this._boxChars.lines.solid.horizontal.heavy,
+                topLineStyleObj: {},
+                westLine: this._boxChars.lines.solid.vertical.heavy,
+                westLineStyleObj: {},
+                eastLine: this._boxChars.lines.solid.vertical.heavy,
+                eastLineStyleObj: {},
+                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+                southEastStyleObj: {},
+                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+                southWestStyleObj: {},
+                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+                northEastStyleObj: {},
+                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+                northWestStyleObj: {},
+                cross: this._boxChars.boxElemnts.solid.cross.heavy,
+                crossStyleObj: {},
+            },
+        };
+        this._defaultBoxStyle = { boxStyle: "light" };
+        this._boxData = {
+            largestWidth: 0,
+            messageQue: [],
+            lengthMap: {},
+            sleepMap: {},
+            boxCreationObj: this._defaultBoxStyle,
         };
         this._keyMap = {
             up: "\u001B\u005B\u0041",
@@ -378,6 +930,8 @@ class DSCommander {
         this._stdinKeyWatch = {};
         this._stdinCharWatch = {};
         this._stdinInputWatcher = () => { };
+        this._wipeChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+|\=-{}:"\'<>?,./`~';
+        this._wipeCharLength = this._wipeChars.length;
         this.ServiceBar = class {
             constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
                 this.rdl = rdl;
@@ -438,7 +992,8 @@ class DSCommander {
             }
         };
         this.ProgressBar = class {
-            constructor(rdl, row, size, interval = 20, base = "-", loaded = "=") {
+            constructor(show = false, rdl, row, size, interval = 20, base = "-", loaded = "=") {
+                this.show = show;
                 this.rdl = rdl;
                 this.row = row;
                 this.size = size;
@@ -453,14 +1008,24 @@ class DSCommander {
                 for (let i = 0; i < this.size; i++) {
                     process.stdout.write(this.base);
                 }
-                this.rdl.cursorTo(process.stdout, 0, this.row);
+                if (this.show) {
+                    this.rdl.cursorTo(process.stdout, 0, this.row);
+                }
+                else {
+                    this.rdl.cursorTo(process.stdout, 0);
+                }
             }
             addProgressPerfect(percent) {
                 const num = this.size * (percent / 100);
                 return this.addProgress(num);
             }
             addProgress(amount) {
-                this.rdl.cursorTo(process.stdout, this.cursor, this.row);
+                if (this.show) {
+                    this.rdl.cursorTo(process.stdout, this.cursor, this.row);
+                }
+                else {
+                    this.rdl.cursorTo(process.stdout, this.cursor);
+                }
                 let doneLocal = false;
                 const prom = new Promise((resolve) => {
                     let num = this.cursor + amount;
@@ -592,6 +1157,7 @@ class DSCommander {
      * Stylize the text with the given format.
      * @param text : string
      * @param styleObj : StyleObject
+     * @returns string
      */
     stylize(text, styleObj) {
         let front = "";
@@ -624,7 +1190,7 @@ class DSCommander {
     /** # Get Raw Params
      * ---
      * Get the raw params submited to the program.
-     * @returns
+     * @returns string[]
      */
     getRawParams() {
         return process.argv;
@@ -647,6 +1213,7 @@ class DSCommander {
      * ---
      * Adds a command line arg to the program.
      * @param param An object to specify the param.
+     * @returns this
      */
     addParam(param) {
         if (this._params.get(param.flag)) {
@@ -669,6 +1236,7 @@ class DSCommander {
      * @param param Either the name or the flag of the param.
      * @param func The function to be run. Will be passed the value of the param and the args given.
      * @param args Args to be passed to the function.
+     * @returns this
      */
     ifParamIsset(param, func, args = {}) {
         let p;
@@ -689,7 +1257,7 @@ class DSCommander {
      * node index.js -a
      *
      * It will return ["index.js"]
-     * @returns
+     * @returns string[]
      */
     getInitalProgramArgs() {
         return this._initalProgramArgs;
@@ -1039,6 +1607,7 @@ class DSCommander {
     /**# Restart Prompt
      * ---
      * Restarat user input prompt.
+     * @returns this
      */
     restartPrompt() {
         this._questions = {};
@@ -1048,6 +1617,7 @@ class DSCommander {
     /**# Start Prompt
      * ---
      * Starts user input prompt.
+     * @returns this
      */
     async startPrompt() {
         this._stdin ? this._stdin.resume() : true;
@@ -1062,6 +1632,7 @@ class DSCommander {
         this._stdin ? this._stdin.pause() : true;
         return this;
     }
+    //convert the recived input into an array if needed
     async _convertInput(varType, input) {
         let arrayTypes = ["boolean[]", "string[]", "number[]", "stringall[]"];
         if (arrayTypes.indexOf(varType) != -1) {
@@ -1070,6 +1641,7 @@ class DSCommander {
         }
         return input;
     }
+    //prompt user for input
     async _prompt(question, varName, varType, custonName) {
         let passed = true;
         let gotinput = false;
@@ -1118,7 +1690,7 @@ class DSCommander {
                     }
                     this.rli.question(question, (input) => {
                         this.rli.history.slice(1);
-                        this.currentRow += this.countLines(question);
+                        this._currentRow += this.countLines(question);
                         this.rdl.cursorTo(process.stdout, 0);
                         (async () => {
                             asked = true;
@@ -1191,6 +1763,7 @@ class DSCommander {
      * @param reAskMessage
      * @param onFail
      * @param args
+     * @returns this
      */
     fail(reAsk, reAskMessage, attempts = "all", onFail, arg = {}) {
         this._questions[this._lastQuestion].reAsk = reAsk;
@@ -1214,6 +1787,7 @@ class DSCommander {
      * @param varName
      * @param varType
      * @param customType The name used for the custom question type.
+     * @returns this
      */
     ask(question, varName, varType, customName) {
         this._askedQuestions++;
@@ -1238,6 +1812,7 @@ class DSCommander {
      * ---
      * Get input from question
      * @param varName
+     * @returns input value or undefined
      */
     getInput(varName) {
         return this._inputs.get(varName);
@@ -1248,6 +1823,7 @@ class DSCommander {
      * @param varName The name of the input.
      * @param func The function to be run. Will be passed the value of the input and the args given.
      * @param args Args to be passed to the function.
+     * @returns this
      */
     ifInputIsset(varName, func, args = {}) {
         let v;
@@ -1263,6 +1839,7 @@ class DSCommander {
      * Clears console output for a given row range.
      * @param rowStart
      * @param rowEnd
+     * @returns this
      */
     clearRows(rowStart, rowEnd) {
         while (rowStart < rowEnd) {
@@ -1278,78 +1855,90 @@ class DSCommander {
     /**# Get Row
      * ---
      * Gets the current row number that the output is on.
+     * @returns number
      */
     getRow() {
-        return this.currentRow;
+        return this._currentRow;
     }
     /**# Set Row
      *---
      * Sets the console cursor to a row.
      * @param num
+     * @returns this
      */
     setRow(num) {
-        this.currentRow = num;
-        this.rdl.cursorTo(process.stdout, 0, this.currentRow);
+        this._currentRow = num;
+        this.rdl.cursorTo(process.stdout, 0, this._currentRow);
         return this;
     }
     /**# Add Row
      * ---
      * Add one row to the current console cursor.
+     * @returns this
      */
     addRow() {
-        this.currentRow++;
+        this._currentRow++;
         return this;
     }
     /**# Minus
      * ---
      * Minus one row to the current console cursor.
+     * @returns this
      */
     minusRow() {
-        this.currentRow--;
+        this._currentRow--;
         return this;
     }
     /**# Get Row
      * ---
      * Gets the current row number that the output is on.
+     * @returns number
      */
     getCol() {
-        return this.currentCol;
+        return this._currentCol;
     }
     /**# Set Col
      *---
      * Sets the console cursor to a collumn.
      * @param num
+     * @returns this
      */
     setCol(num) {
-        this.currentCol = num;
-        this.rdl.cursorTo(process.stdout, this.currentCol, this.currentRow);
+        this._currentCol = num;
+        this.rdl.cursorTo(process.stdout, this._currentCol, this._currentRow);
         return this;
     }
     /**# Add Col
      * ---
      * Add one to the current console cursor collumn.
+     * @returns this
      */
     addCol() {
-        this.currentCol++;
+        this._currentCol++;
         return this;
     }
     /**# Minus Collumn
      * ---
      * Minus one to the current console cursor collumn.
+     * @returns this
      */
     minusCol() {
-        this.currentCol--;
+        this._currentCol--;
         return this;
     }
     /**# New Service Bar
      * ---
      * Makes a continuous loading bar.
+     * Show must be enabled in order for this to work.
      * @param name
+     * @returns this
      */
     newServiceBar(name, serviceBarStyle = this._defaultServiceBarStyle) {
+        if (!this._chceckShow())
+            return this;
         const s = serviceBarStyle;
-        const bar = new this.ServiceBar(this.rdl, this.currentRow, s.size, 0, s.interval, this.stylize(s.base, s.baseStyle), this.stylize(s.loadedOne, s.loadedOneStyle), this.stylize(s.loadedTwo, s.loadedTwoStyle), this.stylize(s.cap, s.capStyle));
-        this.currentRow++;
+        const bar = new this.ServiceBar(this.rdl, this._currentRow, s.size, 0, s.interval, this.stylize(s.base, s.baseStyle), this.stylize(s.loadedOne, s.loadedOneStyle), this.stylize(s.loadedTwo, s.loadedTwoStyle), this.stylize(s.cap, s.capStyle));
+        this._currentRow++;
         this._serviceBars[name] = bar;
         return this;
     }
@@ -1357,8 +1946,11 @@ class DSCommander {
      * ---
      * Restart a service bar.
      * @param name
+     * @returns this
      */
     reInitServiceBar(name) {
+        if (!this._chceckShow())
+            return this;
         this._serviceBars[name].reInit();
         return this;
     }
@@ -1366,8 +1958,11 @@ class DSCommander {
      * ---
      * Destroy a service bar.
      * @param name
+     * @returns this
      */
     destroyServiceBar(name) {
+        if (!this._chceckShow())
+            return this;
         const bar = this._serviceBars[name];
         const row = bar.rows;
         bar.clear();
@@ -1380,6 +1975,7 @@ class DSCommander {
      * ---
      * Makes a new progress loading bar.
      * @param name of bar to be used as an id
+     * @returns this
      */
     newProgressBar(name, progressBarStyle) {
         let d;
@@ -1389,8 +1985,8 @@ class DSCommander {
         else {
             d = this._defaultPrgoressBarStyle;
         }
-        const bar = new this.ProgressBar(this.rdl, this.currentRow, d.size, d.interval, this.stylize(d.base, d.baseStyle), this.stylize(d.loaded, d.loadedStyle));
-        this.currentRow++;
+        const bar = new this.ProgressBar(this._showEnabled, this.rdl, this._currentRow, d.size, d.interval, this.stylize(d.base, d.baseStyle), this.stylize(d.loaded, d.loadedStyle));
+        this._currentRow++;
         bar.start();
         this._progressBars[name] = bar;
         return this;
@@ -1400,6 +1996,7 @@ class DSCommander {
      * Adds progress to the progress bar.
      * @param name name of bar to increase
      * @param amount amount to increase by
+     * @returns this
      */
     async incrementProgressBar(name, amount) {
         await this._progressBars[name].addProgressPerfect(amount);
@@ -1409,6 +2006,7 @@ class DSCommander {
      * ---
      * Makes the program sleep via a loop.
      * @param ms miliseconds to sleep
+     * @returns this
      */
     sleep(ms) {
         var waitTill = new Date(new Date().getTime() + ms);
@@ -1419,6 +2017,7 @@ class DSCommander {
      * ---
      * Makes the program sleep via a promsie.
      * @param ms miliseconds to sleep
+     * @returns Promise\<self>
      */
     asyncSleep(ms) {
         let self = this;
@@ -1429,10 +2028,11 @@ class DSCommander {
     /** # New Screen
      * ---
      * Clears the screen and resets the row.
+     * @returns this
      */
     newScreen() {
         console.clear();
-        this.currentRow = 0;
+        this._currentRow = 0;
         return this;
     }
     /**# Get Message Array
@@ -1440,7 +2040,6 @@ class DSCommander {
      * Returns back an array of strings with the given value.
      * Used display multi messsages.
      * @param message
-     * @returns
      */
     _getMessageArray(message) {
         if (message == undefined)
@@ -1482,6 +2081,7 @@ class DSCommander {
         }
         return messageArray;
     }
+    //Return stylized message
     _processMessage(message, type = "none") {
         let output = message;
         if (type != "Raw" && type != "Data") {
@@ -1497,12 +2097,34 @@ class DSCommander {
         }
         return output;
     }
+    //Check to see if the message can be displayed
     _checkDebug() {
-        if (this.debugMode && this._directives.debug)
+        if (this._debugMode && this._directives.debug)
             return true;
-        if (!this.debugMode && this._directives.debug)
+        if (!this._debugMode && this._directives.debug)
             return false;
         return true;
+    }
+    //Check to see if show functions are enabled
+    _chceckShow() {
+        if (this._showEnabled) {
+            return true;
+        }
+        return false;
+    }
+    //Check to see if the message can be displayed
+    _checkBoxIn(message, processMessage) {
+        if (this._directives.box.active) {
+            if (message && processMessage) {
+                const messageLength = message.length;
+                this._boxData.lengthMap[processMessage] = messageLength;
+                if (this._boxData.largestWidth < messageLength) {
+                    this._boxData.largestWidth = messageLength;
+                }
+            }
+            return true;
+        }
+        return false;
     }
     /**# Show At Sleep
      * ---
@@ -1513,14 +2135,16 @@ class DSCommander {
      * @property __row__ : The row to log message at.
      * @property __col__ : The collumn to log text at. Default is 0.
      * @property __sleep__ : The miliseconds to sleep.
-     *
+     * @returns this
      */
     showAtSleep(message, params = {
-        row: this.currentRow,
+        row: this._currentRow,
         col: 0,
         type: "none",
         sleep: this._defaultSleepTime,
     }) {
+        if (!this._chceckShow())
+            return this;
         if (!this._checkDebug())
             return this;
         const messageArray = this._getMessageArray(message);
@@ -1532,6 +2156,9 @@ class DSCommander {
                 type: params.type,
                 col: params.col,
             });
+            if (this._checkBoxIn()) {
+                continue;
+            }
             let sleep = this._defaultSleepTime;
             if (params.sleep) {
                 sleep = params.sleep;
@@ -1548,13 +2175,15 @@ class DSCommander {
      * @property __type__ : MessageType or "none"
      * @property __row__ : The row to log message at.
      * @property __col__ : The collumn to log text at. Default is 0.
-     *
+     * @returns this
      */
     showAt(message, params = {
-        row: this.currentRow,
+        row: this._currentRow,
         col: 0,
         type: "none",
     }) {
+        if (!this._chceckShow())
+            return this;
         if (!this._checkDebug())
             return this;
         const messageArray = this._getMessageArray(message);
@@ -1564,7 +2193,7 @@ class DSCommander {
         if (params.col) {
             col = params.col;
         }
-        let row = this.currentRow;
+        let row = this._currentRow;
         if (params.row) {
             row = params.row;
         }
@@ -1574,9 +2203,13 @@ class DSCommander {
         }
         for (const mem of messageArray) {
             let output = this._processMessage(mem, type);
+            if (this._checkBoxIn(mem, output)) {
+                this._boxData.messageQue.push(output);
+                continue;
+            }
             const lines = this.countLines(`${output}`);
             this.rdl.cursorTo(process.stdout, col, row);
-            this.currentRow += lines;
+            this._currentRow += lines;
             if (!this._directives.trace) {
                 console.log(output);
             }
@@ -1592,8 +2225,11 @@ class DSCommander {
      * one created from a style chain.
      * @param message
      * @param type
+     * @returns this
      */
     show(message, type = "none") {
+        if (!this._chceckShow())
+            return this;
         if (!this._checkDebug())
             return this;
         const messageArray = this._getMessageArray(message);
@@ -1601,9 +2237,13 @@ class DSCommander {
             return this;
         for (const mem of messageArray) {
             let output = this._processMessage(mem, type);
+            if (this._checkBoxIn(mem, output)) {
+                this._boxData.messageQue.push(output);
+                continue;
+            }
             const lines = this.countLines(`${output}`);
-            this.rdl.cursorTo(process.stdout, this.currentCol, this.currentRow);
-            this.currentRow += lines;
+            this.rdl.cursorTo(process.stdout, this._currentCol, this._currentRow);
+            this._currentRow += lines;
             if (!this._directives.trace) {
                 console.log(output);
             }
@@ -1619,8 +2259,11 @@ class DSCommander {
      * @param message
      * @param type
      * @param ms
+     * @returns this
      */
     showSleep(message, type = "none", ms = this._defaultSleepTime) {
+        if (!this._chceckShow())
+            return this;
         if (!this._checkDebug())
             return this;
         const messageArray = this._getMessageArray(message);
@@ -1628,8 +2271,23 @@ class DSCommander {
             return this;
         for (const mem of messageArray) {
             this.show(mem, type);
+            if (this._checkBoxIn()) {
+                continue;
+            }
             this.sleep(ms);
         }
+        return this;
+    }
+    $enableShow() {
+        if (this._chceckShow())
+            return this;
+        this._showEnabled = true;
+        this._currentRow = 0;
+        this.newScreen();
+        return this;
+    }
+    get $ENABLESHOW() {
+        this.$enableShow();
         return this;
     }
     /**# Log
@@ -1637,6 +2295,7 @@ class DSCommander {
      * Log message without adjusting cursor position.
      * @param message
      * @param type
+     * @returns this
      */
     log(message, type = "none") {
         if (!this._checkDebug())
@@ -1646,8 +2305,14 @@ class DSCommander {
             return this;
         for (const mem of messageArray) {
             let output = this._processMessage(mem, type);
-            const lines = this.countLines(`${output}`);
-            this.currentRow += lines;
+            if (this._checkBoxIn(mem, output)) {
+                this._boxData.messageQue.push(output);
+                continue;
+            }
+            if (this._chceckShow()) {
+                const lines = this.countLines(`${output}`);
+                this._currentRow += lines;
+            }
             if (!this._directives.trace) {
                 console.log(output);
             }
@@ -1663,6 +2328,7 @@ class DSCommander {
      * @param message
      * @param type
      * @param ms
+     * @returns this
      */
     logSleep(message, type = "none", ms = this._defaultSleepTime) {
         if (!this._checkDebug())
@@ -1672,6 +2338,9 @@ class DSCommander {
             return this;
         for (const mem of messageArray) {
             this.log(mem, type);
+            if (this._checkBoxIn()) {
+                continue;
+            }
             this.sleep(ms);
         }
         return this;
@@ -1681,7 +2350,7 @@ class DSCommander {
      * Use console.table to show a table without adjusting cursor row position.
      * @param data
      * @param collumns
-     * @returns
+     * @returns this
      */
     logTable(data, collumns) {
         if (!this._checkDebug())
@@ -1696,8 +2365,13 @@ class DSCommander {
             dataArray[0] = data;
         }
         for (const d of dataArray) {
-            const lines = Object.keys(d).length + 2;
-            this.currentRow += lines;
+            if (this._checkBoxIn()) {
+                continue;
+            }
+            if (this._chceckShow()) {
+                const lines = Object.keys(d).length + 2;
+                this._currentRow += lines;
+            }
             console.table(d, collumns);
         }
         return this;
@@ -1707,9 +2381,11 @@ class DSCommander {
      * Use console.table to show a table at current row position.
      * @param data
      * @param collumns
-     * @returns
+     * @returns this
      */
     showTable(data, collumns) {
+        if (!this._chceckShow())
+            return this;
         if (!this._checkDebug())
             return this;
         if (data == undefined)
@@ -1722,9 +2398,12 @@ class DSCommander {
             dataArray[0] = data;
         }
         for (const d of dataArray) {
+            if (this._checkBoxIn()) {
+                continue;
+            }
             const lines = Object.keys(d).length + 2;
-            this.rdl.cursorTo(process.stdout, this.currentCol, this.currentRow);
-            this.currentRow += lines;
+            this.rdl.cursorTo(process.stdout, this._currentCol, this._currentRow);
+            this._currentRow += lines;
             console.table(d, collumns);
         }
         return this;
@@ -1751,6 +2430,7 @@ class DSCommander {
     /** # Log Seperator
      * ---
      * Logs output seperator
+     * @returns this
      */
     logSeparator() {
         this.log(this.getString("separator"), "Info");
@@ -1759,6 +2439,7 @@ class DSCommander {
     /** # Log Program Title
      * ---
      * Logs program title
+     * @returns this
      */
     logProgramTitle() {
         this.log(this.getString("title"), "Title");
@@ -1767,6 +2448,7 @@ class DSCommander {
     /** # Show Seperator
      * ---
      * Show output seperator at current row.
+     * @returns this
      */
     showSeparator() {
         this.show(this.getString("separator"), "Info");
@@ -1775,6 +2457,7 @@ class DSCommander {
     /** # Show Program Title
      * ---
      *  Show program serperator at current row.
+     * @returns this
      */
     showProgramTitle() {
         this.show(this.getString("title"), "Title");
@@ -1784,6 +2467,7 @@ class DSCommander {
      * ---
      * Defines the default sleep time.
      * @param sleep
+     * @returns this
      */
     defineSleepTime(sleep) {
         this._defaultSleepTime = sleep;
@@ -1795,6 +2479,7 @@ class DSCommander {
      * @param type
      * @param func
      * @param name If using a custom question type you must set this param.
+     * @returns this
      */
     defineValidator(type, func, name) {
         if (type === "custom") {
@@ -1813,6 +2498,7 @@ class DSCommander {
      * Use a style object to define a questions style.
      * @param type "question" | "re-ask" | "delimiter"
      * @param styleString
+     * @returns this
      */
     defineQuestionStyle(type, styleObj) {
         this._questionStyles[type] = styleObj;
@@ -1823,15 +2509,27 @@ class DSCommander {
      * Use a style object to define a messages style.
      * @param type
      * @param styleString
+     * @returns this
      */
     defineMessageStyle(type, styleObj) {
         this._messageStyles[type] = styleObj;
+        return this;
+    }
+    /**# Define Default Box Style
+     * ---
+     * Use a box creation object to define the default box sutle.
+     * @param boxCreatoinObj CreateBoxObject
+     * @returns this
+     */
+    defineDefaultBoxStyle(boxCreatoinObj) {
+        this._defaultBoxStyle = boxCreatoinObj;
         return this;
     }
     /**# Define Progress Bar Style
      * ---
      * Define the default progress bar style.
      * @param progressBarStyle
+     * @returns this
      */
     defineProgressBarStyle(progressBarStyle) {
         this._defaultPrgoressBarStyle = progressBarStyle;
@@ -1841,6 +2539,7 @@ class DSCommander {
      * ---
      * Define the default service bar style.
      * @param serviceBarStyle
+     * @returns this
      */
     defineServiceBarStyle(serviceBarStyle) {
         this._defaultServiceBarStyle = serviceBarStyle;
@@ -1850,6 +2549,7 @@ class DSCommander {
      * ---
      * Define the programs title.
      * @param title
+     * @returns this
      */
     defineProgramTitle(title, styleObj) {
         this._strings["title"] = title;
@@ -1862,6 +2562,7 @@ class DSCommander {
      * ---
      * Defines the help text for the program.
      * @param text
+     * @returns this
      */
     defineHelpText(text) {
         this._strings["helpText"] = text;
@@ -1872,6 +2573,7 @@ class DSCommander {
      * Define a function to be called for a screen.
      * @param screen
      * @param func
+     * @returns this
      */
     defineScreen(screen, func) {
         this._screens[screen] = func;
@@ -1882,14 +2584,17 @@ class DSCommander {
      * Display a built in screen.
      * @param screen
      * @param args Args to be pased to screen. Default is an enpty object.
+     * @returns this
      */
     displayScreen(screen, args = {}) {
         this._screens[screen](args);
+        return this;
     }
     /**# Define Splash Screen
      * ---
      * Define a function to be called for the splash screen.
      * @param func
+     * @returns this
      */
     defineSplashScreen(func) {
         this._screens["splash"] = func;
@@ -1898,6 +2603,7 @@ class DSCommander {
     /**# Splash Screen
      * ---
      * Meant to show the programs title/splash screen.
+     * @returns this
      */
     splashScreen() {
         this._screens["splash"]();
@@ -1931,6 +2637,7 @@ class DSCommander {
      * ---
      * Get a built in string.
      * @param id
+     * @returns string
      */
     getString(id) {
         return this._strings[id];
@@ -1939,6 +2646,7 @@ class DSCommander {
      * ---
      * Set a built in string.
      * @param id
+     * @returns this
      */
     setString(id, string) {
         this._strings[id] = string;
@@ -1954,19 +2662,18 @@ class DSCommander {
     /**# Info
      * ---
      * Styles the text to be the "info" message style.
-     * @returns string | this
+     * @returns string
      */
     info(text) {
         this._styleDelimiter = this._copyMessageStyle("Info");
-        if (!text)
-            return this;
         const string = this.stylize(text, this._styleDelimiter);
         this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [INFO] Info
      * ---
-     * Sets chain style to be the "info" message style..
+     * Sets chain style to be the "info" message style.
+     * @returns this
      */
     get INFO() {
         this._styleDelimiter = this._copyMessageStyle("Info");
@@ -1975,19 +2682,18 @@ class DSCommander {
     /**# Good
      * ---
      * Styles the text to be the "good" message style.
-     * @returns string | this
+     * @returns string
      */
     good(text) {
         this._styleDelimiter = this._copyMessageStyle("Good");
-        if (!text)
-            return this;
         const string = this.stylize(text, this._styleDelimiter);
         this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [GOOD] Good
      * ---
-     * Sets chain style to be the "good" message style..
+     * Sets chain style to be the "good" message style.
+     * @returns this
      */
     get GOOD() {
         this._styleDelimiter = this._copyMessageStyle("Good");
@@ -1996,19 +2702,18 @@ class DSCommander {
     /**# Warning
      * ---
      * Styles the text to be the "warning" message style.
-     * @returns string | this
+     * @returns string
      */
     warning(text) {
         this._styleDelimiter = this._copyMessageStyle("Warning");
-        if (!text)
-            return this;
         const string = this.stylize(text, this._styleDelimiter);
         this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [WARNING] Warning
      * ---
-     * Sets chain style to be the "warning" message style..
+     * Sets chain style to be the "warning" message style.
+     * @returns this
      */
     get WARNING() {
         this._styleDelimiter = this._copyMessageStyle("Warning");
@@ -2017,19 +2722,18 @@ class DSCommander {
     /**# Raw
      * ---
      * Styles the text to be the "raw" message style.
-     * @returns string | this
+     * @returns string
      */
     raw(text) {
         this._styleDelimiter = this._copyMessageStyle("Raw");
-        if (!text)
-            return this;
         const string = this.stylize(text, this._styleDelimiter);
         this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [RAW] Raw
      * ---
-     * Sets chain style to be the "raw" message style..
+     * Sets chain style to be the "raw" message style.
+     * @returns this
      */
     get RAW() {
         this._styleDelimiter = this._copyMessageStyle("Raw");
@@ -2038,19 +2742,18 @@ class DSCommander {
     /**# Title
      * ---
      * Styles the text to be the "title" message style.
-     * @returns string | this
+     * @returns string
      */
     title(text) {
         this._styleDelimiter = this._copyMessageStyle("Title");
-        if (!text)
-            return this;
         const string = this.stylize(text, this._styleDelimiter);
         this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [TITLE] Raw
      * ---
-     * Sets chain style to be the "title" message style..
+     * Sets chain style to be the "title" message style.
+     * @returns this
      */
     get TITLE() {
         this._styleDelimiter = this._copyMessageStyle("Title");
@@ -2059,19 +2762,18 @@ class DSCommander {
     /**# Warning
      * ---
      * Styles the text to be the "error" message style.
-     * @returns string | this
+     * @returns string
      */
     error(text) {
         this._styleDelimiter = this._copyMessageStyle("Error");
-        if (!text)
-            return this;
         const string = this.stylize(text, this._styleDelimiter);
         this._styleDelimiter = this._copyDefaultStyle();
         return string;
     }
     /**# [ERROR] Error
      * ---
-     * Sets chain style to be the "error" message style..
+     * Sets chain style to be the "error" message style.
+     * @returns this
      */
     get ERROR() {
         this._styleDelimiter = this._copyMessageStyle("Error");
@@ -2081,6 +2783,7 @@ class DSCommander {
      * ---
      * Clears the screen.
      * Alias for newScreen()
+     * @returns this
      */
     get NS() {
         this.newScreen();
@@ -2090,6 +2793,7 @@ class DSCommander {
      * ---
      * Clears the screen.
      * Alias for newScreen()
+     * @returns this
      */
     get NEWSCREEN() {
         this.newScreen();
@@ -2098,15 +2802,17 @@ class DSCommander {
     /**# New Line
      * ---
      * Adds a new line to the console.
+     * @returns number
      */
     newLine() {
         console.log("\n");
-        this.currentRow++;
+        this._currentRow++;
     }
     /**# [NL] New Line
      * ---
      * Adds a new line to the console.
      * Alias for newLine()
+     * @returns this
      */
     get NL() {
         this.newLine();
@@ -2116,6 +2822,7 @@ class DSCommander {
      * ---
      * Adds a new line to the console.
      * Alias for newLine()
+     * @returns this
      */
     get NEWLINE() {
         this.newLine();
@@ -2125,6 +2832,7 @@ class DSCommander {
      * ---
      * Adds a new line to the console.
      * Alias for newLine()
+     * @returns this
      */
     get RETURN() {
         this.newLine();
@@ -2133,6 +2841,7 @@ class DSCommander {
     /**# Clear
      * ---
      * Clears the chain style.
+     * @returns this
      */
     clear() {
         this._styleDelimiter = this._copyDefaultStyle();
@@ -2142,6 +2851,7 @@ class DSCommander {
      * ---
      * Clears the chain style.
      * Alias for clear()
+     * @returns this
      */
     get CL() {
         this._styleDelimiter = this._copyDefaultStyle();
@@ -2151,6 +2861,7 @@ class DSCommander {
      * ---
      * Clears the chain style.
      * Alias for clear()
+     * @returns this
      */
     get CLEAR() {
         this._styleDelimiter = this._copyDefaultStyle();
@@ -2172,6 +2883,7 @@ class DSCommander {
     /**# [BI] Blink
      * ---
      * Sets chain style to blink.
+     * @returns this
      */
     get BI() {
         this._styleDelimiter.blink = true;
@@ -2180,6 +2892,7 @@ class DSCommander {
     /**# [BLINK] Blink
      * ---
      * Sets chain style to blink.
+     * @returns this
      */
     get BLINK() {
         this._styleDelimiter.blink = true;
@@ -2200,7 +2913,8 @@ class DSCommander {
     }
     /**# [H] Hidden
      * ---
-     * Sets chain style to be hidden..
+     * Sets chain style to be hidden.
+     * @returns this
      */
     get H() {
         this._styleDelimiter.hidden = true;
@@ -2209,6 +2923,7 @@ class DSCommander {
     /**# [HIDDEN] Hidden
      * ---
      * Sets chain style to be hidden.
+     * @returns this
      */
     get HIDDEN() {
         this._styleDelimiter.hidden = true;
@@ -2230,6 +2945,7 @@ class DSCommander {
     /**# [U] Underscore
      * ---
      * Sets chain style to be underscored.
+     * @returns this
      */
     get U() {
         this._styleDelimiter.underscore = true;
@@ -2238,6 +2954,7 @@ class DSCommander {
     /**# [UNDERSCORE] Underscore
      * ---
      * Sets chain style to be underscored.
+     * @returns this
      */
     get UNDERSCORE() {
         this._styleDelimiter.underscore = true;
@@ -2246,6 +2963,7 @@ class DSCommander {
     /**# [UNDERLINE] Underscore
      * ---
      * Sets chain style to be underscored.
+     * @returns this
      */
     get UNDERLINE() {
         this._styleDelimiter.underscore = true;
@@ -2268,6 +2986,7 @@ class DSCommander {
     /**# [D] Dim
      * ---
      * Sets chain style to be dim.
+     * @returns this
      */
     get D() {
         this._styleDelimiter.dim = true;
@@ -2276,6 +2995,7 @@ class DSCommander {
     /**# [DIM] Dim
      * ---
      * Sets chain style to be dim.
+     * @returns this
      */
     get DIM() {
         this._styleDelimiter.dim = true;
@@ -2298,6 +3018,7 @@ class DSCommander {
     /**# [BR] Bright
      * ---
      * Sets chain style to be bright.
+     * @returns this
      */
     get BR() {
         this._styleDelimiter.bright = true;
@@ -2306,6 +3027,7 @@ class DSCommander {
     /**# [BRIGHT] Bright
      * ---
      * Sets chain style to be bright.
+     * @returns this
      */
     get BRIGHT() {
         this._styleDelimiter.bright = true;
@@ -2328,6 +3050,7 @@ class DSCommander {
     /**# [BRIGHT] Bright
      * ---
      * Sets chain style to be reversed.
+     * @returns this
      */
     get I() {
         this._styleDelimiter.reverse = true;
@@ -2336,6 +3059,7 @@ class DSCommander {
     /**# [BRIGHT] Bright
      * ---
      * Sets chain style to be reversed.
+     * @returns this
      */
     get INVERT() {
         this._styleDelimiter.reverse = true;
@@ -2358,6 +3082,7 @@ class DSCommander {
     /**# [R] Red
      * ---
      * Sets chain style to be red.
+     * @returns this
      */
     get R() {
         this._styleDelimiter.fg = "Red";
@@ -2366,6 +3091,7 @@ class DSCommander {
     /**# [RED] Red
      * ---
      * Sets chain style to be red.
+     * @returns this
      */
     get RED() {
         this._styleDelimiter.fg = "Red";
@@ -2388,6 +3114,7 @@ class DSCommander {
     /**# [G] Green
      * ---
      * Sets chain style to be green.
+     * @returns this
      */
     get G() {
         this._styleDelimiter.fg = "Green";
@@ -2396,6 +3123,7 @@ class DSCommander {
     /**# [GREEN] Green
      * ---
      * Sets chain style to be green.
+     * @returns this
      */
     get GREEN() {
         this._styleDelimiter.fg = "Green";
@@ -2418,6 +3146,7 @@ class DSCommander {
     /**# [B] Blue
      * ---
      * Sets chain style to be blue.
+     * @returns this
      */
     get B() {
         this._styleDelimiter.fg = "Blue";
@@ -2426,6 +3155,7 @@ class DSCommander {
     /**# [BLUE] Blue
      * ---
      * Sets chain style to be blue.
+     * @returns this
      */
     get BLUE() {
         this._styleDelimiter.fg = "Blue";
@@ -2448,6 +3178,7 @@ class DSCommander {
     /**# [W] White
      * ---
      * Sets chain style to be white.
+     * @returns this
      */
     get W() {
         this._styleDelimiter.fg = "White";
@@ -2456,6 +3187,7 @@ class DSCommander {
     /**# [WHITE] White
      * ---
      * Sets chain style to be white.
+     * @returns this
      */
     get WHITE() {
         this._styleDelimiter.fg = "White";
@@ -2478,6 +3210,7 @@ class DSCommander {
     /**# [BL] Black
      * ---
      * Sets chain style to be Black.
+     * @returns this
      */
     get BL() {
         this._styleDelimiter.fg = "Black";
@@ -2486,13 +3219,14 @@ class DSCommander {
     /**# [BLACK] Black
      * ---
      * Sets chain style to be Black.
+     * @returns this
      */
     get BLACK() {
         this._styleDelimiter.fg = "Black";
         return this;
     }
     /** # Cyan
-     * ---
+     * ---0
      * Returns a string styled to be cyan.
      * @param text
      * @returns string
@@ -2508,6 +3242,7 @@ class DSCommander {
     /**# [C] Cyan
      * ---
      * Sets chain style to be cyan.
+     * @returns this
      */
     get C() {
         this._styleDelimiter.fg = "Cyan";
@@ -2516,6 +3251,7 @@ class DSCommander {
     /**# [CYAN] Cyan
      * ---
      * Sets chain style to be cyan.
+     * @returns this
      */
     get CYAN() {
         this._styleDelimiter.fg = "Cyan";
@@ -2538,6 +3274,7 @@ class DSCommander {
     /**# [M] Magenta
      * ---
      * Sets chain style to be magenta.
+     * @returns this
      */
     get M() {
         this._styleDelimiter.fg = "Magenta";
@@ -2546,6 +3283,7 @@ class DSCommander {
     /**# [MAGENTA] Magenta
      * ---
      * Sets chain style to be magenta.
+     * @returns this
      */
     get MAGENTA() {
         this._styleDelimiter.fg = "Magenta";
@@ -2568,6 +3306,7 @@ class DSCommander {
     /**# [Y] Yellow
      * ---
      * Sets chain style to be yellow.
+     * @returns this
      */
     get Y() {
         this._styleDelimiter.fg = "Yellow";
@@ -2576,6 +3315,7 @@ class DSCommander {
     /**# [YELLOW] Yellow
      * ---
      * Sets chain style to be yellow.
+     * @returns this
      */
     get YELLOW() {
         this._styleDelimiter.fg = "Yellow";
@@ -2598,6 +3338,7 @@ class DSCommander {
     /**# [RBG] Red Background
      * ---
      * Sets chain style to have a red background.
+     * @returns this
      */
     get RBG() {
         this._styleDelimiter.bg = "Red";
@@ -2606,6 +3347,7 @@ class DSCommander {
     /**# [REDBG] Red Background
      * ---
      * Sets chain style to have a red background.
+     * @returns this
      */
     get REDBG() {
         this._styleDelimiter.bg = "Red";
@@ -2627,7 +3369,8 @@ class DSCommander {
     }
     /**# [GBG] Green Background
      * ---
-     * Sets chain style to have a green background..
+     * Sets chain style to have a green background.
+     * @returns this
      */
     get GBG() {
         this._styleDelimiter.bg = "Green";
@@ -2635,7 +3378,8 @@ class DSCommander {
     }
     /**# [GREENBG] Green Background
      * ---
-     * Sets chain style to have a green background..
+     * Sets chain style to have a green background.
+     * @returns this
      */
     get GREENBG() {
         this._styleDelimiter.bg = "Green";
@@ -2658,6 +3402,7 @@ class DSCommander {
     /**# [BBG] Blue Background
      * ---
      * Sets chain style to have a blue background.
+     * @returns this
      */
     get BBG() {
         this._styleDelimiter.bg = "Blue";
@@ -2666,6 +3411,7 @@ class DSCommander {
     /**# [BLUEBG] Blue Background
      * ---
      * Sets chain style to have a blue background.
+     * @returns this
      */
     get BLUEBG() {
         this._styleDelimiter.bg = "Blue";
@@ -2688,6 +3434,7 @@ class DSCommander {
     /**# [WBG] Blue Background
      * ---
      * Sets chain style to have a white background.
+     * @returns this
      */
     get WBG() {
         this._styleDelimiter.bg = "White";
@@ -2696,6 +3443,7 @@ class DSCommander {
     /**# [WHITEBG] Blue Background
      * ---
      * Sets chain style to have a white background.
+     * @returns this
      */
     get WHITEBG() {
         this._styleDelimiter.bg = "White";
@@ -2718,6 +3466,7 @@ class DSCommander {
     /**# [BLBG] Black Background
      * ---
      * Sets chain style to have a black background.
+     * @returns this
      */
     get BLBG() {
         this._styleDelimiter.bg = "Black";
@@ -2726,6 +3475,7 @@ class DSCommander {
     /**# [BLACKBG] Black Background
      * ---
      * Sets chain style to have a black background.
+     * @returns this
      */
     get BLACKBG() {
         this._styleDelimiter.bg = "Black";
@@ -2749,6 +3499,7 @@ class DSCommander {
     /**# [CBG] Cyan Background
      * ---
      * Sets chain style to have a cyan background.
+     * @returns this
      */
     get CBG() {
         this._styleDelimiter.bg = "Cyan";
@@ -2757,6 +3508,7 @@ class DSCommander {
     /**# [CYANBG] Cyan Background
      * ---
      * Sets chain style to have a cyan background.
+     * @returns this
      */
     get CYANBG() {
         this._styleDelimiter.bg = "Cyan";
@@ -2779,6 +3531,7 @@ class DSCommander {
     /**# [MBG] Magenta Background
      * ---
      * Sets chain style to have a magenta background.
+     * @returns this
      */
     get MBG() {
         this._styleDelimiter.bg = "Magenta";
@@ -2809,6 +3562,7 @@ class DSCommander {
     /**# [YBG] Yellow Background
      * ---
      * Sets chain style to have a yellow background.
+     * @returns this
      */
     get YBG() {
         this._styleDelimiter.bg = "Yellow";
@@ -2817,17 +3571,222 @@ class DSCommander {
     /**# [YBG] Yellow Background
      * ---
      * Sets chain style to have a yellow background.
+     * @returns this
      */
     get YELLOWBG() {
         this._styleDelimiter.bg = "Yellow";
         return this;
     }
-    /**# Do
+    //Box Functions
+    /** # Box
      * ---
+     *
+     * @return this;
+     */
+    boxIn(boxStyle) {
+        if (this._directives.box.active) {
+            this.boxStop();
+        }
+        this._boxData.boxCreationObj = boxStyle;
+        this._directives.box.active = true;
+        return this;
+    }
+    boxStop() {
+        this._directives.box.active = false;
+        //  const longestMessage = this._calculateLongestMessage(this._boxData.messageQue);
+        const longestMessage = this._boxData.largestWidth;
+        const boxCreationObj = this._boxData.boxCreationObj;
+        let boxStyle;
+        if (this._boxData.boxCreationObj.customBoxStyle) {
+            boxStyle = this._boxData.boxCreationObj.customBoxStyle;
+        }
+        else if (this._boxData.boxCreationObj.boxStyle) {
+            boxStyle = this._boxStyles[this._boxData.boxCreationObj.boxStyle];
+        }
+        else if (this._defaultBoxStyle.boxStyle) {
+            boxStyle = this._boxStyles[this._defaultBoxStyle.boxStyle];
+        }
+        else {
+            boxStyle = this._boxStyles["light"];
+        }
+        let boxTop = this.stylize(boxStyle.northWestCorner, boxStyle.northWestStyleObj);
+        let boxBottom = this.stylize(boxStyle.southWestCorner, boxStyle.southWestStyleObj);
+        const boxTopLine = this.stylize(boxStyle.topLine, boxStyle.topLineStyleObj);
+        const boxBottomLine = this.stylize(boxStyle.bottomLine, boxStyle.bottomLineStyleObj);
+        const westCap = this.stylize(boxStyle.westLine, boxStyle.westLineStyleObj);
+        const eastCap = this.stylize(boxStyle.eastLine, boxStyle.westLineStyleObj);
+        let boxWidth = longestMessage;
+        if (boxCreationObj.paddingLeft) {
+            boxWidth += boxCreationObj.paddingLeft;
+        }
+        if (boxCreationObj.paddingRight) {
+            boxWidth += boxCreationObj.paddingRight;
+        }
+        if (!boxCreationObj.paddingRight && !boxCreationObj.paddingLeft) {
+            boxWidth++;
+        }
+        let temp1 = boxWidth + 2;
+        let fillerMessage = "";
+        while (temp1--) {
+            boxTop += boxTopLine;
+            boxBottom += boxBottomLine;
+            fillerMessage += " ";
+        }
+        fillerMessage = fillerMessage.slice(0, longestMessage - 1);
+        boxTop += this.stylize(boxStyle.northEastCorner, boxStyle.northEastStyleObj);
+        boxBottom += this.stylize(boxStyle.southEastCorner, boxStyle.southEastStyleObj);
+        const indent = 0;
+        this.rdl.cursorTo(process.stdout, indent);
+        console.log(boxTop);
+        if (boxCreationObj.paddingTop) {
+            let temp = boxCreationObj.paddingTop;
+            while (temp--) {
+                const newMessage = this._processBoxMessage(fillerMessage, boxWidth, westCap, eastCap, boxCreationObj);
+                this.rdl.cursorTo(process.stdout, indent);
+                console.log(newMessage);
+            }
+        }
+        for (const message of this._boxData.messageQue) {
+            const newMessage = this._processBoxMessage(message, boxWidth, westCap, eastCap, boxCreationObj);
+            this.rdl.cursorTo(process.stdout, indent);
+            console.log(newMessage);
+        }
+        if (boxCreationObj.paddingBottom) {
+            let temp = boxCreationObj.paddingBottom;
+            while (temp--) {
+                const newMessage = this._processBoxMessage(fillerMessage, boxWidth, westCap, eastCap, boxCreationObj);
+                this.rdl.cursorTo(process.stdout, indent);
+                console.log(newMessage);
+            }
+        }
+        this.rdl.cursorTo(process.stdout, indent);
+        console.log(boxBottom);
+        this._boxData.messageQue = [];
+        this._boxData.lengthMap = {};
+        return this;
+    }
+    _processBoxMessage(message, boxWidth, westCap, eastCap, boxCreationObj) {
+        let paddingLeft = " ";
+        let paddedLeft = 0;
+        if (boxCreationObj.paddingLeft) {
+            let temp = boxCreationObj.paddingLeft;
+            while (temp--) {
+                paddingLeft += " ";
+                paddedLeft++;
+            }
+        }
+        let newMessage = `${westCap}${paddingLeft}${message}`;
+        let trueMessageLength = this._boxData.lengthMap[message];
+        if (!trueMessageLength) {
+            trueMessageLength = message.length;
+        }
+        // console.log(trueMessageLength);
+        let widthNeeded = boxWidth - trueMessageLength - paddedLeft;
+        if (widthNeeded > 0) {
+            while (widthNeeded--) {
+                newMessage += " ";
+            }
+        }
+        newMessage += ` ${eastCap}`;
+        return newMessage;
+    }
+    _calculateLongestMessage(messages) {
+        const lengths = [];
+        let mesNum = messages.length;
+        while (mesNum--) {
+            let mesLength = messages[mesNum].length;
+            let totalLength = 0;
+            while (mesLength--) {
+                const char = messages[mesNum][mesLength];
+                if (/^[a-z0-9]+$/i.test(char) || char == " ") {
+                    totalLength++;
+                }
+                else {
+                    totalLength--;
+                }
+            }
+            lengths.push(totalLength);
+        }
+        lengths.sort((a, b) => {
+            return b - a;
+        });
+        return lengths[0];
+    }
+    async wipe(char = "⛦", direction = "right") {
+        let rows = process.stdout.rows;
+        let cols = process.stdout.columns;
+        await this._wipeOne(char, rows, cols, direction);
+    }
+    async _wipeOne(char, rows, cols, direction) {
+        if (direction == "left") {
+            for (let i = rows + cols; i >= 0; i--) {
+                let row = rows;
+                let col = i;
+                do {
+                    if (row >= 0 && col < cols) {
+                        this.rdl.cursorTo(process.stdout, col, row);
+                        process.stdout.write(char);
+                        this.sleep(1);
+                    }
+                    row--;
+                    col--;
+                } while (row >= 0);
+            }
+        }
+        if (direction == "right") {
+            for (let i = 0; i <= rows + cols; i++) {
+                let row = 0;
+                let col = i;
+                do {
+                    if (row < rows && col < cols) {
+                        this.rdl.cursorTo(process.stdout, col, row);
+                        process.stdout.write(char);
+                        this.sleep(1);
+                    }
+                    row++;
+                    col--;
+                } while (row <= rows);
+            }
+        }
+        if (direction == "top") {
+            for (let r = 0; r <= rows; r++) {
+                for (let c = 0; c <= cols; c++) {
+                    this.rdl.cursorTo(process.stdout, c, r);
+                    process.stdout.write(char);
+                    this.sleep(1);
+                }
+            }
+        }
+        if (direction == "down") {
+            for (let r = rows; r >= 0; r--) {
+                for (let c = 0; c <= cols; c++) {
+                    if (r < rows && c < cols) {
+                        this.rdl.cursorTo(process.stdout, c, r);
+                        process.stdout.write(char);
+                        this.sleep(1);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    async _wipeTwo(char, rows, cols) {
+        /*         let r = rows;
+        while(r--) {
+            let c = cols;
+            while(c--) {
+        this.rdl.cursorTo(process.stdout, c, r);
+        process.stdout.write(char);
+            }
+
+        } */
+    }
+    /**# Do
+     * ---0
      * Run a function in the chain of functions.
      * @param func
      * @param arg
-     * @returns
+     * @returns this
      */
     do(func, arg) {
         func(arg);
@@ -2838,7 +3797,7 @@ class DSCommander {
      * Run a function on an interval.
      * @param name
      * @param params \{interval : number,run : Function\}
-     * @returns
+     * @returns this
      */
     newService(name, params) {
         const inte = setInterval(() => {
@@ -2851,6 +3810,7 @@ class DSCommander {
      * ---
      * Stop a serivce from running.
      * @param name
+     * @returns this
      */
     clearService(name) {
         clearInterval(this._services[name]);
@@ -2868,6 +3828,7 @@ class DSCommander {
      * ---
      * Makes the program exit.
      * Runs : process.exit(0)
+     * @returns this
      */
     get EXIT() {
         this.exit();
@@ -2877,6 +3838,7 @@ class DSCommander {
      * ---
      * Makes the program exit.
      * Runs : process.exit(0)
+     * @returns this
      */
     get END() {
         this.exit();
@@ -2886,6 +3848,7 @@ class DSCommander {
      * ---
      * Makes the program exit.
      * Runs : process.exit(0)
+     * @returns this
      */
     get DIE() {
         this.exit();
@@ -2895,6 +3858,7 @@ class DSCommander {
      * ---
      * Shows the done screen and then exits.
      * Runs : process.exit(1)
+     * @returns this
      */
     done() {
         this._screens["done"]();
@@ -2904,6 +3868,7 @@ class DSCommander {
      * ---
      * Shows the done screen and then exits.
      * Runs : process.exit(1)
+     * @returns this
      */
     get DONE() {
         this.exit();
@@ -2914,14 +3879,16 @@ class DSCommander {
      * ---
      * Sets it to debug mode.
      * @param debug
+     * @returns this
      */
     debug(debug = true) {
-        this.debugMode = debug;
+        this._debugMode = debug;
         return this;
     }
     /**# [DEBUG] Toggle Debug
      * ---
      * Toggles the debug mode.
+     * @returns this
      */
     get DEBUG() {
         this._directives.debug = this._directives.debug ? false : true;
@@ -2930,6 +3897,7 @@ class DSCommander {
     /**# [DEBUGSTART] Debug Start
      * ---
      * Starts the debug directive.
+     * @returns this
      */
     get DEBUGSTART() {
         this._directives.debug = true;
@@ -2938,6 +3906,7 @@ class DSCommander {
     /**# [DEBUGEND] Debug End
      * ---
      * Ends the debug directive.
+     * @returns this
      */
     get DEBUGEND() {
         this._directives.debug = false;
@@ -2962,11 +3931,11 @@ class DSCommander {
             nameStyled = this._processMessage(label);
         }
         if (label) {
-            this.currentRow += this.countLines(label);
+            this._currentRow += this.countLines(label);
             console.group(nameStyled);
         }
         else {
-            this.currentRow++;
+            this._currentRow++;
             console.group();
         }
         this._numOfGroups++;
@@ -3141,7 +4110,7 @@ class DSCommander {
     /**# Time
      * ---
      * Runs console.time with the provided label or default.
-     * @param label
+     * @pa0ram label
      * @returns this
      */
     time(label = "default") {
