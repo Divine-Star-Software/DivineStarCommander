@@ -1450,7 +1450,7 @@ class DSCommander {
      */
     ifParamIsset(
         param: string,
-        func: (value: ProgramParamsDataTypes, args: any) => any,
+        func: (value: ProgramParamsDataTypes, args: any) => any | void,
         args: any = {}
     ) {
         let p;
@@ -2215,7 +2215,7 @@ class DSCommander {
         func: (
             value: string | number | any[] | undefined | boolean,
             args: any
-        ) => any,
+        ) => any | void,
         args: any = {}
     ) {
         let v;
@@ -3548,7 +3548,7 @@ class DSCommander {
     }
     /** # Blue
      * ---
-     * Returns a string styled to be blue.
+     * Returns a string styled to be 0blue.
      * @param text
      * @returns string
      */
@@ -4007,7 +4007,7 @@ class DSCommander {
      * Runs box in.
      * @returns this
      */
-    get BOXIN() {
+    get BOX_IN() {
         this.boxIn();
         return this;
     }
@@ -4289,145 +4289,145 @@ class DSCommander {
      * Runs boxEnd()
      * @returns this
      */
-    get BOXEND() {
+    get BOX_END() {
         this.boxEnd();
         return this;
     }
 
     //Box Styles
-    /**#[BOXLIGHT] Box In Light
+    /**#[BOX_LIGHT] Box In Light
      * ---
      * Sets the box style to be light.
      * @returns this
      */
-    get BOXLIGHT() {
+    get BOX_LIGHT() {
         this._defaultBoxStyle.boxStyle = "light";
         return this;
     }
-    /**#[BOXHEAVY] Box In Heavy
+    /**#[BOX_HEAVY] Box In Heavy
      * ---
      * Sets the box style to be heavy.
      * @returns this
      */
-    get BOXHEAVY() {
+    get BOX_HEAVY() {
         this._defaultBoxStyle.boxStyle = "heavy";
         return this;
     }
 
-    /**#[BOXHALFBLOCK] Box In Full Block
+    /**#[BOX_HALF_BLOCK] Box In Full Block
      * ---
      * Sets the box style to be full block.
      * @returns this
      */
-    get BOXHALFBLOCK() {
+    get BOX_HALF_BLOCK() {
         this._defaultBoxStyle.boxStyle = "fullBlock";
         return this;
     }
-    /**#[BOXFULLBLOCK] Box In Half Block
+    /**#[BOX_FULL_BLOCK] Box In Half Block
      * ---
      * Sets the box style to be half block.
      * @returns this
      */
-    get BOXFULLBLOCK() {
+    get BOX_FULL_BLOCK() {
         this._defaultBoxStyle.boxStyle = "halfBlock";
         return this;
     }
-    /**#[BOXLIGHTSHADE] Box In Light Shade
+    /**#[BOX_LIGHT_SHADE] Box In Light Shade
      * ---
      * Sets the box style to be light shade.
      * @returns this
      */
-    get BOXLIGHTSHADE() {
+    get BOX_LIGHT_SHADE() {
         this._defaultBoxStyle.boxStyle = "lightShade";
         return this;
     }
-    /**#[BOXMEDIUMSHADE] Box In Medium Shade
+    /**#[BOX_MEDIUM_SHADE] Box In Medium Shade
      * ---
      * Sets the box style to be heavy.
      * @returns this
      */
-    get BOXMEDIUMSHADE() {
+    get BOX_MEDIUM_SHADE() {
         this._defaultBoxStyle.boxStyle = "mediumShade";
         return this;
     }
-    /**#[BOXDARKSAHDE] Box In Dark Shade
+    /**#[BOX_DARK_SAHDE] Box In Dark Shade
      * ---
      * Sets the box style to be dark shade.
      * @returns this
      */
-    get BOXDARKSAHDE() {
+    get BOX_DARK_SAHDE() {
         this._defaultBoxStyle.boxStyle = "darkShade";
         return this;
     }
-    /**#[BOXCURVED] Box In Curved
+    /**#[BOX_CURVED] Box In Curved
      * ---
      * Sets the box style to be curved.
      * @returns this
      */
-    get BOXCURVED() {
+    get BOX_CURVED() {
         this._defaultBoxStyle.boxStyle = "curved";
         return this;
     }
-    /**#[BOXDASHEDLIGHT2] Box In dash light double
+    /**#[BOX_DASHED_LIGHT_2] Box In dash light double
      * ---
      * Sets the box style to be dash light double.
      * @returns this
      */
-    get BOXDASHEDLIGHT2() {
+    get BOX_DASHED_LIGHT_2() {
         this._defaultBoxStyle.boxStyle = "dashedLightDouble";
         return this;
     }
-    /**#[BOXDASHEDLIGHT3] Box In dash light triple
+    /**#[BOX_DASHED_LIGHT_3] Box In dash light triple
      * ---
      * Sets the box style to be dash light triple.
      * @returns this
      */
-    get BOXDASHEDLIGHT3() {
+    get BOX_DASHED_LIGHT_3() {
         this._defaultBoxStyle.boxStyle = "dashedLightTriple";
         return this;
     }
-    /**#[BOXDASHEDLIGHT4] Box In dash light quad
+    /**#[BOX_DASHED_LIGHT_4] Box In dash light quad
      * ---
      * Sets the box style to be dash light quad.
      * @returns this
      */
-    get BOXDASHEDLIGHT4() {
+    get BOX_DASHED_LIGHT_4() {
         this._defaultBoxStyle.boxStyle = "dashedLightQuad";
         return this;
     }
-    /**#[BOXDASHEDHEAVY2] Box In dash heavy double
+    /**#[BOX_DASHED_HEAVY_2] Box In dash heavy double
      * ---
      * Sets the box style to be dash heavy double.
      * @returns this
      */
-    get BOXDASHEDHEAVY2() {
+    get BOX_DASHED_HEAVY_2() {
         this._defaultBoxStyle.boxStyle = "dashedHeavyDouble";
         return this;
     }
-    /**#[BOXDASHEDHEAVY3] Box In dasy heavy triple
+    /**#[BOX_DASHED_HEAVY_3] Box In dasy heavy triple
      * ---
      * Sets the box style to be dash heavy triple.
      * @returns this
      */
-    get BOXDASHEDHEAVY3() {
+    get BOX_DASHED_HEAVY_3() {
         this._defaultBoxStyle.boxStyle = "dashedHeavyTriple";
         return this;
     }
-    /**#[BOXDASHEDHEAVY4] Box In dash heavy quad
+    /**#[BOX_DASHED_HEAVY_4] Box In dash heavy quad
      * ---
      * Sets the box style to be dash heavy quad.
      * @returns this
      */
-    get BOXDASHEDHEAVY4() {
+    get BOX_DASHED_HEAVY_4() {
         this._defaultBoxStyle.boxStyle = "dashedHeavyQuad";
         return this;
     }
-    /**#[BOXTEXTALINGCENTER] Box Text Align Center
+    /**#[BOX_TEXT_ALIGN_CENTER] Box Text Align Center
      * ---
      * Set all text to align to the center of the box.
      * @returns this
      */
-    get BOXTEXTALINGCENTER() {
+    get BOX_TEXT_ALIGN_CENTER() {
         this._defaultBoxStyle.textAlign = "center";
         return this;
     }
@@ -4437,14 +4437,14 @@ class DSCommander {
      * @returns this
      */
     get BTAC() {
-        return this.BOXTEXTALINGCENTER;
+        return this.BOX_TEXT_ALIGN_CENTER;
     }
-    /**#[BOXTEXTALINGRIGHT] Box Text Align Right
+    /**#[BOX_TEXT_ALIGN_RIGHT] Box Text Align Right
      * ---
      *  Set all text to align to the right of the box.
      * @returns this
      */
-    get BOXTEXTALINGRIGHT() {
+    get BOX_TEXT_ALIGN_RIGHT() {
         this._defaultBoxStyle.textAlign = "right";
         return this;
     }
@@ -4454,7 +4454,7 @@ class DSCommander {
      * @returns this
      */
     get BTAR() {
-        return this.BOXTEXTALINGRIGHT;
+        return this.BOX_TEXT_ALIGN_RIGHT;
     }
     /**# Wipe
      * ---

@@ -487,7 +487,7 @@ declare class DSCommander {
      * @param args Args to be passed to the function.
      * @returns this
      */
-    ifParamIsset(param: string, func: (value: ProgramParamsDataTypes, args: any) => any, args?: any): this;
+    ifParamIsset(param: string, func: (value: ProgramParamsDataTypes, args: any) => any | void, args?: any): this;
     /**# Get Inital Program Args
      * ---
      * Get arugments that suplied to the program between the program name and the start of the flags.
@@ -584,7 +584,7 @@ declare class DSCommander {
      * @param args Args to be passed to the function.
      * @returns this
      */
-    ifInputIsset(varName: string, func: (value: string | number | any[] | undefined | boolean, args: any) => any, args?: any): this;
+    ifInputIsset(varName: string, func: (value: string | number | any[] | undefined | boolean, args: any) => any | void, args?: any): this;
     /**# Clear Rows
      * ---
      * Clears console output for a given row range.
@@ -1255,7 +1255,7 @@ declare class DSCommander {
     get GREEN(): this;
     /** # Blue
      * ---
-     * Returns a string styled to be blue.
+     * Returns a string styled to be 0blue.
      * @param text
      * @returns string
      */
@@ -1531,7 +1531,7 @@ declare class DSCommander {
      * Runs box in.
      * @returns this
      */
-    get BOXIN(): this;
+    get BOX_IN(): this;
     /**# Box End
      * ---
      * Stops putting content in the box.
@@ -1545,109 +1545,109 @@ declare class DSCommander {
      * Runs boxEnd()
      * @returns this
      */
-    get BOXEND(): this;
-    /**#[BOXLIGHT] Box In Light
+    get BOX_END(): this;
+    /**#[BOX_LIGHT] Box In Light
      * ---
      * Sets the box style to be light.
      * @returns this
      */
-    get BOXLIGHT(): this;
-    /**#[BOXHEAVY] Box In Heavy
+    get BOX_LIGHT(): this;
+    /**#[BOX_HEAVY] Box In Heavy
      * ---
      * Sets the box style to be heavy.
      * @returns this
      */
-    get BOXHEAVY(): this;
-    /**#[BOXHALFBLOCK] Box In Full Block
+    get BOX_HEAVY(): this;
+    /**#[BOX_HALF_BLOCK] Box In Full Block
      * ---
      * Sets the box style to be full block.
      * @returns this
      */
-    get BOXHALFBLOCK(): this;
-    /**#[BOXFULLBLOCK] Box In Half Block
+    get BOX_HALF_BLOCK(): this;
+    /**#[BOX_FULL_BLOCK] Box In Half Block
      * ---
      * Sets the box style to be half block.
      * @returns this
      */
-    get BOXFULLBLOCK(): this;
-    /**#[BOXLIGHTSHADE] Box In Light Shade
+    get BOX_FULL_BLOCK(): this;
+    /**#[BOX_LIGHT_SHADE] Box In Light Shade
      * ---
      * Sets the box style to be light shade.
      * @returns this
      */
-    get BOXLIGHTSHADE(): this;
-    /**#[BOXMEDIUMSHADE] Box In Medium Shade
+    get BOX_LIGHT_SHADE(): this;
+    /**#[BOX_MEDIUM_SHADE] Box In Medium Shade
      * ---
      * Sets the box style to be heavy.
      * @returns this
      */
-    get BOXMEDIUMSHADE(): this;
-    /**#[BOXDARKSAHDE] Box In Dark Shade
+    get BOX_MEDIUM_SHADE(): this;
+    /**#[BOX_DARK_SAHDE] Box In Dark Shade
      * ---
      * Sets the box style to be dark shade.
      * @returns this
      */
-    get BOXDARKSAHDE(): this;
-    /**#[BOXCURVED] Box In Curved
+    get BOX_DARK_SAHDE(): this;
+    /**#[BOX_CURVED] Box In Curved
      * ---
      * Sets the box style to be curved.
      * @returns this
      */
-    get BOXCURVED(): this;
-    /**#[BOXDASHEDLIGHT2] Box In dash light double
+    get BOX_CURVED(): this;
+    /**#[BOX_DASHED_LIGHT_2] Box In dash light double
      * ---
      * Sets the box style to be dash light double.
      * @returns this
      */
-    get BOXDASHEDLIGHT2(): this;
-    /**#[BOXDASHEDLIGHT3] Box In dash light triple
+    get BOX_DASHED_LIGHT_2(): this;
+    /**#[BOX_DASHED_LIGHT_3] Box In dash light triple
      * ---
      * Sets the box style to be dash light triple.
      * @returns this
      */
-    get BOXDASHEDLIGHT3(): this;
-    /**#[BOXDASHEDLIGHT4] Box In dash light quad
+    get BOX_DASHED_LIGHT_3(): this;
+    /**#[BOX_DASHED_LIGHT_4] Box In dash light quad
      * ---
      * Sets the box style to be dash light quad.
      * @returns this
      */
-    get BOXDASHEDLIGHT4(): this;
-    /**#[BOXDASHEDHEAVY2] Box In dash heavy double
+    get BOX_DASHED_LIGHT_4(): this;
+    /**#[BOX_DASHED_HEAVY_2] Box In dash heavy double
      * ---
      * Sets the box style to be dash heavy double.
      * @returns this
      */
-    get BOXDASHEDHEAVY2(): this;
-    /**#[BOXDASHEDHEAVY3] Box In dasy heavy triple
+    get BOX_DASHED_HEAVY_2(): this;
+    /**#[BOX_DASHED_HEAVY_3] Box In dasy heavy triple
      * ---
      * Sets the box style to be dash heavy triple.
      * @returns this
      */
-    get BOXDASHEDHEAVY3(): this;
-    /**#[BOXDASHEDHEAVY4] Box In dash heavy quad
+    get BOX_DASHED_HEAVY_3(): this;
+    /**#[BOX_DASHED_HEAVY_4] Box In dash heavy quad
      * ---
      * Sets the box style to be dash heavy quad.
      * @returns this
      */
-    get BOXDASHEDHEAVY4(): this;
-    /**#[BOXTEXTALINGCENTER] Box Text Align Center
+    get BOX_DASHED_HEAVY_4(): this;
+    /**#[BOX_TEXT_ALIGN_CENTER] Box Text Align Center
      * ---
      * Set all text to align to the center of the box.
      * @returns this
      */
-    get BOXTEXTALINGCENTER(): this;
+    get BOX_TEXT_ALIGN_CENTER(): this;
     /**#[BTAC] Box Text Align Center
      * ---
      * Set all text to align to the center of the box.
      * @returns this
      */
     get BTAC(): this;
-    /**#[BOXTEXTALINGRIGHT] Box Text Align Right
+    /**#[BOX_TEXT_ALIGN_RIGHT] Box Text Align Right
      * ---
      *  Set all text to align to the right of the box.
      * @returns this
      */
-    get BOXTEXTALINGRIGHT(): this;
+    get BOX_TEXT_ALIGN_RIGHT(): this;
     /**#[BTAR] Box Text Align Right
      * ---
      * Set all text to align to the center of the box.

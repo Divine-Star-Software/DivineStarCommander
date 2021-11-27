@@ -9,31 +9,30 @@
   @version 1.0.1
   */
 class DSCommander {
-    constructor(rdl) {
-        this.rdl = rdl;
-        this._showEnabled = false;
-        this._debugMode = false;
-        //Used to keep track of number of console.group runs. So they can all be cleared later.
-        this._numOfGroups = 0;
-        this._directives = {
-            debug: false,
-            trace: false,
-            group: false,
-            box: {
-                active: false,
-                style: "light",
-            },
-        };
-        //Used for chaining styles
-        this._defaultStyleDelimiter = {};
-        this._styleDelimiter = {};
-        this._defaultSleepTime = 800;
-        this._services = {};
-        //strings
-        this._strings = {
-            title: "[ Divine Star Logger ]",
-            helpText: "",
-            star: `            [1m[35m.[0m
+    rdl;
+    _showEnabled = false;
+    _debugMode = false;
+    //Used to keep track of number of console.group runs. So they can all be cleared later.
+    _numOfGroups = 0;
+    _directives = {
+        debug: false,
+        trace: false,
+        group: false,
+        box: {
+            active: false,
+            style: "light",
+        },
+    };
+    //Used for chaining styles
+    _defaultStyleDelimiter = {};
+    _styleDelimiter = {};
+    _defaultSleepTime = 800;
+    _services = {};
+    //strings
+    _strings = {
+        title: "[ Divine Star Logger ]",
+        helpText: "",
+        star: `            [1m[35m.[0m
            [1m[35m,[0m[1m[35mX[0m[1m[35m,[0m
           [1m[35m,[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m,[0m
     [1m[35m'[0m[1m[35mx[0m[1m[35mo[0m[1m[35mo[0m[1m[35mo[0m[1m[35mo[0m[1m[35mO[0m[1m[35mO[0m[1m[35mO[0m[1m[35mO[0m[1m[35mO[0m[1m[35mo[0m[1m[35mo[0m[1m[35mo[0m[1m[35mo[0m[1m[35mx[0m[1m[35m'[0m
@@ -42,1019 +41,898 @@ class DSCommander {
         [1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mO[0m[1m[35mX[0m
        [1m[35mX[0m[1m[35mO[0m[1m[35mX[0m[1m[35m'[0m   [1m[35m'[0m[1m[35mX[0m[1m[35mO[0m[1m[35mX[0m
       [1m[35mX[0m[1m[35m'[0m         [1m[35m'[0m[1m[35mX[0m`,
-            separator: "{-----------------------------}",
-            questionStart: "-->",
-            questionDelimiter: ":",
-            reAskStart: "X->",
-            reAskText: "The input was not correct please re-enter",
-            reAskDelimiter: ":",
-        };
-        this._defaultPrgoressBarStyle = {
-            base: "-",
-            baseStyle: {},
-            loaded: "=",
-            loadedStyle: {},
-            size: 30,
-            interval: 15,
-        };
-        this._defaultServiceBarStyle = {
-            base: "X",
-            baseStyle: {
-                bg: "Blue",
-                fg: "White",
-            },
-            loadedOne: "|",
-            loadedOneStyle: {
-                bg: "Blue",
-                fg: "White",
-            },
-            loadedTwo: "0",
-            loadedTwoStyle: {
-                bg: "Magenta",
-                fg: "White",
-            },
-            cap: "}",
-            capStyle: {
-                bg: "Yellow",
-                fg: "White",
-            },
-            size: 30,
-            interval: 80,
-        };
-        this._consoleCodes = {
-            Reset: "\x1b[0m",
-            Bright: "\x1b[1m",
-            Dim: "\x1b[2m",
-            Underscore: "\x1b[4m",
-            Blink: "\x1b[5m",
-            Reverse: "\x1b[7m",
-            Hidden: "\x1b[8m",
-        };
-        this._consoleFGColors = {
-            Black: "\x1b[30m",
-            Red: "\x1b[31m",
-            Green: "\x1b[32m",
-            Yellow: "\x1b[33m",
-            Blue: "\x1b[34m",
-            Magenta: "\x1b[35m",
-            Cyan: "\x1b[36m",
-            White: "\x1b[37m",
-        };
-        this._consoleBGColors = {
-            Black: "\x1b[40m",
-            Red: "\x1b[41m",
-            Green: "\x1b[42m",
-            Yellow: "\x1b[43m",
-            Blue: "\x1b[44m",
-            Magenta: "\x1b[45m",
-            Cyan: "\x1b[46m",
-            White: "\x1b[47m",
-        };
-        this._questionStyles = {
-            delimiter: {
-                fg: "Cyan",
-                bright: true,
-            },
-            "question-start": {},
-            question: {},
-            "re-ask-start": {
-                fg: "Red",
-                bright: true,
-            },
-            "re-ask": {},
-            "re-ask-delimiter": {
-                fg: "White",
-                bright: true,
-            },
-        };
-        this._messageStyles = {
-            Blink: {
-                blink: true,
-            },
-            Data: {},
-            Error: {
-                fg: "White",
-                bg: "Red",
-                bright: true,
-            },
-            Good: {
-                fg: "White",
-                bg: "Green",
-                bright: true,
-            },
-            Info: {
-                fg: "White",
-                bg: "Cyan",
-                bright: true,
-            },
-            Raw: {},
-            Title: {
-                fg: "White",
-                bg: "Magenta",
-                bright: true,
-            },
-            Warning: {
-                fg: "White",
-                bg: "Yellow",
-                bright: true,
-            },
-        };
-        this._initalProgramArgs = [];
-        this._params = new Map();
-        this._paramValues = new Map();
-        this._requiredParams = new Map();
-        this._inputs = new Map();
-        this._lastQuestion = "";
-        this._askedQuestions = 0;
-        this._questions = {};
-        this._questionsFails = {};
-        this._currentRow = 0;
-        this._currentCol = 0;
-        this._progressBars = {};
-        this._serviceBars = {};
-        //The delimiters userd for parsing array inputs
-        this.arrayInputDelimiters = [",", "+"];
-        this.booleanTrueStrings = ["true", "t", "yes", "y", "Y"];
-        this.booleanFalseStrings = ["false", "f", "no", "no", "N"];
-        this._validators = {
-            digit: async (input) => {
-                if (Array.isArray(input))
-                    return false;
-                const reg = /^[0-9]$/;
-                return reg.test(input);
-            },
-            number: async (input) => {
-                if (Array.isArray(input))
-                    return false;
-                const reg = /^\d+$/;
-                return reg.test(input);
-            },
-            "number[]": async (input) => {
-                if (!Array.isArray(input))
-                    return false;
-                const reg = /^\d+$/;
-                for (const value of input) {
-                    if (!reg.test(value)) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-            boolean: async (input) => {
-                if (Array.isArray(input))
-                    return false;
-                if (this.booleanFalseStrings.indexOf(input) == -1 &&
-                    this.booleanTrueStrings.indexOf(input) == -1) {
-                    return false;
-                }
-                return true;
-            },
-            "boolean[]": async (input) => {
-                if (!Array.isArray(input))
-                    return false;
-                for (const value of input) {
-                    if (this.booleanFalseStrings.indexOf(value) == -1 &&
-                        this.booleanTrueStrings.indexOf(value) == -1) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-            string: async (input) => {
-                if (Array.isArray(input))
-                    return false;
-                if (typeof input === "string" && input === "")
-                    return true;
-                const reg = /\d/;
-                return !reg.test(input);
-            },
-            "string[]": async (input) => {
-                if (!Array.isArray(input))
-                    return false;
-                const reg = /\d/;
-                for (let value of input) {
-                    value = value.trim();
-                    if (reg.test(value)) {
-                        return false;
-                    }
-                }
-                return true;
-            },
-            stringall: async (input) => {
-                if (Array.isArray(input))
-                    return false;
-                if (typeof input === "string" && input === "")
-                    return true;
-                if (typeof input === "string")
-                    return true;
+        separator: "{-----------------------------}",
+        questionStart: "-->",
+        questionDelimiter: ":",
+        reAskStart: "X->",
+        reAskText: "The input was not correct please re-enter",
+        reAskDelimiter: ":",
+    };
+    _defaultPrgoressBarStyle = {
+        base: "-",
+        baseStyle: {},
+        loaded: "=",
+        loadedStyle: {},
+        size: 30,
+        interval: 15,
+    };
+    _defaultServiceBarStyle = {
+        base: "X",
+        baseStyle: {
+            bg: "Blue",
+            fg: "White",
+        },
+        loadedOne: "|",
+        loadedOneStyle: {
+            bg: "Blue",
+            fg: "White",
+        },
+        loadedTwo: "0",
+        loadedTwoStyle: {
+            bg: "Magenta",
+            fg: "White",
+        },
+        cap: "}",
+        capStyle: {
+            bg: "Yellow",
+            fg: "White",
+        },
+        size: 30,
+        interval: 80,
+    };
+    _consoleCodes = {
+        Reset: "\x1b[0m",
+        Bright: "\x1b[1m",
+        Dim: "\x1b[2m",
+        Underscore: "\x1b[4m",
+        Blink: "\x1b[5m",
+        Reverse: "\x1b[7m",
+        Hidden: "\x1b[8m",
+    };
+    _consoleFGColors = {
+        Black: "\x1b[30m",
+        Red: "\x1b[31m",
+        Green: "\x1b[32m",
+        Yellow: "\x1b[33m",
+        Blue: "\x1b[34m",
+        Magenta: "\x1b[35m",
+        Cyan: "\x1b[36m",
+        White: "\x1b[37m",
+    };
+    _consoleBGColors = {
+        Black: "\x1b[40m",
+        Red: "\x1b[41m",
+        Green: "\x1b[42m",
+        Yellow: "\x1b[43m",
+        Blue: "\x1b[44m",
+        Magenta: "\x1b[45m",
+        Cyan: "\x1b[46m",
+        White: "\x1b[47m",
+    };
+    _questionStyles = {
+        delimiter: {
+            fg: "Cyan",
+            bright: true,
+        },
+        "question-start": {},
+        question: {},
+        "re-ask-start": {
+            fg: "Red",
+            bright: true,
+        },
+        "re-ask": {},
+        "re-ask-delimiter": {
+            fg: "White",
+            bright: true,
+        },
+    };
+    _messageStyles = {
+        Blink: {
+            blink: true,
+        },
+        Data: {},
+        Error: {
+            fg: "White",
+            bg: "Red",
+            bright: true,
+        },
+        Good: {
+            fg: "White",
+            bg: "Green",
+            bright: true,
+        },
+        Info: {
+            fg: "White",
+            bg: "Cyan",
+            bright: true,
+        },
+        Raw: {},
+        Title: {
+            fg: "White",
+            bg: "Magenta",
+            bright: true,
+        },
+        Warning: {
+            fg: "White",
+            bg: "Yellow",
+            bright: true,
+        },
+    };
+    _initalProgramArgs = [];
+    _params = new Map();
+    _paramValues = new Map();
+    _requiredParams = new Map();
+    _inputs = new Map();
+    _lastQuestion = "";
+    _askedQuestions = 0;
+    _questions = {};
+    _questionsFails = {};
+    _currentRow = 0;
+    _currentCol = 0;
+    rli;
+    _progressBars = {};
+    _serviceBars = {};
+    //The delimiters userd for parsing array inputs
+    arrayInputDelimiters = [",", "+"];
+    booleanTrueStrings = ["true", "t", "yes", "y", "Y"];
+    booleanFalseStrings = ["false", "f", "no", "no", "N"];
+    _validators = {
+        digit: async (input) => {
+            if (Array.isArray(input))
                 return false;
-            },
-            "stringall[]": async (input) => {
-                if (!Array.isArray(input))
+            const reg = /^[0-9]$/;
+            return reg.test(input);
+        },
+        number: async (input) => {
+            if (Array.isArray(input))
+                return false;
+            const reg = /^\d+$/;
+            return reg.test(input);
+        },
+        "number[]": async (input) => {
+            if (!Array.isArray(input))
+                return false;
+            const reg = /^\d+$/;
+            for (const value of input) {
+                if (!reg.test(value)) {
                     return false;
-                for (const value of input) {
-                    if (typeof value !== "string") {
-                        return false;
-                    }
                 }
+            }
+            return true;
+        },
+        boolean: async (input) => {
+            if (Array.isArray(input))
+                return false;
+            if (this.booleanFalseStrings.indexOf(input) == -1 &&
+                this.booleanTrueStrings.indexOf(input) == -1) {
+                return false;
+            }
+            return true;
+        },
+        "boolean[]": async (input) => {
+            if (!Array.isArray(input))
+                return false;
+            for (const value of input) {
+                if (this.booleanFalseStrings.indexOf(value) == -1 &&
+                    this.booleanTrueStrings.indexOf(value) == -1) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        string: async (input) => {
+            if (Array.isArray(input))
+                return false;
+            if (typeof input === "string" && input === "")
                 return true;
-            },
-            email: async (input) => {
-                if (Array.isArray(input))
+            const reg = /\d/;
+            return !reg.test(input);
+        },
+        "string[]": async (input) => {
+            if (!Array.isArray(input))
+                return false;
+            const reg = /\d/;
+            for (let value of input) {
+                value = value.trim();
+                if (reg.test(value)) {
                     return false;
-                const reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                return reg.test(input);
-            },
-            //User is meant to override this function.
-            password: async (input) => {
+                }
+            }
+            return true;
+        },
+        stringall: async (input) => {
+            if (Array.isArray(input))
+                return false;
+            if (typeof input === "string" && input === "")
                 return true;
-            },
-            custom: async (input, type) => {
-                if (!type) {
+            if (typeof input === "string")
+                return true;
+            return false;
+        },
+        "stringall[]": async (input) => {
+            if (!Array.isArray(input))
+                return false;
+            for (const value of input) {
+                if (typeof value !== "string") {
                     return false;
                 }
-                return this._customValidators[type](input);
-            },
-        };
-        this._validInputTypes = [
-            "string",
-            "string[]",
-            "number",
-            "number[]",
-            "boolean",
-            "boolean[]",
-            "stringall",
-            "stringall[]",
-        ];
-        this._customValidators = {};
-        this._screens = {
-            splash: () => { },
-            helpScreen: () => {
-                this.TITLE.log(this.getString("title")).NL.RAW.log(this.getString("helpText")).NL;
-                const ii = " ";
-                for (let pk of this._paramValues.keys()) {
-                    let start = "   ";
-                    let param = this._params.get(pk);
-                    if (!param)
-                        return;
-                    if (param.required) {
-                        start = " * ";
-                    }
-                    const message = `${start}-${param.flag}, --${param.name} [${param.type}] ${ii}| ${param.desc}`;
-                    console.log(message);
+            }
+            return true;
+        },
+        email: async (input) => {
+            if (Array.isArray(input))
+                return false;
+            const reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return reg.test(input);
+        },
+        //User is meant to override this function.
+        password: async (input) => {
+            return true;
+        },
+        custom: async (input, type) => {
+            if (!type) {
+                return false;
+            }
+            return this._customValidators[type](input);
+        },
+    };
+    _validInputTypes = [
+        "string",
+        "string[]",
+        "number",
+        "number[]",
+        "boolean",
+        "boolean[]",
+        "stringall",
+        "stringall[]",
+    ];
+    _customValidators = {};
+    _screens = {
+        splash: () => { },
+        helpScreen: () => {
+            this.TITLE.log(this.getString("title")).NL.RAW.log(this.getString("helpText")).NL;
+            const ii = " ";
+            for (let pk of this._paramValues.keys()) {
+                let start = "   ";
+                let param = this._params.get(pk);
+                if (!param)
+                    return;
+                if (param.required) {
+                    start = " * ";
                 }
-                this.NEWLINE.exit();
-            },
-            programInitError: (message) => {
-                this.ERROR.log(message).RAW.log("Run --help for more info.").exit();
-            },
-            crash: (message) => {
-                this.ERROR.log("The program has crashed.").RAW.log(message).exit();
-            },
-            error: (message) => {
-                this.ERROR.log("The program has had an error.")
-                    .RAW.log(message)
-                    .exit();
-            },
-            noInput: () => {
-                this.INFO.log("Please run --help to learn how to use this program.");
-            },
-            done: (message) => {
-                this.INFO.log("The program is done running.", "Info")
-                    .log(message)
-                    .exit();
-            },
-        };
-        this._blockChars = {
-            "upper-1/2-block": "▀",
-            "lower-1/8-block": "▁",
-            "lower-1/4-block": "▂",
-            "lower-1/3-block": "▃",
-            "lower-1/2-block": "▄",
-            "lower-5/8-block": "▅",
-            "lower-3/4-block": "▆",
-            "lower-7/8-block": "▇",
-            "full-block": "█",
-            "left-7/8-block": "▉",
-            "left-3/4-block": "▊",
-            "left-5/8-block": "▋",
-            "left-1/2-block": "▌",
-            "left-3/8-block": "▍",
-            "left-1/4-block": "▎",
-            "left-1/8-block": "▏",
-            "right-1/2-block": "▐",
-            "light-shade": "░",
-            "medium-shade": "▒",
-            "dark-shade": "▓",
-            "upper-1/8-block": "▔",
-            "right-1/8-block": "▕",
-            "quad-lower-left": "▖",
-            "quad-lower-right": "▗",
-            "quad-upper-left": "▘",
-            "quad-upper-left-lower-left-lower-right": "▙",
-            "quad-upper-left-lower-right": "▚",
-            "quad-upper-left-upper-right-lower-left": "▛",
-            "quad-upper-left-upper-right-lower-right": "▜",
-            "quad-upper-right": "▝",
-            "quad-upper-right-lower-left": "▞",
-            "quad-upper-right-lower-right": "▟",
-        };
-        this._boxChars = {
-            boxElemnts: {
-                arcs: {
-                    downRight: "╭",
-                    downLeft: "╮",
-                    upLeft: "╯",
-                    upRight: "╰",
-                },
-                doubleLines: {
-                    corners: {
-                        downRight: {
-                            rightDouble: "╒",
-                            downDouble: "╓",
-                            double: "╔",
-                        },
-                        downLeft: {
-                            leftDouble: "╕",
-                            downDouble: "╖",
-                            double: "╗",
-                        },
-                        upRight: {
-                            rightDouble: "╘",
-                            upDouble: "╙",
-                            double: "╚",
-                        },
-                        upLeft: {
-                            leftDouble: "╛",
-                            downDouble: "╜",
-                            double: "╝",
-                        },
-                    },
-                    verticalRight: {
-                        rightDouble: "╞",
-                        verticalDouble: "╟",
-                        double: "╠",
-                    },
-                    verticalLeft: {
-                        leftDouble: "╡",
-                        verticalDouble: "╢",
-                        double: "╣",
-                    },
-                    horizontalDown: {
-                        horizontalDouble: "╤",
-                        downDouble: "╥",
-                        double: "╦",
-                    },
-                    horizontalUp: {
-                        horizontalDouble: "╧",
-                        upDouble: "╨",
-                        double: "╩",
-                    },
-                    cross: {
-                        horizontalDouble: "╪",
-                        verticalDouble: "╫",
-                        double: "╬",
-                    },
-                },
-                solid: {
-                    verticalRight: {
-                        light: "├",
-                        rightHeavy: "┝",
-                        upHeavy: "┞",
-                        downHeavy: "┟",
-                        verticalHeavy: "┠",
-                        rightUpHeavy: "┡",
-                        rightDownHeavy: "┢",
-                        heavy: "┣",
-                    },
-                    verticalLeft: {
-                        light: "┤",
-                        leftHeavy: "┥",
-                        upHeavy: "┦",
-                        downHeavy: "┧",
-                        verticalHeavy: "┨",
-                        leftUpHeavy: "┩",
-                        leftDownHeavy: "┪",
-                        heavy: "┫",
-                    },
-                    horizontalDown: {
-                        light: "┬",
-                        leftHeavy: "┭",
-                        rightHeavy: "┮",
-                        verticalHeavy: "┯",
-                        downHeavy: "┰",
-                        leftDownHeavy: "┱",
-                        rightDownHeavy: "┲",
-                        heavy: "┳",
-                    },
-                    horizontalUp: {
-                        light: "┴",
-                        leftHeavy: "┵",
-                        rightHeavy: "┶",
-                        verticalHeavy: "┷",
-                        downHeavy: "┸",
-                        leftDownHeavy: "┹",
-                        rightDownHeavy: "┺",
-                        heavy: "┻",
-                    },
-                    cross: {
-                        light: "┼",
-                        leftHeavy: "┽",
-                        rightHeavy: "┾",
-                        horitzontalHeavy: "┿",
-                        upHeavy: "╀",
-                        downHeavy: "╁",
-                        verticalHeavy: "╂",
-                        leftUpHeavy: "╃",
-                        rightUpHeavy: "╄",
-                        leftDownHeavy: "╅",
-                        rightDownHeavy: "╆",
-                        horizontalUpHeavy: "╇",
-                        horizontalDownHeavy: "╈",
-                        verticalLeftHeavy: "╉",
-                        verticalRightHeavy: "╊",
-                        heavy: "╋",
-                    },
-                    corners: {
-                        downRight: {
-                            light: "┌",
-                            downLight: "┍",
-                            downHeavy: "┎",
-                            heavy: "┏",
-                        },
-                        downLeft: {
-                            light: "┐",
-                            downLight: "┑",
-                            downHeavy: "┒",
-                            heavy: "┓",
-                        },
-                        upRight: {
-                            light: "└",
-                            upLight: "┕",
-                            upHeavy: "┖",
-                            heavy: "┗",
-                        },
-                        upLeft: {
-                            light: "┘",
-                            upLight: "┙",
-                            upHeavy: "┚",
-                            heavy: "┛",
-                        },
-                    },
-                },
-            },
-            lines: {
-                solid: {
-                    horizontal: {
-                        light: "─",
-                        heavy: "━",
-                    },
-                    vertical: {
-                        light: "│",
-                        heavy: "┃",
-                    },
-                },
-                dashedDouble: {
-                    horizontal: {
-                        light: "╌",
-                        heavy: "╍",
-                    },
-                    vertical: {
-                        light: "╎",
-                        heavy: "╏",
-                    },
-                },
-                dashedTriple: {
-                    horizontal: {
-                        light: "┄",
-                        heavy: "┅",
-                    },
-                    vertical: {
-                        light: "┆",
-                        heavy: "┇",
-                    },
-                },
-                dashedQuadruple: {
-                    horizontal: {
-                        light: "┈",
-                        heavy: "┉",
-                    },
-                    vertical: {
-                        light: "┊",
-                        heavy: "┋",
-                    },
-                },
-                doubleLines: {
-                    horizontal: "═",
-                    vertical: "║",
-                },
-                halfLines: {
-                    lightLeft: "╴",
-                    lightUp: "╵",
-                    lightRight: "╶",
-                    lightDown: "╷",
-                    heavyLeft: "╸",
-                    heavyUp: "╹",
-                    heavyRight: "╺",
-                    heavyDown: "╻",
-                },
-                mixedLines: {
-                    heavyRight: "╼",
-                    heavyDown: "╽",
-                    heavyLeft: "╾",
-                    heavyUp: "╿",
-                },
-            },
-        };
-        this._boxStyles = {
-            dashedHeavyQuad: {
-                bottomLine: this._boxChars.lines.dashedQuadruple.horizontal.heavy,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.dashedQuadruple.horizontal.heavy,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.dashedQuadruple.vertical.heavy,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.dashedQuadruple.vertical.heavy,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.heavy,
-                crossStyleObj: {},
-            },
-            dashedLightQuad: {
-                bottomLine: this._boxChars.lines.dashedQuadruple.horizontal.light,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.dashedQuadruple.horizontal.light,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.dashedQuadruple.vertical.light,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.dashedQuadruple.vertical.light,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.light,
-                crossStyleObj: {},
-            },
-            dashedHeavyTriple: {
-                bottomLine: this._boxChars.lines.dashedTriple.horizontal.heavy,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.dashedTriple.horizontal.heavy,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.dashedTriple.vertical.heavy,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.dashedTriple.vertical.heavy,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.heavy,
-                crossStyleObj: {},
-            },
-            dashedLightTriple: {
-                bottomLine: this._boxChars.lines.dashedTriple.horizontal.light,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.dashedTriple.horizontal.light,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.dashedTriple.vertical.light,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.dashedTriple.vertical.light,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.light,
-                crossStyleObj: {},
-            },
-            dashedHeavyDouble: {
-                bottomLine: this._boxChars.lines.dashedDouble.horizontal.heavy,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.dashedDouble.horizontal.heavy,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.dashedDouble.vertical.heavy,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.dashedDouble.vertical.heavy,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.heavy,
-                crossStyleObj: {},
-            },
-            dashedLightDouble: {
-                bottomLine: this._boxChars.lines.dashedDouble.horizontal.light,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.dashedDouble.horizontal.light,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.dashedDouble.vertical.light,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.dashedDouble.vertical.light,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.light,
-                crossStyleObj: {},
-            },
-            curved: {
-                bottomLine: this._boxChars.lines.solid.horizontal.light,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.solid.horizontal.light,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.solid.vertical.light,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.solid.vertical.light,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.arcs.upLeft,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.arcs.upRight,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.arcs.downLeft,
-                northEastStyleObj: { fg: "Red" },
-                northWestCorner: this._boxChars.boxElemnts.arcs.downRight,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.light,
-                crossStyleObj: {},
-            },
-            darkShade: {
-                bottomLine: this._blockChars["dark-shade"],
-                bottomLineStyleObj: {},
-                topLine: this._blockChars["dark-shade"],
-                topLineStyleObj: {},
-                westLine: this._blockChars["dark-shade"],
-                westLineStyleObj: {},
-                eastLine: this._blockChars["dark-shade"],
-                eastLineStyleObj: {},
-                southEastCorner: this._blockChars["dark-shade"],
-                southEastStyleObj: {},
-                southWestCorner: this._blockChars["dark-shade"],
-                southWestStyleObj: {},
-                northEastCorner: this._blockChars["dark-shade"],
-                northEastStyleObj: {},
-                northWestCorner: this._blockChars["dark-shade"],
-                northWestStyleObj: {},
-                cross: this._blockChars["dark-shade"],
-                crossStyleObj: {},
-            },
-            mediumShade: {
-                bottomLine: this._blockChars["medium-shade"],
-                bottomLineStyleObj: {},
-                topLine: this._blockChars["medium-shade"],
-                topLineStyleObj: {},
-                westLine: this._blockChars["medium-shade"],
-                westLineStyleObj: {},
-                eastLine: this._blockChars["medium-shade"],
-                eastLineStyleObj: {},
-                southEastCorner: this._blockChars["medium-shade"],
-                southEastStyleObj: {},
-                southWestCorner: this._blockChars["medium-shade"],
-                southWestStyleObj: {},
-                northEastCorner: this._blockChars["medium-shade"],
-                northEastStyleObj: {},
-                northWestCorner: this._blockChars["medium-shade"],
-                northWestStyleObj: {},
-                cross: this._blockChars["medium-shade"],
-                crossStyleObj: {},
-            },
-            lightShade: {
-                bottomLine: this._blockChars["light-shade"],
-                bottomLineStyleObj: {},
-                topLine: this._blockChars["light-shade"],
-                topLineStyleObj: {},
-                westLine: this._blockChars["light-shade"],
-                westLineStyleObj: {},
-                eastLine: this._blockChars["light-shade"],
-                eastLineStyleObj: {},
-                southEastCorner: this._blockChars["light-shade"],
-                southEastStyleObj: {},
-                southWestCorner: this._blockChars["light-shade"],
-                southWestStyleObj: {},
-                northEastCorner: this._blockChars["light-shade"],
-                northEastStyleObj: {},
-                northWestCorner: this._blockChars["light-shade"],
-                northWestStyleObj: {},
-                cross: this._blockChars["light-shade"],
-                crossStyleObj: {},
-            },
-            halfBlock: {
-                bottomLine: this._blockChars["lower-1/2-block"],
-                bottomLineStyleObj: {},
-                topLine: this._blockChars["upper-1/2-block"],
-                topLineStyleObj: {},
-                westLine: this._blockChars["left-1/2-block"],
-                westLineStyleObj: {},
-                eastLine: this._blockChars["right-1/2-block"],
-                eastLineStyleObj: {},
-                southEastCorner: this._blockChars["full-block"],
-                southEastStyleObj: {},
-                southWestCorner: this._blockChars["full-block"],
-                southWestStyleObj: {},
-                northEastCorner: this._blockChars["full-block"],
-                northEastStyleObj: {},
-                northWestCorner: this._blockChars["full-block"],
-                northWestStyleObj: {},
-                cross: this._blockChars["full-block"],
-                crossStyleObj: {},
-            },
-            fullBlock: {
-                bottomLine: this._blockChars["full-block"],
-                bottomLineStyleObj: {},
-                topLine: this._blockChars["full-block"],
-                topLineStyleObj: {},
-                westLine: this._blockChars["full-block"],
-                westLineStyleObj: {},
-                eastLine: this._blockChars["full-block"],
-                eastLineStyleObj: {},
-                southEastCorner: this._blockChars["full-block"],
-                southEastStyleObj: {},
-                southWestCorner: this._blockChars["full-block"],
-                southWestStyleObj: {},
-                northEastCorner: this._blockChars["full-block"],
-                northEastStyleObj: {},
-                northWestCorner: this._blockChars["full-block"],
-                northWestStyleObj: {},
-                cross: this._blockChars["full-block"],
-                crossStyleObj: {},
+                const message = `${start}-${param.flag}, --${param.name} [${param.type}] ${ii}| ${param.desc}`;
+                console.log(message);
+            }
+            this.NEWLINE.exit();
+        },
+        programInitError: (message) => {
+            this.ERROR.log(message).RAW.log("Run --help for more info.").exit();
+        },
+        crash: (message) => {
+            this.ERROR.log("The program has crashed.").RAW.log(message).exit();
+        },
+        error: (message) => {
+            this.ERROR.log("The program has had an error.")
+                .RAW.log(message)
+                .exit();
+        },
+        noInput: () => {
+            this.INFO.log("Please run --help to learn how to use this program.");
+        },
+        done: (message) => {
+            this.INFO.log("The program is done running.", "Info")
+                .log(message)
+                .exit();
+        },
+    };
+    _blockChars = {
+        "upper-1/2-block": "▀",
+        "lower-1/8-block": "▁",
+        "lower-1/4-block": "▂",
+        "lower-1/3-block": "▃",
+        "lower-1/2-block": "▄",
+        "lower-5/8-block": "▅",
+        "lower-3/4-block": "▆",
+        "lower-7/8-block": "▇",
+        "full-block": "█",
+        "left-7/8-block": "▉",
+        "left-3/4-block": "▊",
+        "left-5/8-block": "▋",
+        "left-1/2-block": "▌",
+        "left-3/8-block": "▍",
+        "left-1/4-block": "▎",
+        "left-1/8-block": "▏",
+        "right-1/2-block": "▐",
+        "light-shade": "░",
+        "medium-shade": "▒",
+        "dark-shade": "▓",
+        "upper-1/8-block": "▔",
+        "right-1/8-block": "▕",
+        "quad-lower-left": "▖",
+        "quad-lower-right": "▗",
+        "quad-upper-left": "▘",
+        "quad-upper-left-lower-left-lower-right": "▙",
+        "quad-upper-left-lower-right": "▚",
+        "quad-upper-left-upper-right-lower-left": "▛",
+        "quad-upper-left-upper-right-lower-right": "▜",
+        "quad-upper-right": "▝",
+        "quad-upper-right-lower-left": "▞",
+        "quad-upper-right-lower-right": "▟",
+    };
+    _boxChars = {
+        boxElemnts: {
+            arcs: {
+                downRight: "╭",
+                downLeft: "╮",
+                upLeft: "╯",
+                upRight: "╰",
             },
             doubleLines: {
-                bottomLine: this._boxChars.lines.doubleLines.horizontal,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.doubleLines.horizontal,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.doubleLines.vertical,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.doubleLines.vertical,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.doubleLines.corners.upLeft.double,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.doubleLines.corners.upRight.double,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.doubleLines.corners.downLeft.double,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.doubleLines.corners.downRight.double,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.doubleLines.cross.double,
-                crossStyleObj: {},
+                corners: {
+                    downRight: {
+                        rightDouble: "╒",
+                        downDouble: "╓",
+                        double: "╔",
+                    },
+                    downLeft: {
+                        leftDouble: "╕",
+                        downDouble: "╖",
+                        double: "╗",
+                    },
+                    upRight: {
+                        rightDouble: "╘",
+                        upDouble: "╙",
+                        double: "╚",
+                    },
+                    upLeft: {
+                        leftDouble: "╛",
+                        downDouble: "╜",
+                        double: "╝",
+                    },
+                },
+                verticalRight: {
+                    rightDouble: "╞",
+                    verticalDouble: "╟",
+                    double: "╠",
+                },
+                verticalLeft: {
+                    leftDouble: "╡",
+                    verticalDouble: "╢",
+                    double: "╣",
+                },
+                horizontalDown: {
+                    horizontalDouble: "╤",
+                    downDouble: "╥",
+                    double: "╦",
+                },
+                horizontalUp: {
+                    horizontalDouble: "╧",
+                    upDouble: "╨",
+                    double: "╩",
+                },
+                cross: {
+                    horizontalDouble: "╪",
+                    verticalDouble: "╫",
+                    double: "╬",
+                },
             },
-            light: {
-                bottomLine: this._boxChars.lines.solid.horizontal.light,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.solid.horizontal.light,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.solid.vertical.light,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.solid.vertical.light,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.light,
-                crossStyleObj: {},
+            solid: {
+                verticalRight: {
+                    light: "├",
+                    rightHeavy: "┝",
+                    upHeavy: "┞",
+                    downHeavy: "┟",
+                    verticalHeavy: "┠",
+                    rightUpHeavy: "┡",
+                    rightDownHeavy: "┢",
+                    heavy: "┣",
+                },
+                verticalLeft: {
+                    light: "┤",
+                    leftHeavy: "┥",
+                    upHeavy: "┦",
+                    downHeavy: "┧",
+                    verticalHeavy: "┨",
+                    leftUpHeavy: "┩",
+                    leftDownHeavy: "┪",
+                    heavy: "┫",
+                },
+                horizontalDown: {
+                    light: "┬",
+                    leftHeavy: "┭",
+                    rightHeavy: "┮",
+                    verticalHeavy: "┯",
+                    downHeavy: "┰",
+                    leftDownHeavy: "┱",
+                    rightDownHeavy: "┲",
+                    heavy: "┳",
+                },
+                horizontalUp: {
+                    light: "┴",
+                    leftHeavy: "┵",
+                    rightHeavy: "┶",
+                    verticalHeavy: "┷",
+                    downHeavy: "┸",
+                    leftDownHeavy: "┹",
+                    rightDownHeavy: "┺",
+                    heavy: "┻",
+                },
+                cross: {
+                    light: "┼",
+                    leftHeavy: "┽",
+                    rightHeavy: "┾",
+                    horitzontalHeavy: "┿",
+                    upHeavy: "╀",
+                    downHeavy: "╁",
+                    verticalHeavy: "╂",
+                    leftUpHeavy: "╃",
+                    rightUpHeavy: "╄",
+                    leftDownHeavy: "╅",
+                    rightDownHeavy: "╆",
+                    horizontalUpHeavy: "╇",
+                    horizontalDownHeavy: "╈",
+                    verticalLeftHeavy: "╉",
+                    verticalRightHeavy: "╊",
+                    heavy: "╋",
+                },
+                corners: {
+                    downRight: {
+                        light: "┌",
+                        downLight: "┍",
+                        downHeavy: "┎",
+                        heavy: "┏",
+                    },
+                    downLeft: {
+                        light: "┐",
+                        downLight: "┑",
+                        downHeavy: "┒",
+                        heavy: "┓",
+                    },
+                    upRight: {
+                        light: "└",
+                        upLight: "┕",
+                        upHeavy: "┖",
+                        heavy: "┗",
+                    },
+                    upLeft: {
+                        light: "┘",
+                        upLight: "┙",
+                        upHeavy: "┚",
+                        heavy: "┛",
+                    },
+                },
             },
-            heavy: {
-                bottomLine: this._boxChars.lines.solid.horizontal.heavy,
-                bottomLineStyleObj: {},
-                topLine: this._boxChars.lines.solid.horizontal.heavy,
-                topLineStyleObj: {},
-                westLine: this._boxChars.lines.solid.vertical.heavy,
-                westLineStyleObj: {},
-                eastLine: this._boxChars.lines.solid.vertical.heavy,
-                eastLineStyleObj: {},
-                southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
-                southEastStyleObj: {},
-                southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
-                southWestStyleObj: {},
-                northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
-                northEastStyleObj: {},
-                northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
-                northWestStyleObj: {},
-                cross: this._boxChars.boxElemnts.solid.cross.heavy,
-                crossStyleObj: {},
+        },
+        lines: {
+            solid: {
+                horizontal: {
+                    light: "─",
+                    heavy: "━",
+                },
+                vertical: {
+                    light: "│",
+                    heavy: "┃",
+                },
             },
-        };
-        this._defaultBoxStyle = { boxStyle: "light" };
-        this._boxData = {
-            largestWidth: 0,
-            messageQue: [],
-            lengthMap: {},
-            sleepMap: {},
-            boxCreationObj: this._defaultBoxStyle,
-        };
-        this._keyMap = {
-            up: "\u001B\u005B\u0041",
-            down: "\u001B\u005B\u0042",
-            left: "\u001B\u005B\u0044",
-            right: "\u001B\u005B\u0043",
-            "ctrl+a": "\u0001",
-            "ctrl+b": "\u0002",
-            "ctrl+c": "\u0003",
-            "ctrl+d": "\u0004",
-            "ctrl+e": "\u0005",
-            "ctrl+f": "\u0006",
-            "ctrl+g": "\u0007",
-            "ctrl+h": "\u0008",
-            "ctrl+i": "\u0009",
-            "ctrl+j": "\u000A",
-            "ctrl+k": "\u000B",
-            "ctrl+l": "\u000C",
-            "ctrl+m": "\u000D",
-            "ctrl+n": "\u000E",
-            "ctrl+o": "\u000F",
-            "ctrl+p": "\u0010",
-            "ctrl+q": "\u0011",
-            "ctrl+r": "\u0012",
-            "ctrl+s": "\u0013",
-            "ctrl+t": "\u0014",
-            "ctrl+u": "\u0015",
-            "ctrl+v": "\u0016",
-            "ctrl+w": "\u0017",
-            "ctrl+x": "\u0018",
-            "ctrl+y": "\u0019",
-            "ctrl+z": "\u001A",
-            esc: "\x1B",
-            del: "\x1B[3~",
-            f1: "\x1B[[A",
-            f2: "\x1B[[B",
-            f3: "\x1B[[C",
-            f4: "\x1B[[D",
-            f5: "\x1B[[E",
-            f6: "\x1B[17~",
-            f7: "\x1B[18~",
-            f8: "\x1B[19~",
-            f9: "\x1B[20~",
-            f10: "\x1B[21~",
-            f12: "\x1B[24~",
-            insert: "\x1B[2~",
-            home: "\x1B[1~",
-            end: "\x1B[4~",
-            "page-up": "\x1B[5~",
-            "page-down": "\x1B[6~",
-            enter: "\r",
-        };
-        this._stdinKeyWatch = {};
-        this._stdinCharWatch = {};
-        this._stdinInputWatcher = () => { };
-        this.ServiceBar = class {
-            constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
-                this.rdl = rdl;
-                this.rows = rows;
-                this.size = size;
-                this.start = start;
-                this.interval = interval;
-                this.base = base;
-                this.loadedOne = loadedOne;
-                this.loadedTwo = loadedTwo;
-                this.cap = cap;
-                this.cursor = 0;
-                this._init();
-            }
-            clear() {
-                clearInterval(this.inte);
-            }
-            reInit() {
-                clearInterval(this.inte);
-                this._init();
-            }
-            _init() {
-                this.rdl.cursorTo(process.stdout, this.start, this.rows);
-                for (let i = this.start; i < this.size; i++) {
-                    this._X();
-                }
-                this.cursor = this.start;
-                this.inte = setInterval(() => {
-                    this.rdl.cursorTo(process.stdout, this.cursor, this.rows);
-                    this.cursor++;
-                    if (this.cursor % 2) {
-                        this._Bar();
-                    }
-                    else {
-                        this._O();
-                    }
-                    if (this.cursor == this.size) {
-                        this.cursor = this.start;
-                        this._Cap();
-                        this.rdl.cursorTo(process.stdout, this.start, this.rows);
-                        for (let i = this.start; i < this.size; i++) {
-                            this._X();
-                        }
-                    }
-                }, this.interval);
-            }
-            _X() {
-                process.stdout.write(`\x1b[37m\x1b[44m${this.base}\x1b[0m`);
-            }
-            _O() {
-                process.stdout.write(`\x1b[37m\x1b[45m${this.loadedOne}\x1b[0m`);
-            }
-            _Bar() {
-                process.stdout.write(`\x1b[37m\x1b[44m${this.loadedTwo}\x1b[0m`);
-            }
-            _Cap() {
-                process.stdout.write(`\x1b[37m\x1b[43m${this.cap}\x1b[0m`);
-            }
-        };
-        this.ProgressBar = class {
-            constructor(show = false, rdl, row, size, interval = 20, base = "-", loaded = "=") {
-                this.show = show;
-                this.rdl = rdl;
-                this.row = row;
-                this.size = size;
-                this.interval = interval;
-                this.base = base;
-                this.loaded = loaded;
-                this.done = false;
-                this.cursor = 0;
-                this.timer = null;
-            }
-            start() {
-                for (let i = 0; i < this.size; i++) {
-                    process.stdout.write(this.base);
-                }
-                if (this.show) {
-                    this.rdl.cursorTo(process.stdout, 0, this.row);
-                }
-                else {
-                    this.rdl.cursorTo(process.stdout, 0);
-                }
-            }
-            addProgressPerfect(percent) {
-                const num = this.size * (percent / 100);
-                return this.addProgress(num);
-            }
-            addProgress(amount) {
-                if (this.show) {
-                    this.rdl.cursorTo(process.stdout, this.cursor, this.row);
-                }
-                else {
-                    this.rdl.cursorTo(process.stdout, this.cursor);
-                }
-                let doneLocal = false;
-                const prom = new Promise((resolve) => {
-                    let num = this.cursor + amount;
-                    const timer = setInterval(() => {
-                        if (this.done || doneLocal) {
-                            clearInterval(timer);
-                            resolve(true);
-                            return;
-                        }
-                        this.cursor++;
-                        if (this.cursor >= this.size) {
-                            this.done = true;
-                            process.stdout.write(this.loaded);
-                            console.log("\r");
-                        }
-                        else if (this.cursor >= num) {
-                            process.stdout.write(this.loaded);
-                            doneLocal = true;
-                        }
-                        else {
-                            process.stdout.write(this.loaded);
-                        }
-                    }, this.interval);
-                });
-                return prom;
-            }
-            finish() {
-                const left = this.size - this.cursor;
-                this.addProgress(left);
-            }
-        };
+            dashedDouble: {
+                horizontal: {
+                    light: "╌",
+                    heavy: "╍",
+                },
+                vertical: {
+                    light: "╎",
+                    heavy: "╏",
+                },
+            },
+            dashedTriple: {
+                horizontal: {
+                    light: "┄",
+                    heavy: "┅",
+                },
+                vertical: {
+                    light: "┆",
+                    heavy: "┇",
+                },
+            },
+            dashedQuadruple: {
+                horizontal: {
+                    light: "┈",
+                    heavy: "┉",
+                },
+                vertical: {
+                    light: "┊",
+                    heavy: "┋",
+                },
+            },
+            doubleLines: {
+                horizontal: "═",
+                vertical: "║",
+            },
+            halfLines: {
+                lightLeft: "╴",
+                lightUp: "╵",
+                lightRight: "╶",
+                lightDown: "╷",
+                heavyLeft: "╸",
+                heavyUp: "╹",
+                heavyRight: "╺",
+                heavyDown: "╻",
+            },
+            mixedLines: {
+                heavyRight: "╼",
+                heavyDown: "╽",
+                heavyLeft: "╾",
+                heavyUp: "╿",
+            },
+        },
+    };
+    _boxStyles = {
+        dashedHeavyQuad: {
+            bottomLine: this._boxChars.lines.dashedQuadruple.horizontal.heavy,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.dashedQuadruple.horizontal.heavy,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.dashedQuadruple.vertical.heavy,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.dashedQuadruple.vertical.heavy,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.heavy,
+            crossStyleObj: {},
+        },
+        dashedLightQuad: {
+            bottomLine: this._boxChars.lines.dashedQuadruple.horizontal.light,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.dashedQuadruple.horizontal.light,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.dashedQuadruple.vertical.light,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.dashedQuadruple.vertical.light,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.light,
+            crossStyleObj: {},
+        },
+        dashedHeavyTriple: {
+            bottomLine: this._boxChars.lines.dashedTriple.horizontal.heavy,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.dashedTriple.horizontal.heavy,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.dashedTriple.vertical.heavy,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.dashedTriple.vertical.heavy,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.heavy,
+            crossStyleObj: {},
+        },
+        dashedLightTriple: {
+            bottomLine: this._boxChars.lines.dashedTriple.horizontal.light,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.dashedTriple.horizontal.light,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.dashedTriple.vertical.light,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.dashedTriple.vertical.light,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.light,
+            crossStyleObj: {},
+        },
+        dashedHeavyDouble: {
+            bottomLine: this._boxChars.lines.dashedDouble.horizontal.heavy,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.dashedDouble.horizontal.heavy,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.dashedDouble.vertical.heavy,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.dashedDouble.vertical.heavy,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.heavy,
+            crossStyleObj: {},
+        },
+        dashedLightDouble: {
+            bottomLine: this._boxChars.lines.dashedDouble.horizontal.light,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.dashedDouble.horizontal.light,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.dashedDouble.vertical.light,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.dashedDouble.vertical.light,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.light,
+            crossStyleObj: {},
+        },
+        curved: {
+            bottomLine: this._boxChars.lines.solid.horizontal.light,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.solid.horizontal.light,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.solid.vertical.light,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.solid.vertical.light,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.arcs.upLeft,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.arcs.upRight,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.arcs.downLeft,
+            northEastStyleObj: { fg: "Red" },
+            northWestCorner: this._boxChars.boxElemnts.arcs.downRight,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.light,
+            crossStyleObj: {},
+        },
+        darkShade: {
+            bottomLine: this._blockChars["dark-shade"],
+            bottomLineStyleObj: {},
+            topLine: this._blockChars["dark-shade"],
+            topLineStyleObj: {},
+            westLine: this._blockChars["dark-shade"],
+            westLineStyleObj: {},
+            eastLine: this._blockChars["dark-shade"],
+            eastLineStyleObj: {},
+            southEastCorner: this._blockChars["dark-shade"],
+            southEastStyleObj: {},
+            southWestCorner: this._blockChars["dark-shade"],
+            southWestStyleObj: {},
+            northEastCorner: this._blockChars["dark-shade"],
+            northEastStyleObj: {},
+            northWestCorner: this._blockChars["dark-shade"],
+            northWestStyleObj: {},
+            cross: this._blockChars["dark-shade"],
+            crossStyleObj: {},
+        },
+        mediumShade: {
+            bottomLine: this._blockChars["medium-shade"],
+            bottomLineStyleObj: {},
+            topLine: this._blockChars["medium-shade"],
+            topLineStyleObj: {},
+            westLine: this._blockChars["medium-shade"],
+            westLineStyleObj: {},
+            eastLine: this._blockChars["medium-shade"],
+            eastLineStyleObj: {},
+            southEastCorner: this._blockChars["medium-shade"],
+            southEastStyleObj: {},
+            southWestCorner: this._blockChars["medium-shade"],
+            southWestStyleObj: {},
+            northEastCorner: this._blockChars["medium-shade"],
+            northEastStyleObj: {},
+            northWestCorner: this._blockChars["medium-shade"],
+            northWestStyleObj: {},
+            cross: this._blockChars["medium-shade"],
+            crossStyleObj: {},
+        },
+        lightShade: {
+            bottomLine: this._blockChars["light-shade"],
+            bottomLineStyleObj: {},
+            topLine: this._blockChars["light-shade"],
+            topLineStyleObj: {},
+            westLine: this._blockChars["light-shade"],
+            westLineStyleObj: {},
+            eastLine: this._blockChars["light-shade"],
+            eastLineStyleObj: {},
+            southEastCorner: this._blockChars["light-shade"],
+            southEastStyleObj: {},
+            southWestCorner: this._blockChars["light-shade"],
+            southWestStyleObj: {},
+            northEastCorner: this._blockChars["light-shade"],
+            northEastStyleObj: {},
+            northWestCorner: this._blockChars["light-shade"],
+            northWestStyleObj: {},
+            cross: this._blockChars["light-shade"],
+            crossStyleObj: {},
+        },
+        halfBlock: {
+            bottomLine: this._blockChars["lower-1/2-block"],
+            bottomLineStyleObj: {},
+            topLine: this._blockChars["upper-1/2-block"],
+            topLineStyleObj: {},
+            westLine: this._blockChars["left-1/2-block"],
+            westLineStyleObj: {},
+            eastLine: this._blockChars["right-1/2-block"],
+            eastLineStyleObj: {},
+            southEastCorner: this._blockChars["full-block"],
+            southEastStyleObj: {},
+            southWestCorner: this._blockChars["full-block"],
+            southWestStyleObj: {},
+            northEastCorner: this._blockChars["full-block"],
+            northEastStyleObj: {},
+            northWestCorner: this._blockChars["full-block"],
+            northWestStyleObj: {},
+            cross: this._blockChars["full-block"],
+            crossStyleObj: {},
+        },
+        fullBlock: {
+            bottomLine: this._blockChars["full-block"],
+            bottomLineStyleObj: {},
+            topLine: this._blockChars["full-block"],
+            topLineStyleObj: {},
+            westLine: this._blockChars["full-block"],
+            westLineStyleObj: {},
+            eastLine: this._blockChars["full-block"],
+            eastLineStyleObj: {},
+            southEastCorner: this._blockChars["full-block"],
+            southEastStyleObj: {},
+            southWestCorner: this._blockChars["full-block"],
+            southWestStyleObj: {},
+            northEastCorner: this._blockChars["full-block"],
+            northEastStyleObj: {},
+            northWestCorner: this._blockChars["full-block"],
+            northWestStyleObj: {},
+            cross: this._blockChars["full-block"],
+            crossStyleObj: {},
+        },
+        doubleLines: {
+            bottomLine: this._boxChars.lines.doubleLines.horizontal,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.doubleLines.horizontal,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.doubleLines.vertical,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.doubleLines.vertical,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.doubleLines.corners.upLeft.double,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.doubleLines.corners.upRight.double,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.doubleLines.corners.downLeft.double,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.doubleLines.corners.downRight.double,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.doubleLines.cross.double,
+            crossStyleObj: {},
+        },
+        light: {
+            bottomLine: this._boxChars.lines.solid.horizontal.light,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.solid.horizontal.light,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.solid.vertical.light,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.solid.vertical.light,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.light,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.light,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.light,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.light,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.light,
+            crossStyleObj: {},
+        },
+        heavy: {
+            bottomLine: this._boxChars.lines.solid.horizontal.heavy,
+            bottomLineStyleObj: {},
+            topLine: this._boxChars.lines.solid.horizontal.heavy,
+            topLineStyleObj: {},
+            westLine: this._boxChars.lines.solid.vertical.heavy,
+            westLineStyleObj: {},
+            eastLine: this._boxChars.lines.solid.vertical.heavy,
+            eastLineStyleObj: {},
+            southEastCorner: this._boxChars.boxElemnts.solid.corners.upLeft.heavy,
+            southEastStyleObj: {},
+            southWestCorner: this._boxChars.boxElemnts.solid.corners.upRight.heavy,
+            southWestStyleObj: {},
+            northEastCorner: this._boxChars.boxElemnts.solid.corners.downLeft.heavy,
+            northEastStyleObj: {},
+            northWestCorner: this._boxChars.boxElemnts.solid.corners.downRight.heavy,
+            northWestStyleObj: {},
+            cross: this._boxChars.boxElemnts.solid.cross.heavy,
+            crossStyleObj: {},
+        },
+    };
+    _defaultBoxStyle = { boxStyle: "light" };
+    _boxData = {
+        largestWidth: 0,
+        messageQue: [],
+        lengthMap: {},
+        sleepMap: {},
+        boxCreationObj: this._defaultBoxStyle,
+    };
+    _keyMap = {
+        up: "\u001B\u005B\u0041",
+        down: "\u001B\u005B\u0042",
+        left: "\u001B\u005B\u0044",
+        right: "\u001B\u005B\u0043",
+        "ctrl+a": "\u0001",
+        "ctrl+b": "\u0002",
+        "ctrl+c": "\u0003",
+        "ctrl+d": "\u0004",
+        "ctrl+e": "\u0005",
+        "ctrl+f": "\u0006",
+        "ctrl+g": "\u0007",
+        "ctrl+h": "\u0008",
+        "ctrl+i": "\u0009",
+        "ctrl+j": "\u000A",
+        "ctrl+k": "\u000B",
+        "ctrl+l": "\u000C",
+        "ctrl+m": "\u000D",
+        "ctrl+n": "\u000E",
+        "ctrl+o": "\u000F",
+        "ctrl+p": "\u0010",
+        "ctrl+q": "\u0011",
+        "ctrl+r": "\u0012",
+        "ctrl+s": "\u0013",
+        "ctrl+t": "\u0014",
+        "ctrl+u": "\u0015",
+        "ctrl+v": "\u0016",
+        "ctrl+w": "\u0017",
+        "ctrl+x": "\u0018",
+        "ctrl+y": "\u0019",
+        "ctrl+z": "\u001A",
+        esc: "\x1B",
+        del: "\x1B[3~",
+        f1: "\x1B[[A",
+        f2: "\x1B[[B",
+        f3: "\x1B[[C",
+        f4: "\x1B[[D",
+        f5: "\x1B[[E",
+        f6: "\x1B[17~",
+        f7: "\x1B[18~",
+        f8: "\x1B[19~",
+        f9: "\x1B[20~",
+        f10: "\x1B[21~",
+        f12: "\x1B[24~",
+        insert: "\x1B[2~",
+        home: "\x1B[1~",
+        end: "\x1B[4~",
+        "page-up": "\x1B[5~",
+        "page-down": "\x1B[6~",
+        enter: "\r",
+    };
+    _stdinKeyWatch = {};
+    _stdinCharWatch = {};
+    _stdinInputWatcher = () => { };
+    _stdin;
+    constructor(rdl) {
+        this.rdl = rdl;
     }
     /**# Start User Input Captcher
      * ---
@@ -3129,7 +3007,7 @@ class DSCommander {
     }
     /** # Blue
      * ---
-     * Returns a string styled to be blue.
+     * Returns a string styled to be 0blue.
      * @param text
      * @returns string
      */
@@ -3598,7 +3476,7 @@ class DSCommander {
      * Runs box in.
      * @returns this
      */
-    get BOXIN() {
+    get BOX_IN() {
         this.boxIn();
         return this;
     }
@@ -3801,143 +3679,143 @@ class DSCommander {
      * Runs boxEnd()
      * @returns this
      */
-    get BOXEND() {
+    get BOX_END() {
         this.boxEnd();
         return this;
     }
     //Box Styles
-    /**#[BOXLIGHT] Box In Light
+    /**#[BOX_LIGHT] Box In Light
      * ---
      * Sets the box style to be light.
      * @returns this
      */
-    get BOXLIGHT() {
+    get BOX_LIGHT() {
         this._defaultBoxStyle.boxStyle = "light";
         return this;
     }
-    /**#[BOXHEAVY] Box In Heavy
+    /**#[BOX_HEAVY] Box In Heavy
      * ---
      * Sets the box style to be heavy.
      * @returns this
      */
-    get BOXHEAVY() {
+    get BOX_HEAVY() {
         this._defaultBoxStyle.boxStyle = "heavy";
         return this;
     }
-    /**#[BOXHALFBLOCK] Box In Full Block
+    /**#[BOX_HALF_BLOCK] Box In Full Block
      * ---
      * Sets the box style to be full block.
      * @returns this
      */
-    get BOXHALFBLOCK() {
+    get BOX_HALF_BLOCK() {
         this._defaultBoxStyle.boxStyle = "fullBlock";
         return this;
     }
-    /**#[BOXFULLBLOCK] Box In Half Block
+    /**#[BOX_FULL_BLOCK] Box In Half Block
      * ---
      * Sets the box style to be half block.
      * @returns this
      */
-    get BOXFULLBLOCK() {
+    get BOX_FULL_BLOCK() {
         this._defaultBoxStyle.boxStyle = "halfBlock";
         return this;
     }
-    /**#[BOXLIGHTSHADE] Box In Light Shade
+    /**#[BOX_LIGHT_SHADE] Box In Light Shade
      * ---
      * Sets the box style to be light shade.
      * @returns this
      */
-    get BOXLIGHTSHADE() {
+    get BOX_LIGHT_SHADE() {
         this._defaultBoxStyle.boxStyle = "lightShade";
         return this;
     }
-    /**#[BOXMEDIUMSHADE] Box In Medium Shade
+    /**#[BOX_MEDIUM_SHADE] Box In Medium Shade
      * ---
      * Sets the box style to be heavy.
      * @returns this
      */
-    get BOXMEDIUMSHADE() {
+    get BOX_MEDIUM_SHADE() {
         this._defaultBoxStyle.boxStyle = "mediumShade";
         return this;
     }
-    /**#[BOXDARKSAHDE] Box In Dark Shade
+    /**#[BOX_DARK_SAHDE] Box In Dark Shade
      * ---
      * Sets the box style to be dark shade.
      * @returns this
      */
-    get BOXDARKSAHDE() {
+    get BOX_DARK_SAHDE() {
         this._defaultBoxStyle.boxStyle = "darkShade";
         return this;
     }
-    /**#[BOXCURVED] Box In Curved
+    /**#[BOX_CURVED] Box In Curved
      * ---
      * Sets the box style to be curved.
      * @returns this
      */
-    get BOXCURVED() {
+    get BOX_CURVED() {
         this._defaultBoxStyle.boxStyle = "curved";
         return this;
     }
-    /**#[BOXDASHEDLIGHT2] Box In dash light double
+    /**#[BOX_DASHED_LIGHT_2] Box In dash light double
      * ---
      * Sets the box style to be dash light double.
      * @returns this
      */
-    get BOXDASHEDLIGHT2() {
+    get BOX_DASHED_LIGHT_2() {
         this._defaultBoxStyle.boxStyle = "dashedLightDouble";
         return this;
     }
-    /**#[BOXDASHEDLIGHT3] Box In dash light triple
+    /**#[BOX_DASHED_LIGHT_3] Box In dash light triple
      * ---
      * Sets the box style to be dash light triple.
      * @returns this
      */
-    get BOXDASHEDLIGHT3() {
+    get BOX_DASHED_LIGHT_3() {
         this._defaultBoxStyle.boxStyle = "dashedLightTriple";
         return this;
     }
-    /**#[BOXDASHEDLIGHT4] Box In dash light quad
+    /**#[BOX_DASHED_LIGHT_4] Box In dash light quad
      * ---
      * Sets the box style to be dash light quad.
      * @returns this
      */
-    get BOXDASHEDLIGHT4() {
+    get BOX_DASHED_LIGHT_4() {
         this._defaultBoxStyle.boxStyle = "dashedLightQuad";
         return this;
     }
-    /**#[BOXDASHEDHEAVY2] Box In dash heavy double
+    /**#[BOX_DASHED_HEAVY_2] Box In dash heavy double
      * ---
      * Sets the box style to be dash heavy double.
      * @returns this
      */
-    get BOXDASHEDHEAVY2() {
+    get BOX_DASHED_HEAVY_2() {
         this._defaultBoxStyle.boxStyle = "dashedHeavyDouble";
         return this;
     }
-    /**#[BOXDASHEDHEAVY3] Box In dasy heavy triple
+    /**#[BOX_DASHED_HEAVY_3] Box In dasy heavy triple
      * ---
      * Sets the box style to be dash heavy triple.
      * @returns this
      */
-    get BOXDASHEDHEAVY3() {
+    get BOX_DASHED_HEAVY_3() {
         this._defaultBoxStyle.boxStyle = "dashedHeavyTriple";
         return this;
     }
-    /**#[BOXDASHEDHEAVY4] Box In dash heavy quad
+    /**#[BOX_DASHED_HEAVY_4] Box In dash heavy quad
      * ---
      * Sets the box style to be dash heavy quad.
      * @returns this
      */
-    get BOXDASHEDHEAVY4() {
+    get BOX_DASHED_HEAVY_4() {
         this._defaultBoxStyle.boxStyle = "dashedHeavyQuad";
         return this;
     }
-    /**#[BOXTEXTALINGCENTER] Box Text Align Center
+    /**#[BOX_TEXT_ALIGN_CENTER] Box Text Align Center
      * ---
      * Set all text to align to the center of the box.
      * @returns this
      */
-    get BOXTEXTALINGCENTER() {
+    get BOX_TEXT_ALIGN_CENTER() {
         this._defaultBoxStyle.textAlign = "center";
         return this;
     }
@@ -3947,14 +3825,14 @@ class DSCommander {
      * @returns this
      */
     get BTAC() {
-        return this.BOXTEXTALINGCENTER;
+        return this.BOX_TEXT_ALIGN_CENTER;
     }
-    /**#[BOXTEXTALINGRIGHT] Box Text Align Right
+    /**#[BOX_TEXT_ALIGN_RIGHT] Box Text Align Right
      * ---
      *  Set all text to align to the right of the box.
      * @returns this
      */
-    get BOXTEXTALINGRIGHT() {
+    get BOX_TEXT_ALIGN_RIGHT() {
         this._defaultBoxStyle.textAlign = "right";
         return this;
     }
@@ -3964,7 +3842,7 @@ class DSCommander {
      * @returns this
      */
     get BTAR() {
-        return this.BOXTEXTALINGRIGHT;
+        return this.BOX_TEXT_ALIGN_RIGHT;
     }
     /**# Wipe
      * ---
@@ -4392,6 +4270,148 @@ class DSCommander {
     get TIMEEND() {
         return this.timeEnd();
     }
+    ServiceBar = class {
+        rdl;
+        rows;
+        size;
+        start;
+        interval;
+        base;
+        loadedOne;
+        loadedTwo;
+        cap;
+        cursor = 0;
+        inte;
+        constructor(rdl, rows = 0, size = 32, start = 2, interval = 150, base = "X", loadedOne = "0", loadedTwo = "|", cap = "}") {
+            this.rdl = rdl;
+            this.rows = rows;
+            this.size = size;
+            this.start = start;
+            this.interval = interval;
+            this.base = base;
+            this.loadedOne = loadedOne;
+            this.loadedTwo = loadedTwo;
+            this.cap = cap;
+            this._init();
+        }
+        clear() {
+            clearInterval(this.inte);
+        }
+        reInit() {
+            clearInterval(this.inte);
+            this._init();
+        }
+        _init() {
+            this.rdl.cursorTo(process.stdout, this.start, this.rows);
+            for (let i = this.start; i < this.size; i++) {
+                this._X();
+            }
+            this.cursor = this.start;
+            this.inte = setInterval(() => {
+                this.rdl.cursorTo(process.stdout, this.cursor, this.rows);
+                this.cursor++;
+                if (this.cursor % 2) {
+                    this._Bar();
+                }
+                else {
+                    this._O();
+                }
+                if (this.cursor == this.size) {
+                    this.cursor = this.start;
+                    this._Cap();
+                    this.rdl.cursorTo(process.stdout, this.start, this.rows);
+                    for (let i = this.start; i < this.size; i++) {
+                        this._X();
+                    }
+                }
+            }, this.interval);
+        }
+        _X() {
+            process.stdout.write(`\x1b[37m\x1b[44m${this.base}\x1b[0m`);
+        }
+        _O() {
+            process.stdout.write(`\x1b[37m\x1b[45m${this.loadedOne}\x1b[0m`);
+        }
+        _Bar() {
+            process.stdout.write(`\x1b[37m\x1b[44m${this.loadedTwo}\x1b[0m`);
+        }
+        _Cap() {
+            process.stdout.write(`\x1b[37m\x1b[43m${this.cap}\x1b[0m`);
+        }
+    };
+    ProgressBar = class {
+        show;
+        rdl;
+        row;
+        size;
+        interval;
+        base;
+        loaded;
+        done = false;
+        cursor = 0;
+        timer = null;
+        constructor(show = false, rdl, row, size, interval = 20, base = "-", loaded = "=") {
+            this.show = show;
+            this.rdl = rdl;
+            this.row = row;
+            this.size = size;
+            this.interval = interval;
+            this.base = base;
+            this.loaded = loaded;
+        }
+        start() {
+            for (let i = 0; i < this.size; i++) {
+                process.stdout.write(this.base);
+            }
+            if (this.show) {
+                this.rdl.cursorTo(process.stdout, 0, this.row);
+            }
+            else {
+                this.rdl.cursorTo(process.stdout, 0);
+            }
+        }
+        addProgressPerfect(percent) {
+            const num = this.size * (percent / 100);
+            return this.addProgress(num);
+        }
+        addProgress(amount) {
+            if (this.show) {
+                this.rdl.cursorTo(process.stdout, this.cursor, this.row);
+            }
+            else {
+                this.rdl.cursorTo(process.stdout, this.cursor);
+            }
+            let doneLocal = false;
+            const prom = new Promise((resolve) => {
+                let num = this.cursor + amount;
+                const timer = setInterval(() => {
+                    if (this.done || doneLocal) {
+                        clearInterval(timer);
+                        resolve(true);
+                        return;
+                    }
+                    this.cursor++;
+                    if (this.cursor >= this.size) {
+                        this.done = true;
+                        process.stdout.write(this.loaded);
+                        console.log("\r");
+                    }
+                    else if (this.cursor >= num) {
+                        process.stdout.write(this.loaded);
+                        doneLocal = true;
+                    }
+                    else {
+                        process.stdout.write(this.loaded);
+                    }
+                }, this.interval);
+            });
+            return prom;
+        }
+        finish() {
+            const left = this.size - this.cursor;
+            this.addProgress(left);
+        }
+    };
 }
 const rdl = require("readline");
 const DS = new DSCommander(rdl);

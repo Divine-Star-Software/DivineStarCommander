@@ -39,7 +39,7 @@ Start a new node project and install typescrit and dscom .
 
 ```console
   npm init
-  npm i --save-dev typescript tslib @types/node
+  npm i --save-dev typescript @types/node
   npm i --save dscom
 ```
 
@@ -47,7 +47,7 @@ In your typescript config file set the types to be.
 
 ```json
 {
-    "types": ["node", "tslib", "dscom"]
+    "types": ["node", "dscom"]
 }
 ```
 
@@ -60,6 +60,31 @@ See the code bellow to get started quickly. It shows the program setting up inpu
 ```typescript
 const dsCom: DSCommander = require("dscom");
 (async () => {
+    dsCom
+    .addParam({
+        flag: "a",
+        name: "auto",
+        desc: "Auto parse",
+        type: "string[]",
+        required: false,
+        valueNeeded: true,
+    })
+    .addParam({
+        flag: "b",
+        name: "batch",
+        desc: "Batch parse",
+        type: "boolean",
+        required: false,
+        valueNeeded: true,
+    })
+    .addParam({
+        flag: "c",
+        name: "cache",
+        desc: "Cache",
+        type: "boolean",
+        required: false,
+        valueNeeded: true,
+    });
     (await dsCom.initProgramInput()).$ENABLESHOW //enable use of show functions
         .defineSleepTime(100)
         //Check if they are set
@@ -87,7 +112,7 @@ const dsCom: DSCommander = require("dscom");
         .sleep(500)
         .CLEAR
         //Show message in boxes
-        .BOXIN.BOXDASHEDHEAVY4.BTAC.BR.G.show([
+        .BOX_IN.BOX_DASHED_HEAVY_4.BTAC.BR.G.show([
             "Divine Star Software",
             "Presents",
             "Divine Star Commander",
@@ -95,14 +120,14 @@ const dsCom: DSCommander = require("dscom");
             "Creation Tool",
         ])
         .sleep(500)
-        .BOXEND.BOXIN.BOXTEXTALINGRIGHT.BR.B.show([
+        .BOX_END.BOX_IN.BOX_TEXT_ALIGN_RIGHT.BR.B.show([
             "Divine Star Software",
             "Presents",
             "Divine Star Commander",
             "The Ultimate Command Line Interface",
             "Creation Tool",
         ])
-        .BOXEND.sleep(500)
+        .BOX_END.sleep(500)
         //Add a progress and service bar
         .newProgressBar("test");
     await dsCom.incrementProgressBar("test", 100);
