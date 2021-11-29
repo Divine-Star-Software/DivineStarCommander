@@ -1,7 +1,8 @@
 {
   "name": "dscom",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A tool to create command line applications.",
+  "type" : "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": { 
@@ -25,7 +26,6 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^16.6.1",
-    "tslib": "^2.2.0",
     "typescript": "^4.3.5"
   }
 }

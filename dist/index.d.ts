@@ -151,7 +151,7 @@ declare type CreateBoxObject = {
   @since 9-19-2021
   @version 1.0.1
   */
-declare class DSCommander {
+export declare class DSCommander {
     rdl: any;
     _showEnabled: boolean;
     _debugMode: boolean;
@@ -1942,5 +1942,4 @@ declare class DSCommander {
         };
     };
 }
-declare const rdl: any;
-declare const DS: DSCommander;
+export {};

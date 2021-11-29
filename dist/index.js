@@ -1,4 +1,3 @@
-"use strict";
 /**
   # DSLogger
   ---
@@ -8,7 +7,7 @@
   @since 9-19-2021
   @version 1.0.1
   */
-class DSCommander {
+export class DSCommander {
     rdl;
     _showEnabled = false;
     _debugMode = false;
@@ -1497,7 +1496,7 @@ class DSCommander {
      */
     async startPrompt() {
         this._stdin ? this._stdin.resume() : true;
-        this.rli = rdl.createInterface({
+        this.rli = this.rdl.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
@@ -4413,6 +4412,3 @@ class DSCommander {
         }
     };
 }
-const rdl = require("readline");
-const DS = new DSCommander(rdl);
-module.exports = DS;

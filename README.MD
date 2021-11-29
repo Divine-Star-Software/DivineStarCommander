@@ -58,7 +58,9 @@ See the code bellow to get started quickly. It shows the program setting up inpu
 ### Starter Code
 
 ```typescript
-const dsCom: DSCommander = require("dscom");
+import * as readline from 'node:readline';
+import {DSCommander} from "../../dist/index.js";
+const dsCom = new DSCommander(readline);
 (async () => {
     dsCom
     .addParam({
