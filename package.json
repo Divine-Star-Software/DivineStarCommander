@@ -1,6 +1,6 @@
 {
   "name": "dscom",
-  "version": "1.0.5",
+  "version": "1.0.51",
   "description": "A tool to create command line applications.",
   "type" : "module",
   "main": "dist/index.js",

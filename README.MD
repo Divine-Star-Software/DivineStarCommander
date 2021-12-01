@@ -35,7 +35,7 @@ line user interfaces so developers can focus more on developing their applicatio
 ## How To Start
 ### [Vist The Wiki](https://github.com/lucasdamianjohnson/DivineStarCommander/wiki)
 
-Start a new node project and install typescrit and dscom .
+Start a new node project and install typescript and dscom .
 
 ```console
   npm init
@@ -43,10 +43,15 @@ Start a new node project and install typescrit and dscom .
   npm i --save dscom
 ```
 
-In your typescript config file set the types to be.
+Make sure to set the type to module in the package.json file also. 
+
+In your typescript config file set the types and target to be.
 
 ```json
 {
+    "target": "ESNext", 
+    "module": "ESNext", 
+    "moduleResolution": "node", 
     "types": ["node", "dscom"]
 }
 ```
@@ -62,6 +67,7 @@ import * as readline from 'node:readline';
 import {DSCommander} from "../../dist/index.js";
 const dsCom = new DSCommander(readline);
 (async () => {
+    //Add params to the program
     dsCom
     .addParam({
         flag: "a",
@@ -87,6 +93,7 @@ const dsCom = new DSCommander(readline);
         required: false,
         valueNeeded: true,
     });
+    //Get the params input
     (await dsCom.initProgramInput()).$ENABLESHOW //enable use of show functions
         .defineSleepTime(100)
         //Check if they are set
